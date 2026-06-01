@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome Back - Sign In{% endblock %}
+
+{% block head %}
+<style>
+  body {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  <!-- ── Main layout ───────────────────────────────────────── -->
+  <div class="w-full max-w-5xl flex flex-col md:flex-row gap-12 items-center justify-center">
+
+    <!-- Left: Form card -->
+    <div class="w-full md:w-[460px] bg-[#1a1f29]/95 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 md:p-10 shadow-2xl flex flex-col items-center">
+
+      <div class="mb-4 opacity-40">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-10 h-10">
+          <path d="M19 22H5v-2h14v2zm-2-3H7v-2h10v2zm-1-3H8v-3.5c0-1.2.6-2.3 1.7-2.9C9.3 9.1 9 8.6 9 8c0-1.7 1.3-3 3-3s3 1.3 3 3c0 .6-.3 1.1-.7 1.6 1.1.6 1.7 1.7 1.7 2.9V16zm-4-13c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z"/>
+        </svg>
+      </div>
+
+      <h1 class="text-3xl font-bold tracking-wide text-center mb-1">Welcome Back</h1>
+      <p class="text-xs font-semibold text-[#cca343] tracking-widest uppercase text-center mb-8">
+        Your Next Move Awaits
+      </p>
+
+      <form id="login-form" class="w-full space-y-5" novalidate>
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email or Username</label>
+          <input id="identifier" type="text" placeholder="Enter your email or username"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="identifier-error" class="field-error"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Password</label>
+          <input id="password" type="password" placeholder="Enter your password"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="password-error" class="field-error"></p>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <div class="flex items-center gap-2">
+            <input id="remember" type="checkbox"
+              class="w-4 h-4 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer" />
+            <label for="remember" class="text-xs text-gray-400 cursor-pointer select-none">Remember me</label>
+          </div>
+          <a href="#" class="text-xs text-[#cca343] hover:underline font-medium">Forgot password?</a>
+        </div>
+
+        <div class="pt-4">
+          <button id="login-btn" type="submit"
+            class="w-full bg-[#cca343] hover:bg-[#b58f37] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 font-bold uppercase text-xs tracking-widest py-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#cca343]/10">
+            Sign In
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      <p class="text-sm text-gray-500 mt-8">
+        Don't have an account?
+        <a href="/" class="text-[#cca343] hover:underline font-medium">Sign up</a>
+      </p>
+    </div>
+
+    <!-- Right: Encouraging messages -->
+    <div class="w-full md:w-[400px] space-y-8 px-4 md:px-0">
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">♟️</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Resume Your Game</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Pick up right where you left off and continue your winning streak</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">📊</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Track Your Progress</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">View your stats, rating history, and analyze past games</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">🤝</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Challenge Friends</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Invite friends for a match or jump into the community arena</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">💡</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Every Move Counts</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Great players aren't born — they're made one game at a time</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+  }
+
+  function clearError(id) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  }
+
+  function clearAllErrors() {
+    ['identifier-error', 'password-error'].forEach(clearError);
+  }
+
+  function setInputState(inputId, state) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    el.classList.remove('input-error');
+    if (state === 'error') el.classList.add('input-error');
+  }
+
+  function showToast(msg, type = 'error') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white transition-all ${
+      type === 'error' ? 'bg-red-600' : 'bg-green-600'
+    }`;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 4000);
+  }
+
+  function setLoading(on) {
+    const btn = document.getElementById('login-btn');
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+         </svg> Signing In...`
+      : `Sign In
+         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+         </svg>`;
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearAllErrors();
+
+    const identifier = document.getElementById('identifier').value.trim();
+    const password   = document.getElementById('password').value;
+
+    let hasError = false;
+
+    if (!identifier) {
+      showError('identifier-error', 'Email or username is required');
+      setInputState('identifier', 'error');
+      hasError = true;
+    }
+
+    if (!password) {
+      showError('password-error', 'Password is required');
+      setInputState('password', 'error');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ identifier, password })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showToast(`Welcome back, ${data.username}!`, 'success');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      } else if (data.errors) {
+        Object.entries(data.errors).forEach(([field, msg]) => {
+          if (field === 'identifier') {
+            showError('identifier-error', msg);
+            setInputState('identifier', 'error');
+          } else if (field === 'password') {
+            showError('password-error', msg);
+            setInputState('password', 'error');
+          }
+        });
+      } else {
+        showToast(data.message || 'Login failed. Please try again.');
+      }
+    } catch {
+      showToast('Cannot reach server. Make sure the backend (app.py) is running on port 5000.');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+{% endblock %}
