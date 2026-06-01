@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Chess Club{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .field-error { color: #f87171; font-size: 0.7rem; margin-top: 4px; min-height: 16px; }
+    .field-ok    { color: #4ade80; font-size: 0.7rem; margin-top: 4px; min-height: 16px; }
+    .input-error { border-color: #f87171 !important; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-[#121214] text-white min-h-screen flex items-center justify-center p-4 md:p-8">
+
+  <!-- ── Toast notification ─────────────────────────────────── -->
+  <div id="toast"
+       class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white">
+  </div>
+
+  {% block body %}{% endblock %}
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
