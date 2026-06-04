@@ -1,4 +1,5 @@
 from flask import Blueprint
+from app.auth import admin_required
 from app.controllers.auth import AuthController
 
 
@@ -15,5 +16,7 @@ class AuthRoutes:
         self.bp.route("/api/check-username", methods=["GET"])(self.controller.check_username)
         self.bp.route("/api/register", methods=["POST"])(self.controller.register)
         self.bp.route("/api/login", methods=["POST"])(self.controller.login)
+        self.bp.route("/users/<int:id>/edit", methods=["GET", "POST"])(admin_required(self.controller.editUsers))
+        self.bp.route("/users/<int:id>/delete", methods=["GET", "POST"])(admin_required(self.controller.deleteUsers))
 
         return self.bp

@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, redirect, url_for
 from app.models.user import UserService, Validator
 from app.models.database import DatabaseManager
 
@@ -19,6 +19,10 @@ class AuthController:
         if healthy:
             return jsonify({'status': 'ok', 'database': detail})
         return jsonify({'status': 'error', 'database': detail}), 500
+    
+    def dashboard(self):
+        users = self.user_service.get_all_users()
+        return render_template('dashboard.html', users=users)
 
     def check_username(self):
         username = request.args.get('username', '').strip()
@@ -75,3 +79,23 @@ class AuthController:
             return jsonify(result), status
         except Exception as e:
             return jsonify({'success': False, 'message': f'Database error: {e}'}), 500
+
+    def editUsers(self, id):
+        if request.method == "POST":
+            data = request.get_json(silent=True) or request.form
+            name = data.get("name", "").strip()
+            email = data.get("email", "").strip().lower()
+            password = data.get("password", "")
+            
+            # Update user logic would go here
+            # For now, placeholder implementation
+            return jsonify({'success': True, 'message': 'User updated'}), 200
+
+        # For GET, return user edit page
+        return render_template("editUser.html", user_id=id)
+    
+    def deleteUsers(self, id):
+        if request.method == "POST":
+            self.user_model.delete_by_id(id)
+
+        return redirect(url_for("auth.dashboard"))
