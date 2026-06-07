@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Chess Home{% endblock %}
+
+{% block head %}
+<style>
+  body {
+    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  <div class="w-full max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[80px_1fr] gap-8 items-start">
+    <aside class="hidden xl:flex flex-col gap-4 text-gray-300">
+      <a href="#" class="p-4 rounded-3xl bg-white/10 hover:bg-white/15 transition shadow-inner backdrop-blur-md text-center">
+        <span class="block text-xl">♟️</span>
+      </a>
+      <a href="#" class="p-4 rounded-3xl bg-white/10 hover:bg-white/15 transition shadow-inner backdrop-blur-md text-center">
+        <span class="block text-xl">🔥</span>
+      </a>
+      <a href="#" class="p-4 rounded-3xl bg-white/10 hover:bg-white/15 transition shadow-inner backdrop-blur-md text-center">
+        <span class="block text-xl">🧠</span>
+      </a>
+      <a href="#" class="p-4 rounded-3xl bg-white/10 hover:bg-white/15 transition shadow-inner backdrop-blur-md text-center">
+        <span class="block text-xl">🤖</span>
+      </a>
+      <a href="#" class="p-4 rounded-3xl bg-white/10 hover:bg-white/15 transition shadow-inner backdrop-blur-md text-center">
+        <span class="block text-xl">👥</span>
+      </a>
+    </aside>
+
+    <main class="space-y-8 text-white">
+      <section class="flex flex-col gap-6 xl:gap-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 p-6 rounded-[2rem] bg-[#1a1f29]/85 border border-white/10 shadow-2xl backdrop-blur-xl">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-[#2c3341] border border-white/10 flex items-center justify-center text-2xl">👤</div>
+            <div>
+              <p id="display-username" class="text-xs uppercase tracking-[0.3em] text-[#cca343]">KondoKondo</p>
+              <h1 class="text-3xl font-bold">Welcome back</h1>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3 justify-center md:justify-end">
+            <a href="/login" class="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition">Switch Account</a>
+          </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <article class="rounded-[2rem] p-6 bg-[#1a1f29]/85 border border-white/10 shadow-xl backdrop-blur-xl">
+            <p class="text-xs uppercase tracking-[0.3em] text-[#cca343] mb-3">Streak</p>
+            <h2 class="text-4xl font-semibold">0 Days</h2>
+            <p class="text-sm text-gray-400 mt-2">Keep your momentum going with daily puzzles.</p>
+          </article>
+
+          <article class="rounded-[2rem] p-6 bg-[#1a1f29]/85 border border-white/10 shadow-xl backdrop-blur-xl">
+            <p class="text-xs uppercase tracking-[0.3em] text-[#cca343] mb-3">Puzzles</p>
+            <h2 class="text-4xl font-semibold">3,458</h2>
+            <p class="text-sm text-gray-400 mt-2">Solve more to improve tactics and pattern recognition.</p>
+          </article>
+
+          <article class="rounded-[2rem] p-6 bg-[#1a1f29]/85 border border-white/10 shadow-xl backdrop-blur-xl">
+            <p class="text-xs uppercase tracking-[0.3em] text-[#cca343] mb-3">Next Lesson</p>
+            <h2 class="text-2xl font-semibold">Key Openings</h2>
+            <p class="text-sm text-gray-400 mt-2">Offbeat Openings</p>
+          </article>
+
+          <article class="rounded-[2rem] p-6 bg-[#1a1f29]/85 border border-white/10 shadow-xl backdrop-blur-xl">
+            <p class="text-xs uppercase tracking-[0.3em] text-[#cca343] mb-3">Game Review</p>
+            <h2 class="text-2xl font-semibold">Learn from mistakes</h2>
+            <p class="text-sm text-gray-400 mt-2">Analyze your last game and level up fast.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="grid gap-4 xl:grid-cols-3">
+        <article class="rounded-[2rem] overflow-hidden bg-[#1a1f29]/85 border border-white/10 shadow-2xl backdrop-blur-xl">
+          <div class="p-6 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.3em] text-[#cca343]">Puzzle</p>
+              <h3 class="text-xl font-semibold mt-2">Solve Puzzle</h3>
+            </div>
+            <div class="text-3xl">♟️</div>
+          </div>
+          <div class="h-72 bg-white/5 grid place-items-center text-gray-400 text-sm">Chessboard preview</div>
+        </article>
+
+        <article class="rounded-[2rem] overflow-hidden bg-[#1a1f29]/85 border border-white/10 shadow-2xl backdrop-blur-xl">
+          <div class="p-6 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.3em] text-[#cca343]">Lesson</p>
+              <h3 class="text-xl font-semibold mt-2">Start Lesson</h3>
+            </div>
+            <div class="text-3xl">🎓</div>
+          </div>
+          <div class="h-72 bg-white/5 grid place-items-center text-gray-400 text-sm">Interactive course preview</div>
+        </article>
+
+        <article class="rounded-[2rem] overflow-hidden bg-[#1a1f29]/85 border border-white/10 shadow-2xl backdrop-blur-xl">
+          <div class="p-6 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.3em] text-[#cca343]">Review</p>
+              <h3 class="text-xl font-semibold mt-2">Review vs roma884</h3>
+            </div>
+            <div class="text-3xl">⭐</div>
+          </div>
+          <div class="h-72 bg-white/5 grid place-items-center text-gray-400 text-sm">Game review preview</div>
+        </article>
+      </section>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    const el = document.getElementById('display-username');
+    if (!el) return;
+
+    // Prefer a server-provided username if available
+    let username = "{{ username|default('') }}";
+
+    // Fallback to client-side stored username (set by login/signup JS)
+    if (!username) {
+      try {
+        username = window.localStorage && window.localStorage.getItem('username');
+      } catch (e) {
+        username = '';
+      }
+    }
+
+    if (username) {
+      el.textContent = username;
+    }
+  })();
+</script>
+{% endblock %}

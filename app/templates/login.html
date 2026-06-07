@@ -65,7 +65,7 @@
 
       <p class="text-sm text-gray-500 mt-8">
         Don't have an account?
-        <a href="/" class="text-[#cca343] hover:underline font-medium">Sign up</a>
+        <a href="/signup" class="text-[#cca343] hover:underline font-medium">Sign up</a>
       </p>
     </div>
 
@@ -186,6 +186,7 @@
       const data = await res.json();
 
       if (data.success) {
+        try { window.localStorage && window.localStorage.setItem('username', data.username); } catch (e) {}
         showToast(`Welcome back, ${data.username}!`, 'success');
         setTimeout(() => {
           window.location.href = '/';

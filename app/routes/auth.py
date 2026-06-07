@@ -9,7 +9,8 @@ class AuthRoutes:
         self.controller = AuthController()
 
     def register(self):
-        self.bp.route("/", methods=["GET"])(self.controller.index)
+        self.bp.route("/", methods=["GET"])(self.controller.home_page)
+        self.bp.route("/signup", methods=["GET"])(self.controller.signup_page)
         self.bp.route("/login", methods=["GET"])(self.controller.login_page)
 
         self.bp.route("/api/health", methods=["GET"])(self.controller.health)

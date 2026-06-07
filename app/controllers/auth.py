@@ -8,7 +8,10 @@ class AuthController:
         self.db_manager = DatabaseManager()
         self.user_service = UserService(self.db_manager)
 
-    def index(self):
+    def home_page(self):
+        return render_template('home.html')
+
+    def signup_page(self):
         return render_template('index.html')
 
     def login_page(self):
