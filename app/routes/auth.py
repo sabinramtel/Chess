@@ -12,6 +12,9 @@ class AuthRoutes:
         self.bp.route("/", methods=["GET"])(self.controller.home_page)
         self.bp.route("/signup", methods=["GET"])(self.controller.signup_page)
         self.bp.route("/login", methods=["GET"])(self.controller.login_page)
+        self.bp.route("/settings", methods=["GET"])(self.controller.settings_page)
+        self.bp.route("/play", methods=["GET"])(self.controller.play_page)
+        self.bp.route("/logout", methods=["GET"])(self.controller.logout)
 
         self.bp.route("/api/health", methods=["GET"])(self.controller.health)
         self.bp.route("/api/check-username", methods=["GET"])(self.controller.check_username)

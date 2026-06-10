@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, session
 from app.models.user import UserService, Validator
 from app.models.database import DatabaseManager
 
@@ -16,6 +16,23 @@ class AuthController:
 
     def login_page(self):
         return render_template('login.html')
+
+    def settings_page(self):
+        return render_template(
+            'settings.html',
+            username=session.get('username', ''),
+            tier='free',
+            prefs={},
+            can_change=True,
+            change_msg='Theme customization available'
+        )
+
+    def play_page(self):
+        return render_template('play.html', username=session.get('username', 'Player'))
+
+    def logout(self):
+        session.clear()
+        return redirect(url_for('auth.login'))
 
     def health(self):
         healthy, detail = self.db_manager.is_healthy()

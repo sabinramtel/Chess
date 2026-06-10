@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Project Chess{% endblock %}
+
+{% block head %}
+<style>
+  body {
+    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), var(--bg-image) center/cover no-repeat fixed;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    flex-direction: column;
+  }
+  .card {
+    background: var(--secondary);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1rem;
+  }
+  .gold { color: var(--primary); }
+  .btn-gold {
+    background: var(--primary);
+    color: #121214;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-gold:hover { filter: brightness(0.9); }
+  .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+  .color-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .color-input-wrap:hover { border-color: rgba(255,255,255,0.15); }
+  .color-input-wrap input[type="color"] {
+    width: 44px; height: 44px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background: transparent;
+    padding: 2px;
+  }
+  .color-input-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-input-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+  .bg-option {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 0.75rem;
+    border: 3px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .bg-option:hover { border-color: rgba(255,255,255,0.3); }
+  .bg-option.selected { border-color: var(--primary); box-shadow: 0 0 16px rgba(204,163,67,0.3); }
+  .bg-option img { width: 100%; height: 100%; object-fit: cover; }
+  .bg-option .label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.7);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .tier-free { background: rgba(255,255,255,0.08); color: #9ca3af; }
+  .tier-premium { background: linear-gradient(135deg, #cca343, #e6c65a); color: #121214; }
+  .preview-box {
+    border-radius: 1rem;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="w-full min-h-screen">
+
+  <!-- ── Top Bar ──────────────────────────────────────────────── -->
+  <nav class="w-full px-6 md:px-10 py-4 flex items-center justify-between border-b border-white/5" style="background: #12141aee;">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80 transition">
+      <span class="text-2xl">♞</span>
+      <span class="text-lg font-bold tracking-wide">Project Chess</span>
+    </a>
+    <div class="flex items-center gap-6">
+      <span class="text-sm opacity-60">{{ username }}</span>
+      <a href="/" class="text-sm opacity-60 hover:text-white transition">← Home</a>
+      
+      <div class="relative">
+        <button id="settings-toggle" class="flex items-center gap-2 opacity-60 hover:opacity-100 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        </button>
+        <div id="settings-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden" style="background: var(--secondary);">
+          <a href="/login" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+            Switch Account
+          </a>
+          <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Settings Content ─────────────────────────────────────── -->
+  <div class="w-full max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold">Settings</h1>
+        <p class="opacity-70 mt-1">Customize your chess experience</p>
+      </div>
+      <span class="tier-badge {{ 'tier-premium' if tier == 'premium' else 'tier-free' }}">
+        {{ '⭐ Premium' if tier == 'premium' else '🆓 Free Tier' }}
+      </span>
+    </div>
+
+    <!-- Tier Info -->
+    {% if tier == 'free' %}
+    <div class="card p-5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="font-semibold text-lg">Upgrade to Premium</h3>
+          <p class="text-sm opacity-70 mt-1">Unlimited theme changes, custom background uploads, and more.</p>
+          {% if not can_change %}
+          <p class="text-sm text-amber-400 mt-2">⏳ {{ change_msg }}</p>
+          {% else %}
+          <p class="text-sm text-green-400 mt-2">✅ {{ change_msg }}</p>
+          {% endif %}
+        </div>
+        <button id="upgrade-btn" class="btn-gold px-6 py-3 text-sm uppercase tracking-widest flex-shrink-0">
+          Upgrade Now
+        </button>
+      </div>
+    </div>
+    {% else %}
+    <div class="card p-5">
+      <p class="text-green-400 font-medium">⭐ Premium active — unlimited theme changes!</p>
+    </div>
+    {% endif %}
+
+    <!-- Theme Customization -->
+    <div class="card p-6 space-y-6">
+      <h2 class="text-xl font-bold gold">🎨 Theme Customization</h2>
+
+      <!-- Colors -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium opacity-80 mb-2">Primary Color</label>
+          <div class="color-input-wrap">
+            <input type="color" id="primary-color" value="{{ prefs.primary_color or '#cca343' }}">
+            <div>
+              <p class="text-sm font-medium">Accent</p>
+              <p class="text-xs opacity-60" id="primary-hex">{{ prefs.primary_color or '#cca343' }}</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium opacity-80 mb-2">Card / Secondary</label>
+          <div class="color-input-wrap">
+            <input type="color" id="secondary-color" value="{{ prefs.secondary_color or '#1a1f29' }}">
+            <div>
+              <p class="text-sm font-medium">Background</p>
+              <p class="text-xs opacity-60" id="secondary-hex">{{ prefs.secondary_color or '#1a1f29' }}</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium opacity-80 mb-2">Text Color</label>
+          <div class="color-input-wrap">
+            <input type="color" id="text-color" value="{{ prefs.text_color or '#ffffff' }}">
+            <div>
+              <p class="text-sm font-medium">Text</p>
+              <p class="text-xs opacity-60" id="text-hex">{{ prefs.text_color or '#ffffff' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Background Image -->
+      <div>
+        <label class="block text-sm font-medium opacity-80 mb-3">Background Image</label>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="bg-option {{ 'selected' if (prefs.bg_image or 'chess-board.jpg') == 'chess-board.jpg' }}" data-bg="chess-board.jpg">
+            <img src="/static/images/chess-board.jpg" alt="Chess Board">
+            <div class="label">Chess Board</div>
+          </div>
+          <div class="bg-option {{ 'selected' if prefs.bg_image == 'chess-meme.jpg' }}" data-bg="chess-meme.jpg">
+            <img src="/static/images/chess-meme.jpg" alt="Chess Meme">
+            <div class="label">Chess Meme</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div>
+        <label class="block text-sm font-medium opacity-80 mb-3">Live Preview</label>
+        <div id="preview-box" class="preview-box" style="background: {{ prefs.secondary_color or '#1a1f29' }};">
+          <p id="preview-label" class="text-xs uppercase tracking-[0.25em] mb-2" style="color: {{ prefs.primary_color or '#cca343' }};">Preview Card</p>
+          <h3 id="preview-title" class="text-xl font-bold" style="color: {{ prefs.text_color or '#ffffff' }};">This is how your dashboard looks</h3>
+          <p id="preview-desc" class="text-sm mt-2" style="color: {{ prefs.text_color or '#ffffff' }}; opacity: 0.5;">Subtitle text with your custom colors applied.</p>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex items-center gap-4">
+        <button id="save-theme-btn" class="btn-gold px-8 py-3 text-sm uppercase tracking-widest" {{ 'disabled' if not can_change }}>
+          {{ 'Save Theme' if can_change else 'Change Locked' }}
+        </button>
+        <span id="save-status" class="text-sm opacity-70"></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  const primaryInput   = document.getElementById('primary-color');
+  const secondaryInput = document.getElementById('secondary-color');
+  const textInput      = document.getElementById('text-color');
+  const previewBox     = document.getElementById('preview-box');
+  const previewLabel   = document.getElementById('preview-label');
+  const previewTitle   = document.getElementById('preview-title');
+  const previewDesc    = document.getElementById('preview-desc');
+  const primaryHex     = document.getElementById('primary-hex');
+  const secondaryHex   = document.getElementById('secondary-hex');
+  const textHex        = document.getElementById('text-hex');
+  const saveBtn        = document.getElementById('save-theme-btn');
+  const saveStatus     = document.getElementById('save-status');
+  const upgradeBtn     = document.getElementById('upgrade-btn');
+
+  let selectedBg = '{{ prefs.bg_image or "chess-board.jpg" }}';
+
+  // Live preview updates
+  function updatePreview() {
+    const p = primaryInput.value;
+    const s = secondaryInput.value;
+    const t = textInput.value;
+
+    previewBox.style.background = s;
+    previewLabel.style.color = p;
+    previewTitle.style.color = t;
+    previewDesc.style.color = t + '80';
+    primaryHex.textContent = p;
+    secondaryHex.textContent = s;
+    textHex.textContent = t;
+  }
+
+  primaryInput.addEventListener('input', updatePreview);
+  secondaryInput.addEventListener('input', updatePreview);
+  textInput.addEventListener('input', updatePreview);
+
+  // Background selection
+  document.querySelectorAll('.bg-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.bg-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedBg = opt.dataset.bg;
+    });
+  });
+
+  // Save theme
+  if (saveBtn && !saveBtn.disabled) {
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      saveStatus.textContent = '';
+
+      try {
+        const res = await fetch('/api/update-theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bg_image: selectedBg,
+            primary_color: primaryInput.value,
+            secondary_color: secondaryInput.value,
+            text_color: textInput.value
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          saveStatus.textContent = '✅ ' + data.message;
+          saveStatus.className = 'text-sm text-green-400';
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          saveStatus.textContent = '❌ ' + data.message;
+          saveStatus.className = 'text-sm text-red-400';
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Theme';
+        }
+      } catch (e) {
+        saveStatus.textContent = '❌ Network error';
+        saveStatus.className = 'text-sm text-red-400';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Theme';
+      }
+    });
+  }
+
+  // Upgrade tier
+  if (upgradeBtn) {
+    upgradeBtn.addEventListener('click', async () => {
+      upgradeBtn.disabled = true;
+      upgradeBtn.textContent = 'Upgrading...';
+
+      try {
+        const res = await fetch('/api/upgrade-tier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          location.reload();
+        } else {
+          alert(data.message);
+          upgradeBtn.disabled = false;
+          upgradeBtn.textContent = 'Upgrade Now';
+        }
+      } catch (e) {
+        alert('Network error');
+        upgradeBtn.disabled = false;
+        upgradeBtn.textContent = 'Upgrade Now';
+      }
+    });
+  }
+
+  // Toggle Settings Dropdown
+  const settingsToggle = document.getElementById('settings-toggle');
+  const settingsDropdown = document.getElementById('settings-dropdown');
+  if (settingsToggle && settingsDropdown) {
+    settingsToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!settingsToggle.contains(e.target) && !settingsDropdown.contains(e.target)) {
+        settingsDropdown.classList.add('hidden');
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}
