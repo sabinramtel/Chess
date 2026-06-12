@@ -1,25 +1,42 @@
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import render_template, request, redirect, url_for, flash, session
+
+from app.models.user import User
+
 from app import db
+ 
+def login():
 
+    if request.method == 'POST':
 
-class User(db.Model):
-    __tablename__ = 'users'
+        # Get data from the login form
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+        identifier = request.form.get('identifier')  # Handles either email or username
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        password = request.form.get('password')
+ 
+        # Find user by username OR email based on your user.py columns
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
+ 
+        if user and user.check_password(password):
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'email': self.email,
-            'username': self.username
-        }
+            # Log the user in by setting the session
+
+            session['user_id'] = user.id
+
+            session['username'] = user.username
+
+            flash('Welcome back! Your next move awaits.', 'success')
+
+            return redirect('/')  # Redirect to your dashboard/main chess game page
+
+        else:
+
+            flash('Invalid username/email or password.', 'error')
+
+            return redirect(url_for('auth.login_page'))
+ 
+    # If it's a GET request, just render the login page
+
+    return render_template('login.html')
+ 
