@@ -1,20 +1,24 @@
 from flask import Flask
-from app.routes.auth import AuthRoutes
-import config
-
+from app.models.database import db
+import os
 
 def create_app():
-    app = Flask(__name__, static_folder="static", template_folder="templates")
-    app.secret_key = config.SECRET_KEY
+    app = Flask(__name__)
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chess.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
 
+    db.init_app(app)
+    
+    # Register blueprints
+    from app.routes.auth import auth_bp
+    from app.routes.game import game_bp
+    
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(game_bp)
+    
     with app.app_context():
-        from app.models.database import DatabaseManager
-        if not DatabaseManager.create_tables():
-            print("Warning: database initialization failed. Check DB credentials in .env or environment variables.")
-            app.config["DB_INITIALIZED"] = False
-        else:
-            app.config["DB_INITIALIZED"] = True
-
-    auth_routes = AuthRoutes()
-    app.register_blueprint(auth_routes.register())
+        db.create_all()
+    
     return app
