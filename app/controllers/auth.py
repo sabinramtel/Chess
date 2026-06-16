@@ -30,9 +30,12 @@ class AuthController:
     def play_page(self):
         return render_template('play.html', username=session.get('username', 'Player'))
 
+    def lobby_page(self):
+        return render_template('lobby.html', username=session.get('username', ''))
+
     def logout(self):
         session.clear()
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login_page'))
 
     def health(self):
         healthy, detail = self.db_manager.is_healthy()
@@ -41,7 +44,8 @@ class AuthController:
         return jsonify({'status': 'error', 'database': detail}), 500
     
     def dashboard(self):
-        users = self.user_service.get_all_users()
+        # get_all_users is not yet implemented in UserService; default to empty list
+        users = getattr(self.user_service, 'get_all_users', lambda: [])() 
         return render_template('dashboard.html', users=users)
 
     def check_username(self):
@@ -116,6 +120,15 @@ class AuthController:
     
     def deleteUsers(self, id):
         if request.method == "POST":
-            self.user_model.delete_by_id(id)
+            # Delete the user via a raw DB query
+            try:
+                conn = self.db_manager.get_connection()
+                cursor = conn.cursor()
+                cursor.execute('DELETE FROM users WHERE id = %s', (id,))
+                conn.commit()
+                cursor.close()
+                conn.close()
+            except Exception as e:
+                return jsonify({'success': False, 'message': f'Database error: {e}'}), 500
 
-        return redirect(url_for("auth.dashboard"))
+        return redirect(url_for("auth.home_page"))

@@ -1,24 +1,33 @@
 from flask import Flask
-from app.models.database import db
+from flask_socketio import SocketIO
 import os
+
+# Create the SocketIO instance at module level so sockets.py can import it
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
 
 def create_app():
     app = Flask(__name__)
-    
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chess.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
 
-    db.init_app(app)
-    
-    # Register blueprints
-    from app.routes.auth import auth_bp
+    # Register HTTP blueprints
+    from app.routes.auth import AuthRoutes
     from app.routes.game import game_bp
-    
-    app.register_blueprint(auth_bp)
+
+    auth_routes = AuthRoutes()
+    app.register_blueprint(auth_routes.register())
     app.register_blueprint(game_bp)
-    
+
+    # Attach Socket.IO to app and register all socket event handlers
+    socketio.init_app(app)
+    from app import sockets  # noqa: F401 — registers event handlers as a side-effect
+
+    # Initialize database tables
     with app.app_context():
-        db.create_all()
-    
+        try:
+            from app.models.database import DatabaseManager
+            DatabaseManager.create_tables()
+        except Exception as e:
+            app.logger.warning(f"Database table creation failed: {e}")
+
     return app
