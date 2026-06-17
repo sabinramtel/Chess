@@ -107,7 +107,7 @@ def handle_join_game(data):
         emit('error', {'message': 'Room is already full.'})
         return
 
-    if room['white']['sid'] == request.sid:
+    if room['creator']['sid'] == request.sid:
         emit('error', {'message': 'You cannot join your own room.'})
         return
 
