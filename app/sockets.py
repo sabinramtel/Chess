@@ -89,7 +89,7 @@ def handle_join_game(data):
         { username, room_code }
     If the room exists and only has one player → start the game.
     Emits to the joiner:
-        joined_game  { room_code, color:'black', game_state }
+        joined_game  { room_code, color: randomized, game_state }
     Emits to the whole room:
         game_started { game_state, white_username, black_username }
     """
