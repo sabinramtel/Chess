@@ -103,7 +103,7 @@ def handle_join_game(data):
 
     room = active_rooms[room_code]
 
-    if room['black'] is not None:
+    if room['white'] is not None or room['black'] is not None:
         emit('error', {'message': 'Room is already full.'})
         return
 
