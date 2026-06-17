@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Email — Project Chess{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .verify-card {
+        background: #0d0e12;
+        border: 1px solid rgba(204, 163, 67, 0.2);
+        border-radius: 16px;
+        padding: 48px 40px;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .otp-input {
+        width: 100%;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.5em;
+        background: #1a1c24;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #cca343;
+        padding: 16px 12px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .otp-input:focus {
+        border-color: rgba(204, 163, 67, 0.5);
+    }
+
+    .btn-gold {
+        width: 100%;
+        padding: 14px;
+        background: #cca343;
+        color: #121214;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: filter 0.2s;
+    }
+
+    .btn-gold:hover {
+        filter: brightness(0.9);
+    }
+
+    .btn-gold:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .error-msg {
+        color: #f87171;
+        font-size: 0.85rem;
+        text-align: center;
+        min-height: 20px;
+    }
+
+    .success-msg {
+        color: #4ade80;
+        font-size: 0.85rem;
+        text-align: center;
+        min-height: 20px;
+    }
+
+    #resend-btn {
+        background: none;
+        border: none;
+        color: #cca343;
+        cursor: pointer;
+        font-size: 0.85rem;
+        text-decoration: underline;
+        padding: 0;
+    }
+
+    #resend-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #countdown {
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="verify-card">
+    <!-- Logo / title -->
+    <div style="text-align:center; margin-bottom:32px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#cca343"
+            style="width:40px;height:40px;margin:0 auto 12px;">
+            <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
+            <path
+                d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
+        </svg>
+        <h2 style="color:#cca343;font-size:1.4rem;font-weight:700;margin:0 0 4px;">Verify your email</h2>
+        <p style="color:#9ca3af;font-size:0.875rem;margin:0;">
+            We sent a 6-digit code to your email.<br>Enter it below to activate your account.
+        </p>
+    </div>
+
+    <form id="otp-form" autocomplete="off">
+        <input id="otp" class="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="······"
+            autofocus />
+
+        <div id="msg" class="error-msg" style="margin:12px 0;"></div>
+
+        <button type="submit" class="btn-gold" id="verify-btn">Verify Email</button>
+    </form>
+
+    <div style="text-align:center;margin-top:20px;">
+        <span id="countdown"></span>
+        <button id="resend-btn" disabled>Resend code</button>
+    </div>
+
+    <div id="dev-hint" style="display:none;margin-top:16px;padding:12px;background:#1a1c24;
+         border:1px dashed rgba(204,163,67,0.4);border-radius:8px;text-align:center;">
+        <p style="color:#6b7280;font-size:0.75rem;margin:0 0 4px;">DEV MODE — email not configured</p>
+        <p style="color:#cca343;font-size:1.1rem;font-weight:700;letter-spacing:0.3em;margin:0;" id="dev-otp-display">
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        const form = document.getElementById('otp-form');
+        const otpInput = document.getElementById('otp');
+        const verifyBtn = document.getElementById('verify-btn');
+        const msgEl = document.getElementById('msg');
+        const resendBtn = document.getElementById('resend-btn');
+        const countdownEl = document.getElementById('countdown');
+
+        // Allow only digits
+        otpInput.addEventListener('input', () => {
+            otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
+        });
+
+        function setMsg(text, isError = true) {
+            msgEl.textContent = text;
+            msgEl.className = isError ? 'error-msg' : 'success-msg';
+        }
+
+        // ── Verify ──────────────────────────────────────────────────
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = otpInput.value.trim();
+            if (otp.length !== 6) { setMsg('Enter the 6-digit code.'); return; }
+
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying…';
+            setMsg('');
+
+            try {
+                const res = await fetch('/api/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setMsg('Email verified! Redirecting…', false);
+                    setTimeout(() => { window.location.href = data.redirect || '/home'; }, 800);
+                } else {
+                    setMsg(data.message || 'Verification failed.');
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Verify Email';
+                }
+            } catch {
+                setMsg('Network error. Please try again.');
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verify Email';
+            }
+        });
+
+        // ── Resend countdown ────────────────────────────────────────
+        let timer = null;
+        function startCountdown(seconds) {
+            resendBtn.disabled = true;
+            const tick = () => {
+                if (seconds <= 0) {
+                    countdownEl.textContent = '';
+                    resendBtn.disabled = false;
+                    return;
+                }
+                countdownEl.textContent = `Resend in ${seconds}s · `;
+                seconds--;
+                timer = setTimeout(tick, 1000);
+            };
+            tick();
+        }
+        startCountdown(60);
+
+        // Show OTP hint in dev mode
+        const devOtp = sessionStorage.getItem('dev_otp');
+        if (devOtp) {
+            document.getElementById('dev-otp-display').textContent = devOtp;
+            document.getElementById('dev-hint').style.display = 'block';
+            otpInput.value = devOtp;
+            sessionStorage.removeItem('dev_otp');
+        }
+
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            setMsg('');
+            try {
+                const res = await fetch('/api/resend-otp', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    setMsg(data.message || 'New code sent!', false);
+                    startCountdown(60);
+                } else {
+                    setMsg(data.message || 'Could not resend.');
+                    resendBtn.disabled = false;
+                }
+            } catch {
+                setMsg('Network error.');
+                resendBtn.disabled = false;
+            }
+        });
+    })();
+</script>
+{% endblock %}
