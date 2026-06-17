@@ -130,7 +130,7 @@ def handle_join_game(data):
     # Tell the joiner their colour
     emit('joined_game', {
         'room_code': room_code,
-        'color': 'black',
+        'color': guest_color,
         'game_state': state,
         'white_username': room['white']['username'],
         'black_username': username,
