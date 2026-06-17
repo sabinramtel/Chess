@@ -49,7 +49,7 @@
               class="w-4 h-4 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer" />
             <label for="remember" class="text-xs text-gray-400 cursor-pointer select-none">Remember me</label>
           </div>
-          <a href="#" class="text-xs text-[#cca343] hover:underline font-medium">Forgot password?</a>
+          <a href="/forgot-password" class="text-xs text-[#cca343] hover:underline font-medium">Forgot password?</a>
         </div>
 
         <div class="pt-4">
@@ -186,11 +186,11 @@
       const data = await res.json();
 
       if (data.success) {
-        try { window.localStorage && window.localStorage.setItem('username', data.username); } catch (e) {}
-        showToast(`Welcome back, ${data.username}!`, 'success');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
+        try { window.localStorage && window.localStorage.setItem('username', data.username || ''); } catch (e) {}
+        window.location.href = data.redirect || '/home';
+      } else if (data.needs_verification) {
+        showToast('Please verify your email first. Redirecting…');
+        setTimeout(() => { window.location.href = '/verify-email'; }, 1500);
       } else if (data.errors) {
         Object.entries(data.errors).forEach(([field, msg]) => {
           if (field === 'identifier') {

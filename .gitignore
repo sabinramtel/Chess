@@ -8,3 +8,4 @@ venv/
 dist/
 build/
 README.md/
+instance/

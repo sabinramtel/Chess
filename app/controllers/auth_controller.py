@@ -55,7 +55,7 @@ class AuthController:
                 session['user_id'] = user.id
                 session['username'] = user.username
                 if is_api:
-                    return jsonify({'success': True, 'message': 'Welcome back! Your next move awaits.'}), 200
+                    return jsonify({'success': True, 'message': 'Welcome back! Your next move awaits.', 'username': user.username, 'redirect': '/home'}), 200
                 flash('Welcome back! Your next move awaits.', 'success')
                 return redirect(url_for('auth.home'))
             else:
@@ -201,6 +201,67 @@ class AuthController:
         session['username'] = user.username
 
         return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
+
+    @staticmethod
+    def forgot_password():
+        data = request.get_json() or {}
+        email = data.get('email', '').strip()
+        if not email:
+            return jsonify({'success': False, 'message': 'Email is required'}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({'success': False, 'message': 'No account found with that email'}), 404
+
+        otp = _generate_otp()
+        ev = EmailVerification.query.filter_by(user_id=user.id).first()
+        if ev:
+            ev.otp = otp
+            ev.expires_at = _utcnow() + timedelta(minutes=15)
+        else:
+            ev = EmailVerification(
+                user_id=user.id,
+                otp=otp,
+                is_verified=True,
+                expires_at=_utcnow() + timedelta(minutes=15)
+            )
+            db.session.add(ev)
+        db.session.commit()
+
+        send_otp_email(email, user.username, otp)
+
+        from flask import current_app
+        response = {'success': True, 'message': 'Reset code sent'}
+        if current_app.debug:
+            response['dev_otp'] = otp
+        return jsonify(response), 200
+
+    @staticmethod
+    def reset_password():
+        data = request.get_json() or {}
+        email    = data.get('email', '').strip()
+        otp      = data.get('otp', '').strip()
+        new_pw   = data.get('new_password', '')
+
+        if not email or not otp or not new_pw:
+            return jsonify({'success': False, 'message': 'All fields are required'}), 400
+        if len(new_pw) < 8:
+            return jsonify({'success': False, 'message': 'Password must be at least 8 characters'}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({'success': False, 'message': 'Invalid request'}), 400
+
+        ev = EmailVerification.query.filter_by(user_id=user.id).first()
+        if not ev or ev.otp != otp:
+            return jsonify({'success': False, 'message': 'Incorrect code'}), 400
+        if _utcnow() > ev.expires_at:
+            return jsonify({'success': False, 'message': 'Code expired. Request a new one.'}), 400
+
+        user.set_password(new_pw)
+        ev.otp = None
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Password reset successfully'}), 200
 
     @staticmethod
     def resend_otp():
