@@ -1,368 +1,1564 @@
 {% extends "base.html" %}
 
-{% block title %}Settings - Project Chess{% endblock %}
+
+{% block title %}Settings — Project Chess{% endblock %}
 
 {% block head %}
 <style>
-  body {
-    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), var(--bg-image) center/cover no-repeat fixed;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
-    padding: 0 !important;
-    flex-direction: column;
-  }
-  .card {
-    background: var(--secondary);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 1rem;
-  }
-  .gold { color: var(--primary); }
-  .btn-gold {
-    background: var(--primary);
-    color: #121214;
-    font-weight: 700;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    cursor: pointer;
-  }
-  .btn-gold:hover { filter: brightness(0.9); }
-  .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; }
-  .color-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 0.75rem;
-    transition: border-color 0.2s;
-  }
-  .color-input-wrap:hover { border-color: rgba(255,255,255,0.15); }
-  .color-input-wrap input[type="color"] {
-    width: 44px; height: 44px;
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    background: transparent;
-    padding: 2px;
-  }
-  .color-input-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-  .color-input-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
-  .bg-option {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 0.75rem;
-    border: 3px solid transparent;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .bg-option:hover { border-color: rgba(255,255,255,0.3); }
-  .bg-option.selected { border-color: var(--primary); box-shadow: 0 0 16px rgba(204,163,67,0.3); }
-  .bg-option img { width: 100%; height: 100%; object-fit: cover; }
-  .bg-option .label {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 6px 10px;
-    background: rgba(0,0,0,0.7);
-    font-size: 0.75rem;
-    text-align: center;
-  }
-  .tier-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 14px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-  .tier-free { background: rgba(255,255,255,0.08); color: #9ca3af; }
-  .tier-premium { background: linear-gradient(135deg, #cca343, #e6c65a); color: #121214; }
-  .preview-box {
-    border-radius: 1rem;
-    padding: 24px;
-    border: 1px solid rgba(255,255,255,0.08);
-    transition: all 0.3s;
-  }
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+            url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        flex-direction: column;
+    }
+
+    /* ── Shared ──────────────────────────────────── */
+    .gold {
+        color: var(--primary);
+    }
+
+    .card {
+        background: #0b0c10;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+    }
+
+    .btn-gold {
+        background: var(--primary);
+        color: #121214;
+        font-weight: 700;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.4rem;
+        transition: filter 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .btn-gold:hover {
+        filter: brightness(0.88);
+    }
+
+    .btn-ghost {
+        background: #1e2130;
+        color: #d1d5db;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.4rem;
+        transition: background 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .btn-ghost:hover {
+        background: #252b3a;
+    }
+
+    .nav-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        opacity: 0.6;
+        font-size: 0.65rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .nav-icon:hover {
+        opacity: 1;
+        color: var(--primary);
+    }
+
+    .nav-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .nav-icon.active {
+        opacity: 1;
+        color: var(--primary);
+    }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar-link {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.6rem 0.875rem;
+        border-radius: 0.6rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.6);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.15s;
+    }
+
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: white;
+    }
+
+    .sidebar-link.active {
+        background: rgba(204, 163, 67, 0.12);
+        color: var(--primary);
+    }
+
+    .sidebar-link svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    /* ── Section ─────────────────────────────────── */
+    .settings-section {
+        display: none;
+    }
+
+    .settings-section.active {
+        display: block;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .section-header p {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.45);
+        margin-top: 2px;
+    }
+
+    /* ── Form inputs ─────────────────────────────── */
+    .field-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 0.45rem;
+    }
+
+    .field-input {
+        width: 100%;
+        background: #13151d;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.875rem;
+        color: white;
+        font-size: 0.9rem;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.15s;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: var(--primary);
+    }
+
+    .field-input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    select.field-input option {
+        background: #1a1d29;
+    }
+
+    textarea.field-input {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* ── Toggle switch ───────────────────────────── */
+    .toggle-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .toggle-wrap:last-of-type {
+        border-bottom: none;
+    }
+
+    .toggle-info h4 {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .toggle-info p {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 2px;
+    }
+
+    .toggle {
+        position: relative;
+        display: inline-block;
+        width: 46px;
+        height: 25px;
+        flex-shrink: 0;
+    }
+
+    .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #2c3341;
+        border-radius: 25px;
+        transition: 0.25s;
+    }
+
+    .toggle-slider::before {
+        content: '';
+        position: absolute;
+        height: 19px;
+        width: 19px;
+        left: 3px;
+        bottom: 3px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        transition: 0.25s;
+    }
+
+    .toggle input:checked+.toggle-slider {
+        background: var(--primary);
+    }
+
+    .toggle input:checked+.toggle-slider::before {
+        transform: translateX(21px);
+        background: #121214;
+    }
+
+    /* ── Board theme selector ────────────────────── */
+    .theme-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .theme-option {
+        cursor: pointer;
+    }
+
+    .theme-option input {
+        display: none;
+    }
+
+    .theme-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        background: #13151d;
+        transition: all 0.15s;
+        min-width: 90px;
+    }
+
+    .theme-card:hover {
+        border-color: rgba(204, 163, 67, 0.3);
+    }
+
+    .theme-option input:checked+.theme-card {
+        border-color: var(--primary);
+        background: rgba(204, 163, 67, 0.07);
+    }
+
+    .theme-preview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: 56px;
+        height: 56px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .theme-preview span {
+        display: block;
+    }
+
+    .theme-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .theme-option input:checked+.theme-card .theme-label {
+        color: var(--primary);
+    }
+
+    /* ── Piece set selector ──────────────────────── */
+    .piece-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .piece-option {
+        cursor: pointer;
+    }
+
+    .piece-option input {
+        display: none;
+    }
+
+    .piece-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        background: #13151d;
+        transition: all 0.15s;
+        min-width: 80px;
+    }
+
+    .piece-card:hover {
+        border-color: rgba(204, 163, 67, 0.3);
+    }
+
+    .piece-option input:checked+.piece-card {
+        border-color: var(--primary);
+        background: rgba(204, 163, 67, 0.07);
+    }
+
+    .piece-icon {
+        font-size: 1.6rem;
+        line-height: 1;
+    }
+
+    .piece-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .piece-option input:checked+.piece-card .piece-label {
+        color: var(--primary);
+    }
+
+    /* ── Orientation selector ────────────────────── */
+    .orient-option {
+        cursor: pointer;
+    }
+
+    .orient-option input {
+        display: none;
+    }
+
+    .orient-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        background: #13151d;
+        transition: all 0.15s;
+    }
+
+    .orient-card:hover {
+        border-color: rgba(204, 163, 67, 0.3);
+    }
+
+    .orient-option input:checked+.orient-card {
+        border-color: var(--primary);
+        background: rgba(204, 163, 67, 0.07);
+    }
+
+    .orient-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.15s;
+        flex-shrink: 0;
+    }
+
+    .orient-option input:checked+.orient-card .orient-dot {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    /* ── Theme toggle (dark/light) ───────────────── */
+    .theme-toggle-row {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .appearance-option {
+        cursor: pointer;
+    }
+
+    .appearance-option input {
+        display: none;
+    }
+
+    .appearance-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 1rem 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        background: #13151d;
+        transition: all 0.15s;
+        min-width: 110px;
+    }
+
+    .appearance-card:hover {
+        border-color: rgba(204, 163, 67, 0.3);
+    }
+
+    .appearance-option input:checked+.appearance-card {
+        border-color: var(--primary);
+        background: rgba(204, 163, 67, 0.07);
+    }
+
+    .appearance-icon {
+        font-size: 1.8rem;
+    }
+
+    .appearance-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .appearance-option input:checked+.appearance-card .appearance-label {
+        color: var(--primary);
+    }
+
+    /* ── Privacy radio ───────────────────────────── */
+    .privacy-option {
+        cursor: pointer;
+        display: block;
+    }
+
+    .privacy-option input {
+        display: none;
+    }
+
+    .privacy-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+        background: #13151d;
+        transition: all 0.15s;
+        margin-bottom: 0.5rem;
+    }
+
+    .privacy-card:hover {
+        border-color: rgba(204, 163, 67, 0.3);
+    }
+
+    .privacy-option input:checked+.privacy-card {
+        border-color: var(--primary);
+        background: rgba(204, 163, 67, 0.07);
+    }
+
+    .privacy-radio {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: all 0.15s;
+    }
+
+    .privacy-option input:checked+.privacy-card .privacy-radio {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    .privacy-text h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .privacy-text p {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 2px;
+    }
+
+    /* ── Avatar ──────────────────────────────────── */
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #2c3341;
+        border: 2px solid rgba(204, 163, 67, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.58);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .avatar-circle:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-overlay svg {
+        width: 20px;
+        height: 20px;
+        color: white;
+    }
+
+    .avatar-overlay span {
+        font-size: 0.58rem;
+        font-weight: 600;
+        color: white;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .avatar-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #0b0c10;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 0.6rem;
+        overflow: hidden;
+        z-index: 50;
+        min-width: 162px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+    }
+
+    .avatar-menu button {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        text-align: left;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.82);
+        cursor: pointer;
+        transition: background 0.15s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .avatar-menu button:hover {
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .avatar-menu button.danger {
+        color: #f87171;
+    }
+
+    .avatar-menu button:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .avatar-menu button svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        opacity: 0.75;
+    }
+
+    /* ── Divider ─────────────────────────────────── */
+    .divider {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        margin: 1.75rem 0;
+    }
+
+    /* ── Toast ───────────────────────────────────── */
+    #toast {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.6rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.25s, transform 0.25s;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    #toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    #toast.success {
+        background: #14532d;
+        color: #86efac;
+        border: 1px solid #166534;
+    }
+
+    #toast.error {
+        background: #450a0a;
+        color: #fca5a5;
+        border: 1px solid #7f1d1d;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="w-full min-h-screen">
 
-  <!-- ── Top Bar ──────────────────────────────────────────────── -->
-  <nav class="w-full px-6 md:px-10 py-4 flex items-center justify-between border-b border-white/5" style="background: #12141aee;">
-    <a href="/" class="flex items-center gap-3 hover:opacity-80 transition">
-      <span class="text-2xl">♞</span>
-      <span class="text-lg font-bold tracking-wide">Project Chess</span>
-    </a>
-    <div class="flex items-center gap-6">
-      <span class="text-sm opacity-60">{{ username }}</span>
-      <a href="/" class="text-sm opacity-60 hover:text-white transition">← Home</a>
-      
-      <div class="relative">
-        <button id="settings-toggle" class="flex items-center gap-2 opacity-60 hover:opacity-100 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-        </button>
-        <div id="settings-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden" style="background: var(--secondary);">
-          <a href="/login" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-            Switch Account
-          </a>
-          <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
-            Logout
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
+    <!-- ── Page layout ──────────────────────────────────────────────────── -->
+    <div class="w-full max-w-6xl mx-auto px-4 md:px-8 py-8 flex gap-6">
 
-  <!-- ── Settings Content ─────────────────────────────────────── -->
-  <div class="w-full max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
+        <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+        <aside class="w-56 flex-shrink-0 hidden md:block">
+            <div class="sticky top-8">
+                <p class="text-xs font-semibold uppercase tracking-widest text-white/30 px-3 mb-3">Settings</p>
+                <nav class="space-y-0.5">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold">Settings</h1>
-        <p class="opacity-70 mt-1">Customize your chess experience</p>
-      </div>
-      <span class="tier-badge {{ 'tier-premium' if tier == 'premium' else 'tier-free' }}">
-        {{ '⭐ Premium' if tier == 'premium' else '🆓 Free Tier' }}
-      </span>
-    </div>
+                    <button class="sidebar-link active" data-target="profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                        Account & Profile
+                    </button>
 
-    <!-- Tier Info -->
-    {% if tier == 'free' %}
-    <div class="card p-5">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h3 class="font-semibold text-lg">Upgrade to Premium</h3>
-          <p class="text-sm opacity-70 mt-1">Unlimited theme changes, custom background uploads, and more.</p>
-          {% if not can_change %}
-          <p class="text-sm text-amber-400 mt-2">⏳ {{ change_msg }}</p>
-          {% else %}
-          <p class="text-sm text-green-400 mt-2">✅ {{ change_msg }}</p>
-          {% endif %}
-        </div>
-        <button id="upgrade-btn" class="btn-gold px-6 py-3 text-sm uppercase tracking-widest flex-shrink-0">
-          Upgrade Now
-        </button>
-      </div>
-    </div>
-    {% else %}
-    <div class="card p-5">
-      <p class="text-green-400 font-medium">⭐ Premium active — unlimited theme changes!</p>
-    </div>
-    {% endif %}
+                    <button class="sidebar-link" data-target="game">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+                        </svg>
+                        Game Preferences
+                    </button>
 
-    <!-- Theme Customization -->
-    <div class="card p-6 space-y-6">
-      <h2 class="text-xl font-bold gold">🎨 Theme Customization</h2>
+                    <button class="sidebar-link" data-target="notifications">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                        </svg>
+                        Notifications
+                    </button>
 
-      <!-- Colors -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium opacity-80 mb-2">Primary Color</label>
-          <div class="color-input-wrap">
-            <input type="color" id="primary-color" value="{{ prefs.primary_color or '#cca343' }}">
-            <div>
-              <p class="text-sm font-medium">Accent</p>
-              <p class="text-xs opacity-60" id="primary-hex">{{ prefs.primary_color or '#cca343' }}</p>
+                    <button class="sidebar-link" data-target="appearance">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+                        </svg>
+                        Appearance
+                    </button>
+
+                    <button class="sidebar-link" data-target="privacy">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        Privacy
+                    </button>
+
+                </nav>
             </div>
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium opacity-80 mb-2">Card / Secondary</label>
-          <div class="color-input-wrap">
-            <input type="color" id="secondary-color" value="{{ prefs.secondary_color or '#1a1f29' }}">
-            <div>
-              <p class="text-sm font-medium">Background</p>
-              <p class="text-xs opacity-60" id="secondary-hex">{{ prefs.secondary_color or '#1a1f29' }}</p>
+        </aside>
+
+        <!-- ── Mobile tab bar ────────────────────────────────────────────── -->
+        <div class="md:hidden w-full mb-4">
+            <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+                <button class="sidebar-link active flex-shrink-0 !w-auto" data-target="profile">Profile</button>
+                <button class="sidebar-link flex-shrink-0 !w-auto" data-target="game">Game</button>
+                <button class="sidebar-link flex-shrink-0 !w-auto" data-target="notifications">Alerts</button>
+                <button class="sidebar-link flex-shrink-0 !w-auto" data-target="appearance">Look</button>
+                <button class="sidebar-link flex-shrink-0 !w-auto" data-target="privacy">Privacy</button>
             </div>
-          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium opacity-80 mb-2">Text Color</label>
-          <div class="color-input-wrap">
-            <input type="color" id="text-color" value="{{ prefs.text_color or '#ffffff' }}">
-            <div>
-              <p class="text-sm font-medium">Text</p>
-              <p class="text-xs opacity-60" id="text-hex">{{ prefs.text_color or '#ffffff' }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Background Image -->
-      <div>
-        <label class="block text-sm font-medium opacity-80 mb-3">Background Image</label>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-option {{ 'selected' if (prefs.bg_image or 'chess-board.jpg') == 'chess-board.jpg' }}" data-bg="chess-board.jpg">
-            <img src="/static/images/chess-board.jpg" alt="Chess Board">
-            <div class="label">Chess Board</div>
-          </div>
-          <div class="bg-option {{ 'selected' if prefs.bg_image == 'chess-meme.jpg' }}" data-bg="chess-meme.jpg">
-            <img src="/static/images/chess-meme.jpg" alt="Chess Meme">
-            <div class="label">Chess Meme</div>
-          </div>
-        </div>
-      </div>
+        <!-- ── Main content ───────────────────────────────────────────────── -->
+        <main class="flex-1 min-w-0 space-y-6">
 
-      <!-- Live Preview -->
-      <div>
-        <label class="block text-sm font-medium opacity-80 mb-3">Live Preview</label>
-        <div id="preview-box" class="preview-box" style="background: {{ prefs.secondary_color or '#1a1f29' }};">
-          <p id="preview-label" class="text-xs uppercase tracking-[0.25em] mb-2" style="color: {{ prefs.primary_color or '#cca343' }};">Preview Card</p>
-          <h3 id="preview-title" class="text-xl font-bold" style="color: {{ prefs.text_color or '#ffffff' }};">This is how your dashboard looks</h3>
-          <p id="preview-desc" class="text-sm mt-2" style="color: {{ prefs.text_color or '#ffffff' }}; opacity: 0.5;">Subtitle text with your custom colors applied.</p>
-        </div>
-      </div>
+            <!-- ═══════════════════════════════════════════════════════════════
+           SECTION: Account & Profile
+      ════════════════════════════════════════════════════════════════ -->
+            <section id="section-profile" class="settings-section active">
+                <div class="card p-6">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                        <div>
+                            <h2>Account & Profile</h2>
+                            <p>Your public identity on Project Chess</p>
+                        </div>
+                    </div>
 
-      <!-- Save Button -->
-      <div class="flex items-center gap-4">
-        <button id="save-theme-btn" class="btn-gold px-8 py-3 text-sm uppercase tracking-widest" {{ 'disabled' if not can_change }}>
-          {{ 'Save Theme' if can_change else 'Change Locked' }}
-        </button>
-        <span id="save-status" class="text-sm opacity-70"></span>
-      </div>
+                    <!-- Avatar row -->
+                    <div class="flex items-center gap-5 mb-6">
+                        <!-- Clickable avatar with overlay + popup menu -->
+                        <div class="relative" style="width:80px;height:80px;flex-shrink:0;">
+                            <div class="avatar-circle" id="avatar-display" onclick="toggleAvatarMenu(event)">
+                                <img id="avatar-img" src="{{ s.avatar_url if s and s.avatar_url else '' }}" alt="Avatar"
+                                    class="{{ '' if s and s.avatar_url else 'hidden' }}"
+                                    style="width:100%;height:100%;object-fit:cover;">
+                                <span id="avatar-initials" class="{{ 'hidden' if s and s.avatar_url else '' }}">{{
+                                    (username or 'U')[0] | upper }}</span>
+                                <div class="avatar-overlay">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                                    </svg>
+                                    <span>Edit</span>
+                                </div>
+                            </div>
+
+                            <!-- Popup menu -->
+                            <div id="avatar-menu" class="avatar-menu hidden">
+                                <button onclick="triggerAvatarUpload()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                    </svg>
+                                    Upload Picture
+                                </button>
+                                <button class="danger" onclick="removeAvatarPicture()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg>
+                                    Remove Picture
+                                </button>
+                            </div>
+
+                            <!-- Hidden file input — opens device photo picker -->
+                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden"
+                                onchange="handleAvatarFile(this)">
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-base">{{ username }}</p>
+                            <p class="text-sm text-white/40 mt-0.5">Tap your avatar to change your profile picture</p>
+                        </div>
+                    </div>
+
+                    <!-- Username + Email row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="field-label" for="username">Username</label>
+                            <input type="text" id="username" class="field-input" placeholder="Your username"
+                                value="{{ user.username if user else '' }}" maxlength="20">
+                        </div>
+                        <div>
+                            <label class="field-label" for="email">Email Address</label>
+                            <input type="email" id="email" class="field-input" placeholder="you@example.com"
+                                value="{{ user.email if user else '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Country + Bio row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="field-label" for="country">Country / Region</label>
+                            <select id="country" class="field-input">
+                                {% for code, label in countries %}
+                                <option value="{{ code }}" {% if s and s.country==code %}selected{% endif %}>{{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <p class="text-xs text-white/30 mt-1">Shown as a flag next to your rating.</p>
+                        </div>
+                        <div>
+                            <label class="field-label" for="bio">Bio</label>
+                            <textarea id="bio" class="field-input"
+                                placeholder="Tell the community a bit about yourself…"
+                                maxlength="300">{{ s.bio if s else '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button class="btn-gold" onclick="saveSection('profile')">Save Profile</button>
+                    </div>
+
+                    <hr class="divider">
+
+                    <!-- Change Password -->
+                    <div class="section-header mt-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        <div>
+                            <h2>Change Password</h2>
+                            <p>Use a strong password you don't use elsewhere</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="field-label" for="current_password">Current Password</label>
+                            <input type="password" id="current_password" class="field-input" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="field-label" for="new_password">New Password</label>
+                            <input type="password" id="new_password" class="field-input"
+                                placeholder="Min. 8 characters">
+                        </div>
+                        <div>
+                            <label class="field-label" for="confirm_password">Confirm Password</label>
+                            <input type="password" id="confirm_password" class="field-input"
+                                placeholder="Repeat new password">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button class="btn-ghost" onclick="saveSection('password')">Change Password</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════
+           SECTION: Game Preferences
+      ════════════════════════════════════════════════════════════════ -->
+            <section id="section-game" class="settings-section">
+                <div class="card p-6 space-y-8">
+                    <div class="section-header mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+                        </svg>
+                        <div>
+                            <h2>Game Preferences</h2>
+                            <p>Customize your board and gameplay experience</p>
+                        </div>
+                    </div>
+
+                    <!-- Board Theme -->
+                    <div>
+                        <label class="field-label mb-3 block">Board Theme</label>
+                        <div class="theme-grid">
+                            {% set cur_theme = s.board_theme if s else 'classic' %}
+
+                            <label class="theme-option">
+                                <input type="radio" name="board_theme" value="classic" {% if cur_theme=='classic'
+                                    %}checked{% endif %}>
+                                <div class="theme-card">
+                                    <div class="theme-preview">
+                                        {% for i in range(16) %}
+                                        <span
+                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#739552{% else %}#ebecd0{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="theme-label">Classic</span>
+                                </div>
+                            </label>
+
+                            <label class="theme-option">
+                                <input type="radio" name="board_theme" value="walnut" {% if cur_theme=='walnut'
+                                    %}checked{% endif %}>
+                                <div class="theme-card">
+                                    <div class="theme-preview">
+                                        {% for i in range(16) %}
+                                        <span
+                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#7b5330{% else %}#c8a97e{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="theme-label">Walnut</span>
+                                </div>
+                            </label>
+
+                            <label class="theme-option">
+                                <input type="radio" name="board_theme" value="ocean" {% if cur_theme=='ocean'
+                                    %}checked{% endif %}>
+                                <div class="theme-card">
+                                    <div class="theme-preview">
+                                        {% for i in range(16) %}
+                                        <span
+                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#4a7fa5{% else %}#b0d0e8{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="theme-label">Ocean</span>
+                                </div>
+                            </label>
+
+                            <label class="theme-option">
+                                <input type="radio" name="board_theme" value="tournament" {% if cur_theme=='tournament'
+                                    %}checked{% endif %}>
+                                <div class="theme-card">
+                                    <div class="theme-preview">
+                                        {% for i in range(16) %}
+                                        <span
+                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#2e6b4a{% else %}#f0eed5{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="theme-label">Tournament</span>
+                                </div>
+                            </label>
+
+                            <label class="theme-option">
+                                <input type="radio" name="board_theme" value="night" {% if cur_theme=='night'
+                                    %}checked{% endif %}>
+                                <div class="theme-card">
+                                    <div class="theme-preview">
+                                        {% for i in range(16) %}
+                                        <span
+                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#2a2a3e{% else %}#4a4a62{% endif %}"></span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="theme-label">Night</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Piece Set -->
+                    <div>
+                        <label class="field-label mb-3 block">Piece Set</label>
+                        <div class="piece-grid">
+                            {% set cur_piece = s.piece_set if s else 'classic' %}
+                            {% for val, icon, label in [('classic','♔','Classic'), ('modern','♚','Modern'),
+                            ('neo','⬡','Neo'), ('pixel','▣','Pixel'), ('alpha','K','Alpha')] %}
+                            <label class="piece-option">
+                                <input type="radio" name="piece_set" value="{{ val }}" {% if cur_piece==val %}checked{%
+                                    endif %}>
+                                <div class="piece-card">
+                                    <span class="piece-icon">{{ icon }}</span>
+                                    <span class="piece-label">{{ label }}</span>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Board Orientation -->
+                    <div>
+                        <label class="field-label mb-3 block">Board Orientation</label>
+                        <div class="space-y-2">
+                            {% set cur_orient = s.board_orientation if s else 'white' %}
+                            <label class="orient-option">
+                                <input type="radio" name="board_orientation" value="white" {% if cur_orient=='white'
+                                    %}checked{% endif %}>
+                                <div class="orient-card">
+                                    <span class="orient-dot"></span>
+                                    <div>
+                                        <p class="text-sm font-semibold">White always at bottom</p>
+                                        <p class="text-xs text-white/40">You always see white pieces from the bottom,
+                                            regardless of your color.</p>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="orient-option">
+                                <input type="radio" name="board_orientation" value="auto" {% if cur_orient=='auto'
+                                    %}checked{% endif %}>
+                                <div class="orient-card">
+                                    <span class="orient-dot"></span>
+                                    <div>
+                                        <p class="text-sm font-semibold">Auto-flip</p>
+                                        <p class="text-xs text-white/40">The board flips so your pieces are always at
+                                            the bottom.</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Gameplay Toggles -->
+                    <div>
+                        <label class="field-label mb-1 block">Gameplay</label>
+
+                        <div class="toggle-wrap">
+                            <div class="toggle-info">
+                                <h4>Move Confirmation</h4>
+                                <p>Require a second click to confirm each move.</p>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="move_confirmation" {% if s and s.move_confirmation
+                                    %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-wrap">
+                            <div class="toggle-info">
+                                <h4>Auto-Promote to Queen</h4>
+                                <p>Pawns reaching the last rank automatically become queens.</p>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="auto_promote_queen" {% if s and s.auto_promote_queen
+                                    %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-wrap">
+                            <div class="toggle-info">
+                                <h4>Premove</h4>
+                                <p>Queue a move while your opponent is thinking.</p>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="premove" {% if s and s.premove %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-wrap">
+                            <div class="toggle-info">
+                                <h4>Sound Effects</h4>
+                                <p>Play sounds for moves, captures, and game events.</p>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="sound_effects" {% if s and s.sound_effects %}checked{% endif
+                                    %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button class="btn-gold" onclick="saveSection('game')">Save Preferences</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════
+           SECTION: Notifications
+      ════════════════════════════════════════════════════════════════ -->
+            <section id="section-notifications" class="settings-section">
+                <div class="card p-6">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                        </svg>
+                        <div>
+                            <h2>Notifications</h2>
+                            <p>Choose what alerts you receive</p>
+                        </div>
+                    </div>
+
+                    <div class="toggle-wrap">
+                        <div class="toggle-info">
+                            <h4>Game Invites &amp; Challenges</h4>
+                            <p>Get notified when someone sends you a game challenge.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notify_game_invites" {% if s and s.notify_game_invites
+                                %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-wrap">
+                        <div class="toggle-info">
+                            <h4>Friend Requests</h4>
+                            <p>Get notified when someone sends you a friend request.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notify_friend_requests" {% if s and s.notify_friend_requests
+                                %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-wrap">
+                        <div class="toggle-info">
+                            <h4>Tournament &amp; Event Reminders</h4>
+                            <p>Alerts for tournaments you've joined or that are starting soon.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notify_tournaments" {% if s and s.notify_tournaments %}checked{%
+                                endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-wrap">
+                        <div class="toggle-info">
+                            <h4>It's Your Move</h4>
+                            <p>Reminders in correspondence games when it's time for your move.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notify_your_turn" {% if s and s.notify_your_turn %}checked{%
+                                endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-wrap">
+                        <div class="toggle-info">
+                            <h4>Daily Puzzle Reminder</h4>
+                            <p>Daily nudge to solve the puzzle of the day.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notify_daily_puzzle" {% if s and s.notify_daily_puzzle
+                                %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button class="btn-gold" onclick="saveSection('notifications')">Save Notifications</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════
+           SECTION: Appearance
+      ════════════════════════════════════════════════════════════════ -->
+            <section id="section-appearance" class="settings-section">
+                <div class="card p-6">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+                        </svg>
+                        <div>
+                            <h2>Appearance</h2>
+                            <p>Adjust how Project Chess looks for you</p>
+                        </div>
+                    </div>
+
+                    <label class="field-label mb-3 block">Site Theme</label>
+                    <div class="theme-toggle-row mb-8">
+                        {% set cur_site_theme = s.site_theme if s else 'dark' %}
+
+                        <label class="appearance-option">
+                            <input type="radio" name="site_theme" value="dark" {% if cur_site_theme=='dark' %}checked{%
+                                endif %}>
+                            <div class="appearance-card">
+                                <span class="appearance-icon">🌙</span>
+                                <span class="appearance-label">Dark</span>
+                            </div>
+                        </label>
+
+                        <label class="appearance-option">
+                            <input type="radio" name="site_theme" value="light" {% if cur_site_theme=='light'
+                                %}checked{% endif %}>
+                            <div class="appearance-card">
+                                <span class="appearance-icon">☀️</span>
+                                <span class="appearance-label">Light</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="rounded-xl p-4 mb-6 text-sm"
+                        style="background:#13151d; border:1px solid rgba(255,255,255,0.07);">
+                        <p class="text-white/50">Board theme and piece set can be changed in <button
+                                class="text-[var(--primary)] hover:underline" onclick="switchSection('game')">Game
+                                Preferences</button>.</p>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button class="btn-gold" onclick="saveSection('appearance')">Save Appearance</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════
+           SECTION: Privacy
+      ════════════════════════════════════════════════════════════════ -->
+            <section id="section-privacy" class="settings-section">
+                <div class="card p-6 space-y-8">
+                    <div class="section-header mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        <div>
+                            <h2>Privacy</h2>
+                            <p>Control who can interact with you</p>
+                        </div>
+                    </div>
+
+                    <!-- Who can challenge -->
+                    <div>
+                        <label class="field-label mb-3 block">Who Can Challenge You</label>
+                        {% set cur_challenge = s.who_can_challenge if s else 'anyone' %}
+
+                        <label class="privacy-option">
+                            <input type="radio" name="who_can_challenge" value="anyone" {% if cur_challenge=='anyone'
+                                %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Anyone</h4>
+                                    <p>Any registered player can send you a game challenge.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="privacy-option">
+                            <input type="radio" name="who_can_challenge" value="friends" {% if cur_challenge=='friends'
+                                %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Friends Only</h4>
+                                    <p>Only people on your friends list can challenge you.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="privacy-option">
+                            <input type="radio" name="who_can_challenge" value="nobody" {% if cur_challenge=='nobody'
+                                %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Nobody</h4>
+                                    <p>Disable all incoming challenges. You can still start games yourself.</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Profile visibility -->
+                    <div>
+                        <label class="field-label mb-3 block">Profile Visibility</label>
+                        {% set cur_visibility = s.profile_visibility if s else 'public' %}
+
+                        <label class="privacy-option">
+                            <input type="radio" name="profile_visibility" value="public" {% if cur_visibility=='public'
+                                %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Public</h4>
+                                    <p>Anyone can view your profile, rating, and game history.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="privacy-option">
+                            <input type="radio" name="profile_visibility" value="friends" {% if
+                                cur_visibility=='friends' %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Friends Only</h4>
+                                    <p>Only friends can see your full profile and game history.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="privacy-option">
+                            <input type="radio" name="profile_visibility" value="private" {% if
+                                cur_visibility=='private' %}checked{% endif %}>
+                            <div class="privacy-card">
+                                <span class="privacy-radio"></span>
+                                <div class="privacy-text">
+                                    <h4>Private</h4>
+                                    <p>Your profile is hidden from other players entirely.</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Block list -->
+                    <div>
+                        <label class="field-label mb-3 block">Block List</label>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="block-input" class="field-input"
+                                placeholder="Enter username to block…">
+                            <button class="btn-ghost flex-shrink-0" onclick="blockUser()">Block</button>
+                        </div>
+                        <div id="block-list" class="space-y-2">
+                            <div class="flex items-center justify-center py-8 rounded-xl text-sm text-white/30"
+                                style="background:#13151d; border:1px dashed rgba(255,255,255,0.08);">
+                                <span>No blocked users</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button class="btn-gold" onclick="saveSection('privacy')">Save Privacy</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
-
-  </div>
 </div>
+
+<!-- Toast -->
+<div id="toast" role="alert"></div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-(function() {
-  const primaryInput   = document.getElementById('primary-color');
-  const secondaryInput = document.getElementById('secondary-color');
-  const textInput      = document.getElementById('text-color');
-  const previewBox     = document.getElementById('preview-box');
-  const previewLabel   = document.getElementById('preview-label');
-  const previewTitle   = document.getElementById('preview-title');
-  const previewDesc    = document.getElementById('preview-desc');
-  const primaryHex     = document.getElementById('primary-hex');
-  const secondaryHex   = document.getElementById('secondary-hex');
-  const textHex        = document.getElementById('text-hex');
-  const saveBtn        = document.getElementById('save-theme-btn');
-  const saveStatus     = document.getElementById('save-status');
-  const upgradeBtn     = document.getElementById('upgrade-btn');
+    (function () {
+        /* ── Section switching ─────────────────────────────── */
+        const links = document.querySelectorAll('.sidebar-link[data-target]');
+        const sections = document.querySelectorAll('.settings-section');
 
-  let selectedBg = '{{ prefs.bg_image or "chess-board.jpg" }}';
-
-  // Live preview updates
-  function updatePreview() {
-    const p = primaryInput.value;
-    const s = secondaryInput.value;
-    const t = textInput.value;
-
-    previewBox.style.background = s;
-    previewLabel.style.color = p;
-    previewTitle.style.color = t;
-    previewDesc.style.color = t + '80';
-    primaryHex.textContent = p;
-    secondaryHex.textContent = s;
-    textHex.textContent = t;
-  }
-
-  primaryInput.addEventListener('input', updatePreview);
-  secondaryInput.addEventListener('input', updatePreview);
-  textInput.addEventListener('input', updatePreview);
-
-  // Background selection
-  document.querySelectorAll('.bg-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('.bg-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      selectedBg = opt.dataset.bg;
-    });
-  });
-
-  // Save theme
-  if (saveBtn && !saveBtn.disabled) {
-    saveBtn.addEventListener('click', async () => {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
-      saveStatus.textContent = '';
-
-      try {
-        const res = await fetch('/api/update-theme', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            bg_image: selectedBg,
-            primary_color: primaryInput.value,
-            secondary_color: secondaryInput.value,
-            text_color: textInput.value
-          })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          saveStatus.textContent = '✅ ' + data.message;
-          saveStatus.className = 'text-sm text-green-400';
-          setTimeout(() => location.reload(), 1000);
-        } else {
-          saveStatus.textContent = '❌ ' + data.message;
-          saveStatus.className = 'text-sm text-red-400';
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save Theme';
+        function switchSection(target) {
+            sections.forEach(s => s.classList.remove('active'));
+            links.forEach(l => l.classList.remove('active'));
+            const sec = document.getElementById('section-' + target);
+            if (sec) sec.classList.add('active');
+            links.forEach(l => { if (l.dataset.target === target) l.classList.add('active'); });
+            history.replaceState(null, '', '#' + target);
         }
-      } catch (e) {
-        saveStatus.textContent = '❌ Network error';
-        saveStatus.className = 'text-sm text-red-400';
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save Theme';
-      }
-    });
-  }
 
-  // Upgrade tier
-  if (upgradeBtn) {
-    upgradeBtn.addEventListener('click', async () => {
-      upgradeBtn.disabled = true;
-      upgradeBtn.textContent = 'Upgrading...';
+        links.forEach(l => l.addEventListener('click', () => switchSection(l.dataset.target)));
 
-      try {
-        const res = await fetch('/api/upgrade-tier', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+        // Restore from hash
+        const hash = location.hash.replace('#', '');
+        if (hash) switchSection(hash);
+
+
+        /* ── Toast ─────────────────────────────────────────── */
+        let toastTimer;
+        window.showToast = function (msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
+            el.className = 'show ' + type;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+        };
+
+        /* ── Avatar menu ────────────────────────────────────── */
+        const INITIALS = '{{ (username or "U")[0] | upper }}';
+
+        window.toggleAvatarMenu = function (e) {
+            e.stopPropagation();
+            const menu = document.getElementById('avatar-menu');
+            menu.classList.toggle('hidden');
+        };
+
+        document.addEventListener('click', () => {
+            document.getElementById('avatar-menu')?.classList.add('hidden');
         });
-        const data = await res.json();
 
-        if (data.success) {
-          location.reload();
-        } else {
-          alert(data.message);
-          upgradeBtn.disabled = false;
-          upgradeBtn.textContent = 'Upgrade Now';
-        }
-      } catch (e) {
-        alert('Network error');
-        upgradeBtn.disabled = false;
-        upgradeBtn.textContent = 'Upgrade Now';
-      }
-    });
-  }
+        window.triggerAvatarUpload = function () {
+            document.getElementById('avatar-menu').classList.add('hidden');
+            document.getElementById('avatar-file-input').click();
+        };
 
-  // Toggle Settings Dropdown
-  const settingsToggle = document.getElementById('settings-toggle');
-  const settingsDropdown = document.getElementById('settings-dropdown');
-  if (settingsToggle && settingsDropdown) {
-    settingsToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settingsDropdown.classList.toggle('hidden');
-    });
-    document.addEventListener('click', (e) => {
-      if (!settingsToggle.contains(e.target) && !settingsDropdown.contains(e.target)) {
-        settingsDropdown.classList.add('hidden');
-      }
-    });
-  }
-})();
+        window.handleAvatarFile = async function (input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+
+            // Instant local preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('avatar-img').src = e.target.result;
+                document.getElementById('avatar-img').classList.remove('hidden');
+                document.getElementById('avatar-initials')?.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            const fd = new FormData();
+            fd.append('avatar', file);
+            try {
+                const res = await fetch('/api/settings/avatar', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(data.message, 'success');
+                    // Sync img src to the server URL (cache-busted)
+                    document.getElementById('avatar-img').src = data.url;
+                } else {
+                    showToast(data.error || 'Upload failed', 'error');
+                }
+            } catch {
+                showToast('Network error — please try again', 'error');
+            }
+            input.value = '';
+        };
+
+        window.removeAvatarPicture = async function () {
+            document.getElementById('avatar-menu').classList.add('hidden');
+            try {
+                const res = await fetch('/api/settings/avatar', { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    const img = document.getElementById('avatar-img');
+                    img.src = '';
+                    img.classList.add('hidden');
+                    let init = document.getElementById('avatar-initials');
+                    if (!init) {
+                        init = document.createElement('span');
+                        init.id = 'avatar-initials';
+                        document.getElementById('avatar-display').insertBefore(init, document.querySelector('.avatar-overlay'));
+                    }
+                    init.textContent = INITIALS;
+                    init.classList.remove('hidden');
+                    showToast('Profile picture removed', 'success');
+                } else {
+                    showToast(data.error || 'Could not remove picture', 'error');
+                }
+            } catch {
+                showToast('Network error — please try again', 'error');
+            }
+        };
+
+        /* ── Save helpers ─────────────────────────────────── */
+        function getBool(id) { return document.getElementById(id)?.checked ?? false; }
+        function getVal(id) { return (document.getElementById(id)?.value ?? '').trim(); }
+        function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value ?? ''; }
+
+        window.switchSection = switchSection;
+
+        window.saveSection = async function (section) {
+            let endpoint = '/api/settings/' + section;
+            let payload = {};
+
+            if (section === 'profile') {
+                payload = {
+                    username: getVal('username'),
+                    email: getVal('email'),
+                    country: getVal('country'),
+                    bio: getVal('bio'),
+                };
+            } else if (section === 'password') {
+                payload = {
+                    current_password: getVal('current_password'),
+                    new_password: getVal('new_password'),
+                    confirm_password: getVal('confirm_password'),
+                };
+                endpoint = '/api/settings/password';
+            } else if (section === 'game') {
+                payload = {
+                    board_theme: getRadio('board_theme'),
+                    piece_set: getRadio('piece_set'),
+                    board_orientation: getRadio('board_orientation'),
+                    move_confirmation: getBool('move_confirmation'),
+                    auto_promote_queen: getBool('auto_promote_queen'),
+                    premove: getBool('premove'),
+                    sound_effects: getBool('sound_effects'),
+                };
+            } else if (section === 'notifications') {
+                payload = {
+                    notify_game_invites: getBool('notify_game_invites'),
+                    notify_friend_requests: getBool('notify_friend_requests'),
+                    notify_tournaments: getBool('notify_tournaments'),
+                    notify_your_turn: getBool('notify_your_turn'),
+                    notify_daily_puzzle: getBool('notify_daily_puzzle'),
+                };
+            } else if (section === 'appearance') {
+                payload = { site_theme: getRadio('site_theme') };
+            } else if (section === 'privacy') {
+                payload = {
+                    who_can_challenge: getRadio('who_can_challenge'),
+                    profile_visibility: getRadio('profile_visibility'),
+                };
+            }
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(data.message, 'success');
+                    if (section === 'password') {
+                        document.getElementById('current_password').value = '';
+                        document.getElementById('new_password').value = '';
+                        document.getElementById('confirm_password').value = '';
+                    }
+                } else {
+                    showToast(data.error || 'Something went wrong', 'error');
+                }
+            } catch {
+                showToast('Network error — please try again', 'error');
+            }
+        };
+
+        /* ── Block user (UI only for now) ───────────────────── */
+        window.blockUser = function () {
+            const input = document.getElementById('block-input');
+            const name = input.value.trim();
+            if (!name) return;
+            const list = document.getElementById('block-list');
+            const placeholder = list.querySelector('.flex.items-center.justify-center');
+            if (placeholder) placeholder.remove();
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between px-4 py-3 rounded-xl text-sm';
+            row.style.cssText = 'background:#13151d;border:1px solid rgba(255,255,255,0.07)';
+            row.innerHTML = `<span class="font-medium">${name.replace(/</g, '&lt;')}</span>
+      <button class="text-red-400 hover:text-red-300 text-xs font-medium transition" onclick="this.closest('div').remove()">Unblock</button>`;
+            list.appendChild(row);
+            input.value = '';
+        };
+    })();
 </script>
 {% endblock %}
