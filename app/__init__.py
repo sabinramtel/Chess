@@ -3,7 +3,7 @@ from flask_socketio import SocketIO
 import os
 
 # Create the SocketIO instance at module level so sockets.py can import it
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 
 
 def create_app():
