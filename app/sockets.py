@@ -133,7 +133,7 @@ def handle_join_game(data):
         'color': guest_color,
         'game_state': state,
         'white_username': room['white']['username'],
-        'black_username': username,
+        'black_username': room['black']['username'],
     })
 
     # Tell the whole room (including creator) the game is live
