@@ -98,7 +98,9 @@ class Board:
                 for row in self.grid
             ],
             'en_passant_square': self.en_passant_square,
-            'castling_rights': self.castling_rights
+            'castling_rights': {
+                color.value: rights for color, rights in self.castling_rights.items()
+            }
         }
     
     def to_fen(self):
