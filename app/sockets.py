@@ -142,7 +142,7 @@ def handle_join_game(data):
         'white_username': room['white']['username'],
         'black_username': room['black']['username'],
         'color': creator_color,
-    }, to=room_code)
+    }, to=creator_data['sid'])
 
 
 # ══════════════════════════════════════════════════════════════════════════════
