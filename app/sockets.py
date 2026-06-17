@@ -65,7 +65,8 @@ def handle_create_game(data):
     room_code = _make_room_code()
 
     active_rooms[room_code] = {
-        'white': {'sid': request.sid, 'username': username},
+        'creator': {'sid': request.sid, 'username': username},
+        'white': None,
         'black': None,
         'game': None,
         'time_control': time_control,
