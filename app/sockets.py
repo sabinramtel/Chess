@@ -136,7 +136,7 @@ def handle_join_game(data):
         'black_username': room['black']['username'],
     })
 
-    # Tell the whole room (including creator) the game is live
+    # Tell the creator their colour and start the game
     emit('game_started', {
         'game_state': state,
         'white_username': room['white']['username'],
