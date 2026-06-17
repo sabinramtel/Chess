@@ -331,10 +331,10 @@ def handle_disconnect():
     game = room.get('game')
 
     # Determine who left
-    if room['white'] and room['white']['sid'] == sid:
+    if room.get('white') and room['white']['sid'] == sid:
         who = 'white'
         winner = 'black'
-    elif room['black'] and room['black']['sid'] == sid:
+    elif room.get('black') and room['black']['sid'] == sid:
         who = 'black'
         winner = 'white'
     else:
