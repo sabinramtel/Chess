@@ -120,7 +120,7 @@ def handle_join_game(data):
     # ── Create the game ───────────────────────────────────────────────────────
     game = GameController.create_game(
         white_username=room['white']['username'],
-        black_username=username,
+        black_username=room['black']['username'],
         time_control=room['time_control'],
         increment=room['increment'],
     )
