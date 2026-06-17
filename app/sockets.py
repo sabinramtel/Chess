@@ -76,7 +76,7 @@ def handle_create_game(data):
     sid_to_room[request.sid] = room_code
 
     join_room(room_code)
-    emit('room_created', {'room_code': room_code, 'color': 'white'})
+    emit('room_created', {'room_code': room_code, 'color': 'pending'})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
