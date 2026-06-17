@@ -58,7 +58,7 @@ def handle_create_game(data):
     Server responds to creator only:
         room_created  { room_code, color:'pending' }
     """
-    username = (data.get('username') or 'White').strip() or 'White'
+    username = (data.get('username') or 'Player').strip() or 'Player'
     time_control = int(data.get('time_control', 600))
     increment = int(data.get('increment', 0))
 
