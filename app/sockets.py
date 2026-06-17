@@ -91,7 +91,7 @@ def handle_join_game(data):
     Emits to the joiner:
         joined_game  { room_code, color: randomized, game_state }
     Emits to the creator:
-        game_started { game_state, white_username, black_username }
+        game_started { game_state, white_username, black_username, color: randomized }
     """
     room_code = (data.get('room_code') or '').strip().upper()
     username = (data.get('username') or 'Player').strip() or 'Player'
