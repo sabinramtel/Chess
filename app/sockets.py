@@ -94,7 +94,7 @@ def handle_join_game(data):
         game_started { game_state, white_username, black_username }
     """
     room_code = (data.get('room_code') or '').strip().upper()
-    username = (data.get('username') or 'Black').strip() or 'Black'
+    username = (data.get('username') or 'Player').strip() or 'Player'
 
     # ── Validation ────────────────────────────────────────────────────────────
     if room_code not in active_rooms:
