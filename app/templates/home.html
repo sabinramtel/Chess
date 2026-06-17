@@ -4,331 +4,302 @@
 
 {% block head %}
 <style>
-  body {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
-    padding: 0 !important;
-    flex-direction: column;
-  }
-  .card {
-    background: #0b0c10;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 1rem;
-  }
-  .card-glow {
-    background: #0b0c10;
-  }
-  .card-glow:hover {
-    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
-    box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 5%, transparent);
-  }
-  .gold { color: var(--primary); }
-  .btn-gold {
-    background: var(--primary);
-    color: #121214;
-    font-weight: 700;
-    border-radius: 0.5rem;
-    transition: filter 0.2s;
-  }
-  .btn-gold:hover { filter: brightness(0.9); }
-  .nav-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    opacity: 0.6;
-    font-size: 0.65rem;
-    transition: all 0.2s;
-    cursor: pointer;
-  }
-  .nav-icon:hover { opacity: 1; color: var(--primary); }
-  .nav-icon svg { width: 22px; height: 22px; }
-  .move-row { display: flex; gap: 0; font-size: 0.8rem; }
-  .move-row span { padding: 4px 10px; }
-  .move-num { color: #6b7280; min-width: 28px; }
-  .move-white, .move-black { color: #d1d5db; }
-  .stats-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .stats-row:last-child { border-bottom: none; }
-  .tab-active {
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-    padding-bottom: 8px;
-    font-weight: 600;
-  }
-  .tab-inactive {
-    color: #6b7280;
-    padding-bottom: 8px;
-    cursor: pointer;
-  }
-  .tab-inactive:hover { color: #9ca3af; }
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        flex-direction: column;
+    }
+
+    .card {
+        background: #0b0c10;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+    }
+
+    .card-glow {
+        background: #0b0c10;
+    }
+
+    .card-glow:hover {
+        border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+        box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 5%, transparent);
+    }
+
+    .gold {
+        color: var(--primary);
+    }
+
+    .btn-gold {
+        background: var(--primary);
+        color: #121214;
+        font-weight: 700;
+        border-radius: 0.5rem;
+        transition: filter 0.2s;
+    }
+
+    .btn-gold:hover {
+        filter: brightness(0.9);
+    }
+
+    .nav-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        opacity: 0.6;
+        font-size: 0.65rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .nav-icon:hover {
+        opacity: 1;
+        color: var(--primary);
+    }
+
+    .nav-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .move-row {
+        display: flex;
+        gap: 0;
+        font-size: 0.8rem;
+    }
+
+    .move-row span {
+        padding: 4px 10px;
+    }
+
+    .move-num {
+        color: #6b7280;
+        min-width: 28px;
+    }
+
+    .move-white,
+    .move-black {
+        color: #d1d5db;
+    }
+
+    .stats-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stats-row:last-child {
+        border-bottom: none;
+    }
+
+    .tab-active {
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .tab-inactive {
+        color: #6b7280;
+        padding-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .tab-inactive:hover {
+        color: #9ca3af;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
-  <div class="w-full min-h-screen">
+<div class="w-full min-h-screen">
 
-    <!-- ── Top Navbar ──────────────────────────────────────────── -->
-    <nav class="w-full px-6 md:px-10 py-4 flex items-center justify-between border-b border-white/5" style="background: #12141aee;">
-      <a href="/" class="flex items-center gap-3 hover:opacity-80 transition">
-        <img src="/static/images/logo.png" alt="Project Chess Logo" class="h-10 w-10 rounded-md object-cover object-center self-center shadow-sm">
-        <span class="text-lg font-bold tracking-wide">Project Chess</span>
-      </a>
-      <div class="flex items-center gap-6 md:gap-8">
-        <a href="#" class="nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-          <span class="hidden sm:block">User Profile</span>
-        </a>
-        <a href="/settings" class="nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
-          <span class="hidden sm:block">Tier</span>
-        </a>
-        <a href="#" class="nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z"/></svg>
-          <span class="hidden sm:block">Game</span>
-        </a>
-        <a href="/" class="nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
-          <span class="hidden sm:block">Stats/Page</span>
-        </a>
-        <div class="relative">
-          <button id="settings-toggle" class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-            <span class="hidden sm:block">Settings</span>
-          </button>
-          <div id="settings-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden" style="background: #0b0c10;">
-            {% if user_id %}
-              <a href="/settings" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition border-b border-white/5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-                All Settings
-              </a>
-              <a href="/login" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition border-b border-white/5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-                Switch Account
-              </a>
-              <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
-                Logout
-              </a>
-            {% else %}
-              <a href="/login" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition border-b border-white/5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
-                Log In
-              </a>
-              <a href="/signup" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
-                Sign Up
-              </a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </nav>
 
     <!-- ── Main Content ────────────────────────────────────────── -->
     <div class="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
 
-      <!-- Welcome Banner -->
-      <div class="card p-5 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-full bg-[#2c3341] border border-white/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#cca343" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-          </div>
-          <div>
-            <p id="display-username" class="text-xs uppercase tracking-[0.3em] gold font-semibold">USER</p>
-            <h1 class="text-2xl md:text-3xl font-bold">Welcome back</h1>
-          </div>
-        </div>
-        <a href="/play" class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#4ade80] text-[#0f172a] font-semibold hover:bg-[#22c55e] transition shadow-lg shadow-emerald-500/20">
-          <span class="text-lg">▶</span>
-          <span>Play</span>
-        </a>
-      </div>
-
-      <!-- Stats Row -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Streak -->
-        <div class="card card-glow p-5 flex justify-between items-start transition-all">
-          <div>
-            <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Streak</p>
-            <h2 class="text-3xl font-bold">0 Days</h2>
-            <p class="text-sm opacity-60 mt-2">Keep your momentum going with daily puzzles.</p>
-          </div>
-          <span class="text-3xl mt-1">🔥</span>
-        </div>
-        <!-- Puzzles -->
-        <div class="card card-glow p-5 flex justify-between items-start transition-all">
-          <div>
-            <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Puzzles</p>
-            <h2 class="text-3xl font-bold">3,458</h2>
-            <p class="text-sm opacity-60 mt-2">Solve more to improve tactics and pattern recognition.</p>
-          </div>
-          <span class="text-3xl mt-1">🧩</span>
-        </div>
-        <!-- Game Review -->
-        <div class="card card-glow p-5 flex justify-between items-start transition-all">
-          <div>
-            <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Game Review</p>
-            <h2 class="text-2xl font-bold leading-tight">Learn from<br>mistakes</h2>
-            <p class="text-sm opacity-60 mt-2">Analyze your last game and level up fast.</p>
-          </div>
-          <span class="text-3xl mt-1">🔍</span>
-        </div>
-      </div>
-
-      <!-- Bottom Row: Puzzle + Review + Games Played -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        <!-- Puzzle Card -->
-        <div class="card card-glow overflow-hidden flex flex-col transition-all">
-          <div class="p-5 flex justify-between items-start">
-            <div>
-              <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Puzzle</p>
-              <h3 class="text-xl font-bold mt-1">Solve Puzzle</h3>
+        <!-- Welcome Banner -->
+        <div class="card p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-14 h-14 rounded-full bg-[#2c3341] border border-white/10 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="#cca343" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p id="display-username" class="text-xs uppercase tracking-[0.3em] gold font-semibold">{{ username
+                        or 'USER' }}</p>
+                    <h1 class="text-2xl md:text-3xl font-bold">Welcome back</h1>
+                </div>
             </div>
-            <span class="text-2xl">♟️</span>
-          </div>
-          <div class="flex-1 bg-[#252b36] flex items-center justify-center p-6">
-            <div class="w-full max-w-[240px] aspect-square rounded-lg overflow-hidden shadow-lg">
-              <img src="/static/images/chess-board.jpg" alt="Chess puzzle" class="w-full h-full object-cover" />
-            </div>
-          </div>
-          <div class="p-4">
-            <button class="btn-gold w-full py-3 text-sm uppercase tracking-widest">Start Puzzle</button>
-          </div>
+            <a href="/play"
+                class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#4ade80] text-[#0f172a] font-semibold hover:bg-[#22c55e] transition shadow-lg shadow-emerald-500/20">
+                <span class="text-lg">▶</span>
+                <span>Play</span>
+            </a>
         </div>
 
-        <!-- Review Match Card -->
-        <div class="card card-glow overflow-hidden flex flex-col transition-all">
-          <div class="p-5 flex justify-between items-start">
-            <div>
-              <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Review</p>
-              <h3 class="text-xl font-bold mt-1">Review Match vs roma884</h3>
-            </div>
-            <span class="text-2xl">⭐</span>
-          </div>
-          <div class="flex-1 p-4">
-            <div class="flex gap-2 mb-3">
-              <div class="flex-1">
-                <!-- Tabs -->
-                <div class="flex gap-4 mb-3 border-b border-white/10 text-sm">
-                  <span class="tab-active">Moves</span>
-                  <span class="tab-inactive">Analysis</span>
+        <!-- Stats Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Streak -->
+            <div class="card card-glow p-5 flex justify-between items-start transition-all">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Streak</p>
+                    <h2 class="text-3xl font-bold">0 Days</h2>
+                    <p class="text-sm opacity-60 mt-2">Keep your momentum going with daily puzzles.</p>
                 </div>
-                <!-- Move list -->
-                <div class="space-y-0.5 text-sm font-mono">
-                  <div class="move-row"><span class="move-num">1.</span><span class="move-white">e4</span><span class="move-black">e5</span></div>
-                  <div class="move-row"><span class="move-num">2.</span><span class="move-white">Nf3</span><span class="move-black">Nc6</span></div>
-                  <div class="move-row"><span class="move-num">3.</span><span class="move-white">Bb5</span><span class="move-black">a6</span></div>
-                  <div class="move-row"><span class="move-num">4.</span><span class="move-white">Ba4</span><span class="move-black">Nf6</span></div>
-                  <div class="move-row"><span class="move-num">5.</span><span class="move-white">O-O</span><span class="move-black">Be7</span></div>
-                  <div class="move-row"><span class="move-num text-gray-600">...</span></div>
+                <span class="text-3xl mt-1">🔥</span>
+            </div>
+            <!-- Puzzles -->
+            <div class="card card-glow p-5 flex justify-between items-start transition-all">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Puzzles</p>
+                    <h2 class="text-3xl font-bold">3,458</h2>
+                    <p class="text-sm opacity-60 mt-2">Solve more to improve tactics and pattern recognition.</p>
                 </div>
-              </div>
-              <!-- Mini board -->
-              <div class="w-28 h-28 rounded overflow-hidden shadow flex-shrink-0 self-center">
-                <img src="/static/images/chess-board.jpg" alt="Board position" class="w-full h-full object-cover" />
-              </div>
+                <span class="text-3xl mt-1">🧩</span>
             </div>
-            <!-- Playback controls -->
-            <div class="flex items-center justify-center gap-3 mt-2">
-              <button class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏮</button>
-              <button class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">▶</button>
-              <button class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏭</button>
+            <!-- Game Review -->
+            <div class="card card-glow p-5 flex justify-between items-start transition-all">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Game Review</p>
+                    <h2 class="text-2xl font-bold leading-tight">Learn from<br>mistakes</h2>
+                    <p class="text-sm opacity-60 mt-2">Analyze your last game and level up fast.</p>
+                </div>
+                <span class="text-3xl mt-1">🔍</span>
             </div>
-          </div>
-          <div class="p-4 pt-0">
-            <button class="w-full py-3 rounded-lg bg-[#252b36] hover:bg-[#2c3341] text-sm font-semibold transition">Open Full Review</button>
-          </div>
         </div>
 
-        <!-- Games Played Card -->
-        <div class="card card-glow overflow-hidden flex flex-col transition-all">
-          <div class="p-5">
-            <!-- Tabs -->
-            <div class="flex gap-6 border-b border-white/10 text-sm mb-4">
-              <span class="tab-active">Mode</span>
-              <span class="tab-inactive">Games Played</span>
-            </div>
-            <!-- Stats -->
-            <div>
-              <div class="stats-row">
-                <div class="flex items-center gap-3">
-                  <span class="text-xl gold">⚡</span>
-                  <span class="font-medium">Blitz</span>
-                </div>
-                <span class="text-lg font-bold">215</span>
-              </div>
-              <div class="stats-row">
-                <div class="flex items-center gap-3">
-                  <span class="text-xl gold">🎯</span>
-                  <span class="font-medium">Bullet</span>
-                </div>
-                <span class="text-lg font-bold">341</span>
-              </div>
-              <div class="stats-row">
-                <div class="flex items-center gap-3">
-                  <span class="text-xl gold">⏱️</span>
-                  <span class="font-medium">Normal (Rapid)</span>
-                </div>
-                <span class="text-lg font-bold">189</span>
-              </div>
-              <div class="stats-row">
-                <div class="flex items-center gap-3">
-                  <span class="text-xl gold">🧩</span>
-                  <span class="font-medium">Customs</span>
-                </div>
-                <span class="text-lg font-bold">57</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Bottom Row: Puzzle + Review + Games Played -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      </div>
+            <!-- Puzzle Card -->
+            <div class="card card-glow overflow-hidden flex flex-col transition-all">
+                <div class="p-5 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Puzzle</p>
+                        <h3 class="text-xl font-bold mt-1">Solve Puzzle</h3>
+                    </div>
+                    <span class="text-2xl">♟️</span>
+                </div>
+                <div class="flex-1 bg-[#252b36] flex items-center justify-center p-6">
+                    <div class="w-full max-w-[240px] aspect-square rounded-lg overflow-hidden shadow-lg">
+                        <img src="/static/images/chess-board.jpg" alt="Chess puzzle"
+                            class="w-full h-full object-cover" />
+                    </div>
+                </div>
+                <div class="p-4">
+                    <button class="btn-gold w-full py-3 text-sm uppercase tracking-widest">Start Puzzle</button>
+                </div>
+            </div>
+
+            <!-- Review Match Card -->
+            <div class="card card-glow overflow-hidden flex flex-col transition-all">
+                <div class="p-5 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Review</p>
+                        <h3 class="text-xl font-bold mt-1">Review Match vs roma884</h3>
+                    </div>
+                    <span class="text-2xl">⭐</span>
+                </div>
+                <div class="flex-1 p-4">
+                    <div class="flex gap-2 mb-3">
+                        <div class="flex-1">
+                            <!-- Tabs -->
+                            <div class="flex gap-4 mb-3 border-b border-white/10 text-sm">
+                                <span class="tab-active">Moves</span>
+                                <span class="tab-inactive">Analysis</span>
+                            </div>
+                            <!-- Move list -->
+                            <div class="space-y-0.5 text-sm font-mono">
+                                <div class="move-row"><span class="move-num">1.</span><span
+                                        class="move-white">e4</span><span class="move-black">e5</span></div>
+                                <div class="move-row"><span class="move-num">2.</span><span
+                                        class="move-white">Nf3</span><span class="move-black">Nc6</span></div>
+                                <div class="move-row"><span class="move-num">3.</span><span
+                                        class="move-white">Bb5</span><span class="move-black">a6</span></div>
+                                <div class="move-row"><span class="move-num">4.</span><span
+                                        class="move-white">Ba4</span><span class="move-black">Nf6</span></div>
+                                <div class="move-row"><span class="move-num">5.</span><span
+                                        class="move-white">O-O</span><span class="move-black">Be7</span></div>
+                                <div class="move-row"><span class="move-num text-gray-600">...</span></div>
+                            </div>
+                        </div>
+                        <!-- Mini board -->
+                        <div class="w-28 h-28 rounded overflow-hidden shadow flex-shrink-0 self-center">
+                            <img src="/static/images/chess-board.jpg" alt="Board position"
+                                class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                    <!-- Playback controls -->
+                    <div class="flex items-center justify-center gap-3 mt-2">
+                        <button
+                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏮</button>
+                        <button
+                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">▶</button>
+                        <button
+                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏭</button>
+                    </div>
+                </div>
+                <div class="p-4 pt-0">
+                    <button
+                        class="w-full py-3 rounded-lg bg-[#252b36] hover:bg-[#2c3341] text-sm font-semibold transition">Open
+                        Full Review</button>
+                </div>
+            </div>
+
+            <!-- Games Played Card -->
+            <div class="card card-glow overflow-hidden flex flex-col transition-all">
+                <div class="p-5">
+                    <!-- Tabs -->
+                    <div class="flex gap-6 border-b border-white/10 text-sm mb-4">
+                        <span class="tab-active">Mode</span>
+                        <span class="tab-inactive">Games Played</span>
+                    </div>
+                    <!-- Stats -->
+                    <div>
+                        <div class="stats-row">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl gold">⚡</span>
+                                <span class="font-medium">Blitz</span>
+                            </div>
+                            <span class="text-lg font-bold">215</span>
+                        </div>
+                        <div class="stats-row">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl gold">🎯</span>
+                                <span class="font-medium">Bullet</span>
+                            </div>
+                            <span class="text-lg font-bold">341</span>
+                        </div>
+                        <div class="stats-row">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl gold">⏱️</span>
+                                <span class="font-medium">Normal (Rapid)</span>
+                            </div>
+                            <span class="text-lg font-bold">189</span>
+                        </div>
+                        <div class="stats-row">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl gold">🧩</span>
+                                <span class="font-medium">Customs</span>
+                            </div>
+                            <span class="text-lg font-bold">57</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-  (function () {
-    const el = document.getElementById('display-username');
-    if (!el) return;
-
-    let username = "{{ username|default('') }}";
-
-    if (!username) {
-      try {
-        username = window.localStorage && window.localStorage.getItem('username');
-      } catch (e) {
-        username = '';
-      }
-    }
-
-    if (username) {
-      el.textContent = username;
-    }
-
-    // Toggle Settings Dropdown
-    const settingsToggle = document.getElementById('settings-toggle');
-    const settingsDropdown = document.getElementById('settings-dropdown');
-    if (settingsToggle && settingsDropdown) {
-      settingsToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        settingsDropdown.classList.toggle('hidden');
-      });
-      document.addEventListener('click', (e) => {
-        if (!settingsToggle.contains(e.target) && !settingsDropdown.contains(e.target)) {
-          settingsDropdown.classList.add('hidden');
-        }
-      });
-    }
-  })();
-</script>
-{% endblock %}
+{% block scripts %}{% endblock %}
