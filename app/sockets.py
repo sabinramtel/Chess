@@ -140,7 +140,7 @@ def handle_join_game(data):
     emit('game_started', {
         'game_state': state,
         'white_username': room['white']['username'],
-        'black_username': username,
+        'black_username': room['black']['username'],
     }, to=room_code)
 
 
