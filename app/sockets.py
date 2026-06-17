@@ -111,8 +111,9 @@ def handle_join_game(data):
         emit('error', {'message': 'You cannot join your own room.'})
         return
 
-    # ── Register second player ────────────────────────────────────────────────
-    room['black'] = {'sid': request.sid, 'username': username}
+    # ── Register second player & Randomize Colors ─────────────────────────────
+    creator_data = room['creator']
+    guest_data = {'sid': request.sid, 'username': username}
     sid_to_room[request.sid] = room_code
     join_room(room_code)
 
