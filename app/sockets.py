@@ -117,6 +117,17 @@ def handle_join_game(data):
     sid_to_room[request.sid] = room_code
     join_room(room_code)
 
+    if random.choice([True, False]):
+        room['white'] = creator_data
+        room['black'] = guest_data
+        creator_color = 'white'
+        guest_color = 'black'
+    else:
+        room['white'] = guest_data
+        room['black'] = creator_data
+        creator_color = 'black'
+        guest_color = 'white'
+
     # ── Create the game ───────────────────────────────────────────────────────
     game = GameController.create_game(
         white_username=room['white']['username'],
