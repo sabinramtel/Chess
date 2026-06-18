@@ -94,6 +94,11 @@ def user_profile(username):
     return redirect(url_for('auth.home'))
 
 
+@auth_bp.route('/signup')
+def signup_page():
+    return render_template('signup.html')
+
+
 @auth_bp.route('/forgot-password')
 def forgot_password_page():
     return render_template('forgot_password.html')
