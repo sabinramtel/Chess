@@ -222,16 +222,20 @@
                                 <span class="stat-label">Rating</span>
                             </div>
                             <div class="stat-pill">
-                                <span class="stat-value">{{ games_played }}</span>
-                                <span class="stat-label">Games</span>
+                                <span class="stat-value gold">{{ puzzle_rating }}</span>
+                                <span class="stat-label">Puzzle Rating</span>
                             </div>
                             <div class="stat-pill">
-                                <span class="stat-value" style="color:#4ade80">{{ wins }}</span>
-                                <span class="stat-label">Wins</span>
+                                <span class="stat-value">{{ total_solved }}</span>
+                                <span class="stat-label">Puzzles Solved</span>
                             </div>
                             <div class="stat-pill">
-                                <span class="stat-value" style="color:#f87171">{{ losses }}</span>
-                                <span class="stat-label">Losses</span>
+                                <span class="stat-value">{{ total_attempted }}</span>
+                                <span class="stat-label">Attempted</span>
+                            </div>
+                            <div class="stat-pill">
+                                <span class="stat-value" style="color:#fb923c">{{ streak }}</span>
+                                <span class="stat-label">Streak</span>
                             </div>
                         </div>
                     </div>

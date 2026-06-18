@@ -82,18 +82,22 @@ def user_profile(username):
         return redirect(url_for('auth.login_page'))
 
     from app.models.user import User
+    from app.models.puzzle_stats import UserPuzzleStats
     profile_user = User.query.filter_by(username=username).first()
     if not profile_user:
         return redirect(url_for('auth.home'))
+
+    puzzle_stats = UserPuzzleStats.query.filter_by(user_id=profile_user.id).first()
 
     return render_template(
         'profile.html',
         active_page='profile',
         profile_user=profile_user,
         is_own_profile=(session.get('user_id') == profile_user.id),
-        games_played=0,
-        wins=0,
-        losses=0,
+        puzzle_rating=puzzle_stats.puzzle_rating if puzzle_stats else 1200,
+        total_solved=puzzle_stats.total_solved if puzzle_stats else 0,
+        total_attempted=puzzle_stats.total_attempted if puzzle_stats else 0,
+        streak=puzzle_stats.streak_current if puzzle_stats else 0,
         history=[],
         hidden_games=[],
         hidden_count=0,
