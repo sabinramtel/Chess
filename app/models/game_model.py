@@ -1,8 +1,8 @@
 from enum import Enum
-from .board import Board
-from .player import Player
-from .move import Move, MoveHistory
-from .piece import Color, King, Pawn
+from .board_model import Board
+from .player_model import Player
+from .move_model import Move, MoveHistory
+from .piece_model import Color, King, Pawn
 from datetime import datetime
 
 class GameStatus(Enum):

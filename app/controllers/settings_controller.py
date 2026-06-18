@@ -1,8 +1,8 @@
 import os
 from flask import request, session, jsonify
 from app import db
-from app.models.user import User
-from app.models.settings import UserSettings
+from app.models.user_model import User
+from app.models.settings_model import UserSettings
 
 
 class SettingsController:
