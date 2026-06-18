@@ -209,16 +209,16 @@
             <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-4 min-w-0">
                     <div class="avatar-circle">
-                        {{ profile_user.username[0] | upper }}
+                        {{ profile_username[0] | upper }}
                     </div>
                     <div class="min-w-0">
-                        <h1 class="text-xl font-bold truncate">{{ profile_user.username }}</h1>
+                        <h1 class="text-xl font-bold truncate">{{ profile_username }}</h1>
                         <p class="text-sm text-white/40 mt-0.5">
-                            Member since {{ profile_user.created_at.strftime('%b %Y') if profile_user.created_at else 'Unknown' }}
+                            Member since {{ joined_date or 'Unknown' }}
                         </p>
                         <div class="flex flex-wrap gap-2 mt-3">
                             <div class="stat-pill">
-                                <span class="stat-value gold">{{ profile_user.rating or 1200 }}</span>
+                                <span class="stat-value gold">{{ rating or 1200 }}</span>
                                 <span class="stat-label">Rating</span>
                             </div>
                             <div class="stat-pill">

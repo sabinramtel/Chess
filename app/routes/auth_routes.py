@@ -94,17 +94,21 @@ def user_profile(username):
 
     from app.models.user_model import User
     from app.models.puzzle_stats_model import UserPuzzleStats
-    profile_user = User.query.filter_by(username=username).first()
-    if not profile_user:
-        return redirect(url_for('auth.home'))
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return render_template('tier.html', active_page='profile'), 404
 
-    puzzle_stats = UserPuzzleStats.query.filter_by(user_id=profile_user.id).first()
+    puzzle_stats = UserPuzzleStats.query.filter_by(user_id=user.id).first()
 
     return render_template(
         'profile.html',
         active_page='profile',
-        profile_user=profile_user,
-        is_own_profile=(session.get('user_id') == profile_user.id),
+        profile_username=user.username,
+        rating=user.rating,
+        joined_date=user.created_at.strftime('%B %Y') if user.created_at else None,
+        username=session.get('username'),
+        user_id=session.get('user_id'),
+        is_own_profile=(session.get('user_id') == user.id),
         puzzle_rating=puzzle_stats.puzzle_rating if puzzle_stats else 1200,
         total_solved=puzzle_stats.total_solved if puzzle_stats else 0,
         total_attempted=puzzle_stats.total_attempted if puzzle_stats else 0,
