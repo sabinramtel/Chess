@@ -349,7 +349,10 @@
   }
 
   // Creator receives game_started
-  socket.on('game_started', ({ game_state, white_username, black_username }) => {
+  socket.on('game_started', ({ game_state, white_username, black_username, color }) => {
+    if (color) {
+      myColor = color;
+    }
     goToPlay(myRoomCode, myColor, white_username, black_username, game_state);
   });
 

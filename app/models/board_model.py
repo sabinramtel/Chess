@@ -1,4 +1,4 @@
-from .piece import Pawn, Rook, Knight, Bishop, Queen, King, Color
+from .piece_model import Pawn, Rook, Knight, Bishop, Queen, King, Color
 
 class Board:
     """8x8 chess board with pieces."""

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
-from app.controllers.game import GameController
-from app.models.piece import Color
+from app.controllers.game_controller import GameController
+from app.models.piece_model import Color
 from functools import wraps
 import uuid
 
