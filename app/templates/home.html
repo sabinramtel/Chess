@@ -152,7 +152,7 @@
             <div class="card card-glow p-5 flex justify-between items-start transition-all">
                 <div>
                     <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Streak</p>
-                    <h2 class="text-3xl font-bold">0 Days</h2>
+                    <h2 class="text-3xl font-bold">{{ streak }} Day{{ 's' if streak != 1 else '' }}</h2>
                     <p class="text-sm opacity-60 mt-2">Keep your momentum going with daily puzzles.</p>
                 </div>
                 <span class="text-3xl mt-1">🔥</span>
@@ -161,7 +161,7 @@
             <div class="card card-glow p-5 flex justify-between items-start transition-all">
                 <div>
                     <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Puzzles</p>
-                    <h2 class="text-3xl font-bold">3,458</h2>
+                    <h2 class="text-3xl font-bold">{{ total_solved }}</h2>
                     <p class="text-sm opacity-60 mt-2">Solve more to improve tactics and pattern recognition.</p>
                 </div>
                 <span class="text-3xl mt-1">🧩</span>
