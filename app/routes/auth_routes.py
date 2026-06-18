@@ -14,7 +14,7 @@ def index():
 def home():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
-    from app.models.puzzle_stats import UserPuzzleStats
+    from app.models.puzzle_stats_model import UserPuzzleStats
     from app import db
     user_id = session.get('user_id')
     stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
