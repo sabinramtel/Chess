@@ -77,14 +77,7 @@ def logout():
     return redirect(url_for('auth.login_page'))
 
 
-@auth_bp.route('/tier')
-def tier_page():
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login_page'))
-    return render_template('tier.html',
-                           active_page='tier',
-                           username=session.get('username'),
-                           user_id=session.get('user_id'))
+
 
 
 @auth_bp.route('/profile/<username>')
@@ -117,6 +110,11 @@ def user_profile(username):
         hidden_games=[],
         hidden_count=0,
     )
+
+
+@auth_bp.route('/signup')
+def signup_page():
+    return render_template('signup.html')
 
 
 @auth_bp.route('/forgot-password')
