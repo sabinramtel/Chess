@@ -192,6 +192,7 @@ Run the provided SQL script once:
 
 ```bash
 mysql -u root -p < database.sql
+mysql -u root -p chess_db < scripts/puzzles.sql
 ```
 
 This creates the `chess_signup` database and the `users` table.
