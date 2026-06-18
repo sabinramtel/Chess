@@ -20,8 +20,43 @@ def home():
                            user_id=session.get('user_id'))
 
 
+@auth_bp.route('/play')
+def play():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login_page'))
+    return render_template('play.html',
+                           active_page='play',
+                           username=session.get('username'),
+                           user_id=session.get('user_id'))
+
+
+@auth_bp.route('/puzzle')
+def puzzle_page():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login_page'))
+    return render_template('puzzle.html',
+                           active_page='puzzle',
+                           username=session.get('username'),
+                           user_id=session.get('user_id'))
+
+
+@auth_bp.route('/lobby')
+def lobby():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login_page'))
+    return render_template('lobby.html',
+                           active_page='lobby',
+                           username=session.get('username'),
+                           user_id=session.get('user_id'))
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login_page():
+    return AuthController.login()
+
+
+@auth_bp.route('/api/login', methods=['POST'])
+def api_login():
     return AuthController.login()
 
 
@@ -45,6 +80,7 @@ def tier_page():
 def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
+<<<<<<< HEAD
     from app.models.user_model import User
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -56,11 +92,24 @@ def user_profile(username):
                            joined_date=user.created_at.strftime('%B %Y') if user.created_at else None,
                            username=session.get('username'),
                            user_id=session.get('user_id'))
+=======
+    return redirect(url_for('auth.home'))
+>>>>>>> 6a44969e475065cff35e9a9e59f02c809efec79b
 
 
 @auth_bp.route('/forgot-password')
 def forgot_password_page():
     return render_template('forgot_password.html')
+
+
+@auth_bp.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    return AuthController.forgot_password()
+
+
+@auth_bp.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    return AuthController.reset_password()
 
 
 # --- Backend API Endpoints (For Async Fetch Requests) ---
