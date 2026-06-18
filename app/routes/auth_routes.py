@@ -80,7 +80,24 @@ def tier_page():
 def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
-    return redirect(url_for('auth.home'))
+
+    from app.models.user import User
+    profile_user = User.query.filter_by(username=username).first()
+    if not profile_user:
+        return redirect(url_for('auth.home'))
+
+    return render_template(
+        'profile.html',
+        active_page='profile',
+        profile_user=profile_user,
+        is_own_profile=(session.get('user_id') == profile_user.id),
+        games_played=0,
+        wins=0,
+        losses=0,
+        history=[],
+        hidden_games=[],
+        hidden_count=0,
+    )
 
 
 @auth_bp.route('/forgot-password')
