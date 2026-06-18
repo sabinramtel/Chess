@@ -1513,7 +1513,15 @@
                     notify_daily_puzzle: getBool('notify_daily_puzzle'),
                 };
             } else if (section === 'appearance') {
-                payload = { site_theme: getRadio('site_theme') };
+                const theme = getRadio('site_theme') || 'dark';
+                payload = { site_theme: theme };
+                // Apply immediately and persist in localStorage
+                localStorage.setItem('site_theme', theme);
+                if (theme === 'light') {
+                    document.documentElement.classList.add('light-theme');
+                } else {
+                    document.documentElement.classList.remove('light-theme');
+                }
             } else if (section === 'privacy') {
                 payload = {
                     who_can_challenge: getRadio('who_can_challenge'),
