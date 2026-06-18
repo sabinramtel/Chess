@@ -38,7 +38,14 @@ class SettingsController:
             user.username = new_username
             session['username'] = new_username
 
+        new_email = data.get('email', '').strip().lower()
+        if new_email and new_email != user.email:
+            if User.query.filter_by(email=new_email).first():
+                return jsonify({'success': False, 'message': 'Email already taken'}), 409
+            user.email = new_email
+
         s.country = data.get('country', s.country)
+        s.bio = data.get('bio', s.bio)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Profile updated'})
 
