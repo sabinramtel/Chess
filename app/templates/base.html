@@ -183,6 +183,13 @@
     <!-- ── Page Content ─────────────────────────────────── -->
     {% block body %}{% endblock %}
 
+    <!-- ── Footer ───────────────────────────────────────── -->
+    {% if session.get('user_id') %}
+    <footer class="w-full mt-auto border-t border-white/5 py-6 px-6 md:px-10 flex flex-col sm:flex-row items-center justify-between text-xs opacity-60">
+        <p>&copy; 2026 Project Chess. All rights reserved.</p>
+    </footer>
+    {% endif %}
+
     <!-- ── Shared Scripts ───────────────────────────────── -->
     <script>
         // Settings dropdown toggle (shared across all pages)
