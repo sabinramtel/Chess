@@ -16,7 +16,7 @@ socketio = SocketIO()
 
 def create_database_if_not_exists():
     user     = os.getenv('MYSQL_USER', 'root')
-    password = os.getenv('MYSQL_PASSWORD', '')
+    password = os.getenv('MYSQL_PASSWORD', 'Nima.d.l.10@')
     host     = os.getenv('MYSQL_HOST', 'localhost')
     db_name  = os.getenv('MYSQL_DB', 'chess_db')
 
