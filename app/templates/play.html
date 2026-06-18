@@ -447,8 +447,8 @@
 const roomCode   = sessionStorage.getItem('chess_room')   || '';
 const myColor    = sessionStorage.getItem('chess_color')  || 'white'; // 'white' | 'black'
 const myUsername = sessionStorage.getItem('chess_username') || '{{ username|default("Player") }}';
-const whiteUser  = sessionStorage.getItem('chess_white')  || 'White';
-const blackUser  = sessionStorage.getItem('chess_black')  || 'Black';
+const whiteUser  = sessionStorage.getItem('chess_white')  || 'Opponent';
+const blackUser  = sessionStorage.getItem('chess_black')  || 'Opponent';
 let   gameState  = JSON.parse(sessionStorage.getItem('chess_state') || 'null');
 
 const isFlipped  = (myColor === 'black'); // black sees board from opposite side
@@ -479,8 +479,8 @@ document.getElementById('my-name').textContent   = myUsername;
 document.getElementById('room-badge').textContent = roomCode ? `Room: ${roomCode}` : '';
 document.getElementById('info-room').textContent  = roomCode || '—';
 document.getElementById('info-color').textContent = myColor;
-document.getElementById('my-color-label').textContent  = myColor === 'white' ? '🏳️ White' : '🏴 Black';
-document.getElementById('opp-color-label').textContent = myColor === 'white' ? '🏴 Black' : '🏳️ White';
+document.getElementById('my-color-label').textContent  = myColor === 'white' ? '🏳️' : '🏴';
+document.getElementById('opp-color-label').textContent = myColor === 'white' ? '🏴' : '🏳️';
 if (roomCode) document.getElementById('waiting-code').textContent = roomCode;
 document.getElementById('info-white').textContent = whiteUser;
 document.getElementById('info-black').textContent = blackUser;

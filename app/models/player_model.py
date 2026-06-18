@@ -1,4 +1,4 @@
-from .time import Timer
+from .time_model import Timer
 
 class Player:
     """Represents a player in a chess game."""

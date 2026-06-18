@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from dotenv import load_dotenv
 import pymysql
 import os
@@ -10,6 +11,7 @@ from config import Config
 load_dotenv()
 
 db = SQLAlchemy()
+socketio = SocketIO()
 
 
 def create_database_if_not_exists():
@@ -27,12 +29,18 @@ def create_database_if_not_exists():
 
 
 def create_app():
-    create_database_if_not_exists()
+    # Only try to create database locally if not using a full connection string
+    if not os.getenv('DATABASE_URL'):
+        try:
+            create_database_if_not_exists()
+        except Exception as e:
+            print(f"Skipping local DB creation: {e}")
 
     app = Flask(__name__, static_folder='static', static_url_path='/static')
     app.config.from_object(Config)
 
     db.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
     CORS(app)
 
     from app.routes.auth_routes import auth_bp
@@ -41,8 +49,10 @@ def create_app():
     app.register_blueprint(settings_bp)
 
     with app.app_context():
-        from app.models.settings import UserSettings          # noqa
-        from app.models.email_verification import EmailVerification  # noqa
+        # Register socket handlers by importing the controller
+        from app.controllers import socket_controller
+        # from app.models.settings_model import UserSettings          # noqa
+        from app.models.email_verification_model import EmailVerification  # noqa
         db.create_all()
 
     return app

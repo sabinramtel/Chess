@@ -45,7 +45,7 @@ def tier_page():
 def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
-    from app.models.user import User
+    from app.models.user_model import User
     user = User.query.filter_by(username=username).first()
     if not user:
         return render_template('tier.html', active_page='profile'), 404

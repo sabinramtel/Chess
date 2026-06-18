@@ -6,9 +6,9 @@ def _utcnow():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from app import db
-from app.models.user import User
-from app.models.email_verification import EmailVerification
-from app.utils.email_sender import send_otp_email
+from app.models.user_model import User
+from app.models.email_verification_model import EmailVerification
+from app.controllers.email_controller import send_otp_email
 
 
 def _generate_otp():
