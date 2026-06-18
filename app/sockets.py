@@ -202,6 +202,21 @@ def handle_move(data):
         'game_state': result['game_state'],
     }, to=room_code)
 
+    # Broadcast game over when checkmate or stalemate is detected
+    status = result['game_state'].get('status')
+    if status == 'checkmate':
+        emit('game_over', {
+            'reason': 'checkmate',
+            'winner': result['game_state'].get('winner'),
+            'game_state': result['game_state'],
+        }, to=room_code)
+    elif status == 'stalemate':
+        emit('game_over', {
+            'reason': 'draw',
+            'winner': None,
+            'game_state': result['game_state'],
+        }, to=room_code)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  CHAT
@@ -314,6 +329,81 @@ def handle_draw_decline(data):
 
     active_rooms[room_code]['draw_offered_by'] = None
     emit('draw_declined', {}, to=room_code)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  LEGAL MOVES REQUEST  (highlights for the clicking player)
+# ══════════════════════════════════════════════════════════════════════════════
+@socketio.on('request_legal_moves')
+def handle_request_legal_moves(data):
+    """
+    Client sends:
+        { room_code, square:[r,c] }
+    Responds to sender only:
+        legal_moves_response  { legal_moves: [[r,c], ...] }
+    """
+    room_code = (data.get('room_code') or '').upper()
+    square = tuple(data.get('square', []))
+
+    if room_code not in active_rooms:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    room = active_rooms[room_code]
+    game = room.get('game')
+    if not game:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    # Only allow the player whose turn it is to request moves
+    expected_sid = (
+        room['white']['sid'] if game.current_turn == Color.WHITE else room['black']['sid']
+    )
+    if request.sid != expected_sid:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    legal_moves = game.get_legal_moves(square)
+    emit('legal_moves_response', {'legal_moves': legal_moves})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  REJOIN  (reconnect to an existing room after a page reload)
+# ══════════════════════════════════════════════════════════════════════════════
+@socketio.on('rejoin_room')
+def handle_rejoin_room(data):
+    """
+    Client sends:
+        { room_code, color, username }
+    Responds to sender with the current game state so the board re-renders.
+    """
+    room_code = (data.get('room_code') or '').upper()
+    color = data.get('color', 'white')
+    username = data.get('username', 'Player')
+
+    if room_code not in active_rooms:
+        return
+
+    room = active_rooms[room_code]
+    join_room(room_code)
+    sid_to_room[request.sid] = room_code
+
+    # Update the stored sid so future events route correctly
+    if color == 'white' and room.get('white'):
+        room['white']['sid'] = request.sid
+    elif color == 'black' and room.get('black'):
+        room['black']['sid'] = request.sid
+
+    game = room.get('game')
+    if game:
+        white_name = room['white']['username'] if room.get('white') else username
+        black_name = room['black']['username'] if room.get('black') else username
+        emit('game_started', {
+            'game_state': game.to_dict(),
+            'white_username': white_name,
+            'black_username': black_name,
+            'color': color,
+        })
 
 
 # ══════════════════════════════════════════════════════════════════════════════
