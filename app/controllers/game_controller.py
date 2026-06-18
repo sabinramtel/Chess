@@ -1,6 +1,6 @@
-from app.models.game import Game
-from app.models.player import Player
-from app.models.piece import Color
+from app.models.game_model import Game
+from app.models.player_model import Player
+from app.models.piece_model import Color
 
 
 class GameController:
@@ -22,7 +22,7 @@ class GameController:
         # Map promotion string to piece class if provided
         promotion_piece = None
         if promotion:
-            from app.models.piece import Queen, Rook, Bishop, Knight
+            from app.models.piece_model import Queen, Rook, Bishop, Knight
             piece_map = {
                 'queen': Queen,
                 'rook': Rook,

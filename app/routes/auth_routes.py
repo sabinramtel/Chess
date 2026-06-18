@@ -14,10 +14,21 @@ def index():
 def home():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
+    from app.models.puzzle_stats import UserPuzzleStats
+    from app import db
+    user_id = session.get('user_id')
+    stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
+    if not stats:
+        stats = UserPuzzleStats(user_id=user_id)
+        db.session.add(stats)
+        db.session.commit()
     return render_template('home.html',
                            active_page='home',
                            username=session.get('username'),
-                           user_id=session.get('user_id'))
+                           user_id=user_id,
+                           streak=stats.streak_current,
+                           puzzle_rating=stats.puzzle_rating,
+                           total_solved=stats.total_solved)
 
 
 @auth_bp.route('/play')
@@ -81,8 +92,8 @@ def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
 
-    from app.models.user import User
-    from app.models.puzzle_stats import UserPuzzleStats
+    from app.models.user_model import User
+    from app.models.puzzle_stats_model import UserPuzzleStats
     profile_user = User.query.filter_by(username=username).first()
     if not profile_user:
         return redirect(url_for('auth.home'))

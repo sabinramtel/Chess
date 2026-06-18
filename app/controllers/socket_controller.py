@@ -19,8 +19,8 @@ import string
 from flask_socketio import emit, join_room, leave_room
 from flask import request
 from app import socketio
-from app.controllers.game import GameController
-from app.models.piece import Color
+from app.controllers.game_controller import GameController
+from app.models.piece_model import Color
 
 # ── In-memory room store ──────────────────────────────────────────────────────
 # Structure: { room_code: RoomData }
