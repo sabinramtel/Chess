@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 from flask_cors import CORS
 from dotenv import load_dotenv
 import pymysql
@@ -10,6 +11,7 @@ from config import Config
 load_dotenv()
 
 db = SQLAlchemy()
+socketio = SocketIO()
 
 
 def create_database_if_not_exists():
@@ -33,16 +35,27 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    socketio.init_app(app, cors_allowed_origins='*', async_mode='threading')
     CORS(app)
 
     from app.routes.auth_routes import auth_bp
     from app.routes.settings_routes import settings_bp
+    from app.routes.game import game_bp
+    from app.routes.puzzle_routes import puzzle_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(game_bp)
+    app.register_blueprint(puzzle_bp)
 
     with app.app_context():
-        from app.models.settings import UserSettings          # noqa
-        from app.models.email_verification import EmailVerification  # noqa
+        from app.models.settings import UserSettings                  # noqa
+        from app.models.email_verification import EmailVerification   # noqa
+        from app.models.puzzle import Puzzle                          # noqa
+        from app.models.puzzle_stats import UserPuzzleStats           # noqa
+        from app.models.puzzle_attempt import PuzzleAttempt           # noqa
         db.create_all()
+
+    import importlib
+    importlib.import_module('app.sockets')  # registers all socket event handlers
 
     return app

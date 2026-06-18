@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Chess – Puzzle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #1a1a1b;
+      --surface:   #262421;
+      --panel:     #2c2b29;
+      --border:    #3d3c39;
+      --text:      #e0ddd8;
+      --muted:     #8a8480;
+      --accent:    #81b64c;
+      --gold:      #f0c040;
+      --white-sq:  #f0d9b5;
+      --dark-sq:   #b58863;
+      --nav-h:     52px;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
+
+    /* ── Top nav ── */
+    .topnav {
+      height: var(--nav-h); background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 14px; z-index: 100; flex-shrink: 0;
+    }
+    .topnav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: .9rem; color: var(--text); text-decoration: none; }
+    .topnav-logo img { height: 30px; width: 30px; border-radius: 6px; object-fit: cover; }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 12px; border-radius: 6px; font-size: .62rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+      cursor: pointer; text-decoration: none; border: none; background: transparent; transition: color .15s, background .15s;
+    }
+    .nav-btn svg { width: 20px; height: 20px; }
+    .nav-btn:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .nav-btn.active { color: var(--gold); }
+
+    /* ── Layout ── */
+    .main { display: flex; height: calc(100vh - var(--nav-h)); overflow: hidden; }
+
+    /* ── Center board ── */
+    .center-panel { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); }
+    .board-wrapper { position: relative; user-select: none; }
+    .chess-board { border: 4px solid #111; box-shadow: 0 12px 50px rgba(0,0,0,.8); border-radius: 3px; overflow: hidden; }
+    .board-grid { display: grid; }
+
+    .sq { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .08s; }
+    .sq.light { background: var(--white-sq); }
+    .sq.dark  { background: var(--dark-sq); }
+    .sq.selected  { background: rgba(20,85,30,.7) !important; }
+    .sq.highlight { background: rgba(20,85,30,.4) !important; }
+    .sq.last-from { box-shadow: inset 0 0 0 3px rgba(255,255,100,.45); }
+    .sq.last-to   { box-shadow: inset 0 0 0 3px rgba(255,255,100,.45); }
+    .sq.wrong-flash { animation: wrongFlash .5s; }
+    @keyframes wrongFlash { 0%,100%{background:inherit} 25%,75%{background:rgba(200,40,40,.55)!important} }
+
+    .move-dot  { position: absolute; width: 30%; height: 30%; border-radius: 50%; background: rgba(0,0,0,.28); pointer-events: none; }
+    .move-ring { position: absolute; inset: 0; border-radius: 0; border: 4px solid rgba(0,0,0,.28); pointer-events: none; }
+
+    .piece { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); line-height: 1; pointer-events: none; }
+    .piece.white { filter: drop-shadow(0 2px 1px rgba(0,0,0,.9)) drop-shadow(0 0 2px rgba(0,0,0,.6)); color: #fff; }
+    .piece.black { filter: drop-shadow(0 2px 2px rgba(0,0,0,.5)); color: #1a1208; }
+
+    .coord-rank { position: absolute; top: 2px; left: 3px; font-size: .6rem; font-weight: 700; opacity: .7; }
+    .coord-file { position: absolute; bottom: 2px; right: 3px; font-size: .6rem; font-weight: 700; opacity: .7; }
+    .sq.light .coord-rank, .sq.light .coord-file { color: var(--dark-sq); }
+    .sq.dark  .coord-rank, .sq.dark  .coord-file { color: var(--white-sq); }
+
+    /* ── Right info panel ── */
+    .right-panel {
+      width: 280px; flex-shrink: 0; background: var(--surface);
+      border-left: 1px solid var(--border); display: flex; flex-direction: column;
+      padding: 20px 16px; gap: 16px; overflow-y: auto;
+    }
+
+    .panel-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 4px; }
+
+    .puzzle-rating-display { font-size: 2rem; font-weight: 800; color: var(--gold); }
+
+    .themes-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .theme-tag {
+      font-size: .65rem; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+      background: rgba(129,182,76,.15); color: var(--accent); border: 1px solid rgba(129,182,76,.3);
+      text-transform: capitalize;
+    }
+
+    .turn-indicator {
+      padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: .85rem;
+      text-align: center; transition: background .3s, color .3s;
+    }
+    .turn-indicator.your-turn  { background: rgba(129,182,76,.15); color: var(--accent); border: 1px solid rgba(129,182,76,.3); }
+    .turn-indicator.opp-turn   { background: rgba(240,192,64,.1);  color: var(--gold);   border: 1px solid rgba(240,192,64,.3); }
+    .turn-indicator.solved     { background: rgba(129,182,76,.25); color: var(--accent); border: 1px solid var(--accent); }
+    .turn-indicator.failed     { background: rgba(200,60,60,.2);   color: #e07070;       border: 1px solid rgba(200,60,60,.4); }
+
+    .moves-list { flex: 1; overflow-y: auto; }
+    .move-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .8rem; }
+    .move-entry .who { width: 40px; font-size: .65rem; color: var(--muted); }
+    .move-entry .uci { font-family: monospace; color: var(--text); }
+    .move-entry.correct .uci { color: var(--accent); }
+    .move-entry.wrong   .uci { color: #e07070; }
+    .move-entry.opp     .uci { color: var(--muted); }
+
+    .btn-action {
+      display: block; width: 100%; padding: 11px; border-radius: 8px; font-size: .8rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      cursor: pointer; border: none; transition: opacity .15s;
+    }
+    .btn-action:hover { opacity: .85; }
+    .btn-next   { background: var(--accent); color: #fff; }
+    .btn-giveup { background: rgba(255,255,255,.07); color: var(--muted); border: 1px solid var(--border); }
+    .btn-hidden { display: none !important; }
+
+    .loading-msg { text-align: center; color: var(--muted); font-size: .85rem; padding: 20px; }
+
+    /* ── Promotion modal ── */
+    .promo-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .promo-box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; gap: 12px; }
+    .promo-piece { width: 64px; height: 64px; font-size: 2.8rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: border-color .15s; }
+    .promo-piece:hover { border-color: var(--accent); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- Top nav -->
+<nav class="topnav">
+  <a href="/home" class="topnav-logo">
+    <img src="/static/images/logo.png" alt="Logo">
+    Project Chess
+  </a>
+  <div style="display:flex;align-items:center;gap:2px;">
+    <a href="/home" class="nav-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Home
+    </a>
+    <a href="/play" class="nav-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+      Play
+    </a>
+    <span class="nav-btn active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Puzzle
+    </span>
+    <a href="/settings" class="nav-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Board -->
+  <div class="center-panel">
+    <div id="loading-board" class="loading-msg">Loading puzzle…</div>
+    <div class="board-wrapper" id="board-wrapper" style="display:none;">
+      <div class="chess-board">
+        <div class="board-grid" id="board-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <aside class="right-panel">
+    <div>
+      <div class="panel-label">Puzzle Rating</div>
+      <div class="puzzle-rating-display" id="puzzle-rating">–</div>
+    </div>
+
+    <div>
+      <div class="panel-label">Themes</div>
+      <div class="themes-row" id="themes-row"></div>
+    </div>
+
+    <div class="turn-indicator your-turn" id="turn-indicator">Find the best move!</div>
+
+    <div>
+      <div class="panel-label">Moves</div>
+      <div class="moves-list" id="moves-list"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto;">
+      <button class="btn-action btn-next btn-hidden" id="btn-next">Next Puzzle →</button>
+      <button class="btn-action btn-giveup" id="btn-giveup">Give Up</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Promotion modal -->
+<div class="promo-overlay hidden" id="promo-overlay">
+  <div class="promo-box" id="promo-box"></div>
+</div>
+
+<script>
+const USER_ID   = {{ user_id }};
+const FILES     = ['a','b','c','d','e','f','g','h'];
+const PIECE_SYM = { K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙', k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟' };
+const PROMO_W   = { queen:'♕',rook:'♖',bishop:'♗',knight:'♘' };
+const PROMO_B   = { queen:'♛',rook:'♜',bishop:'♝',knight:'♞' };
+const PROMO_UCI = { '♕':'q','♖':'r','♗':'b','♘':'n','♛':'q','♜':'r','♝':'b','♞':'n' };
+
+/* ── State ── */
+let currentGrid = null;
+let isFlipped   = false;
+let selected    = null;
+let puzzleId    = null;
+let moveIndex   = 0;
+let puzzleDone  = false;
+let lastFrom    = null, lastTo = null;
+let pendingPromo = null;   // { fr, fc, tr, tc }
+
+const SQ = Math.max(56, Math.floor((window.innerHeight - 52) * 0.115));
+
+/* ── Helpers ── */
+function uciToRC(uci) {
+  return [8 - parseInt(uci[1]), uci.charCodeAt(0) - 97];
+}
+function rcToUci(r, c) {
+  return FILES[c] + (8 - r);
+}
+
+function parseFen(fen) {
+  const rows = fen.split(' ')[0].split('/');
+  return rows.map(row => {
+    const cells = [];
+    for (const ch of row) {
+      const n = parseInt(ch);
+      if (n) for (let i = 0; i < n; i++) cells.push(null);
+      else cells.push(ch);
+    }
+    return cells;
+  });
+}
+
+function applyUciMove(grid, uci) {
+  const g   = grid.map(r => [...r]);
+  const [fr, fc] = uciToRC(uci.slice(0, 2));
+  const [tr, tc] = uciToRC(uci.slice(2, 4));
+  const promo    = uci[4];
+  const piece    = g[fr][fc];
+  if (!piece) return g;
+
+  const isWhite = piece === piece.toUpperCase();
+  g[tr][tc] = promo ? (isWhite ? promo.toUpperCase() : promo.toLowerCase()) : piece;
+  g[fr][fc] = null;
+
+  // Castling
+  if (piece === 'K' && Math.abs(fc - tc) === 2) {
+    if (tc === 6) { g[tr][5] = 'R'; g[tr][7] = null; }
+    else          { g[tr][3] = 'R'; g[tr][0] = null; }
+  } else if (piece === 'k' && Math.abs(fc - tc) === 2) {
+    if (tc === 6) { g[tr][5] = 'r'; g[tr][7] = null; }
+    else          { g[tr][3] = 'r'; g[tr][0] = null; }
+  }
+
+  // En passant
+  if ((piece === 'P' || piece === 'p') && fc !== tc && !grid[tr][tc]) {
+    g[piece === 'P' ? tr + 1 : tr - 1][tc] = null;
+  }
+
+  return g;
+}
+
+/* ── Render ── */
+const boardGrid = document.getElementById('board-grid');
+boardGrid.style.width  = (SQ * 8) + 'px';
+boardGrid.style.height = (SQ * 8) + 'px';
+boardGrid.style.gridTemplateColumns = `repeat(8,${SQ}px)`;
+boardGrid.style.gridTemplateRows    = `repeat(8,${SQ}px)`;
+
+function renderBoard(grid) {
+  boardGrid.innerHTML = '';
+  const displayRows = isFlipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+  const displayCols = isFlipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+
+  for (const r of displayRows) {
+    for (const c of displayCols) {
+      const sq  = document.createElement('div');
+      const isL = (r + c) % 2 === 0;
+      sq.className = 'sq ' + (isL ? 'light' : 'dark');
+      sq.style.width  = SQ + 'px';
+      sq.style.height = SQ + 'px';
+      sq.dataset.r = r; sq.dataset.c = c;
+
+      // Coordinates: ranks on left edge, files on bottom edge (relative to display order)
+      const showRank = (c === displayCols[0]);
+      const showFile = (r === displayRows[displayRows.length - 1]);
+      if (showRank) { const s = document.createElement('span'); s.className='coord-rank'; s.textContent=8-r; sq.appendChild(s); }
+      if (showFile) { const s = document.createElement('span'); s.className='coord-file'; s.textContent=FILES[c]; sq.appendChild(s); }
+
+      // Highlights
+      if (lastFrom && lastFrom[0]===r && lastFrom[1]===c) sq.classList.add('last-from');
+      if (lastTo   && lastTo[0]===r   && lastTo[1]===c)   sq.classList.add('last-to');
+      if (selected && selected[0]===r && selected[1]===c) sq.classList.add('selected');
+
+      // Piece
+      const piece = grid[r][c];
+      if (piece) {
+        const pe = document.createElement('span');
+        pe.className = 'piece ' + (piece === piece.toUpperCase() ? 'white' : 'black');
+        pe.style.fontSize = Math.round(SQ * 0.82) + 'px';
+        pe.textContent = PIECE_SYM[piece] || piece;
+        sq.appendChild(pe);
+      }
+
+      sq.addEventListener('click', () => handleClick(r, c));
+      boardGrid.appendChild(sq);
+    }
+  }
+}
+
+function flashSquares(fr, fc, tr, tc) {
+  document.querySelectorAll('.sq').forEach(sq => {
+    const r = +sq.dataset.r, c = +sq.dataset.c;
+    if ((r===fr&&c===fc)||(r===tr&&c===tc)) {
+      sq.classList.add('wrong-flash');
+      sq.addEventListener('animationend', () => sq.classList.remove('wrong-flash'), { once: true });
+    }
+  });
+}
+
+/* ── Move handling ── */
+function isMyPiece(piece) {
+  if (!piece) return false;
+  const isWhite = piece === piece.toUpperCase();
+  return isFlipped ? !isWhite : isWhite;
+}
+
+function isPromotion(piece, tr) {
+  if (!piece) return false;
+  if (piece === 'P' && tr === 0) return true;
+  if (piece === 'p' && tr === 7) return true;
+  return false;
+}
+
+function handleClick(r, c) {
+  if (puzzleDone) return;
+
+  const piece = currentGrid[r][c];
+
+  if (selected) {
+    const [sr, sc] = selected;
+    if (sr === r && sc === c) { selected = null; renderBoard(currentGrid); return; }
+    if (isMyPiece(piece)) { selected = [r, c]; renderBoard(currentGrid); return; }
+
+    // Attempt move
+    const movingPiece = currentGrid[sr][sc];
+    if (isPromotion(movingPiece, r)) {
+      pendingPromo = { fr: sr, fc: sc, tr: r, tc: c };
+      showPromoModal();
+      selected = null;
+      return;
+    }
+    const uci = rcToUci(sr, sc) + rcToUci(r, c);
+    selected = null;
+    submitMove(uci, sr, sc, r, c);
+    return;
+  }
+
+  if (isMyPiece(piece)) {
+    selected = [r, c];
+    renderBoard(currentGrid);
+  }
+}
+
+function showPromoModal() {
+  const overlay = document.getElementById('promo-overlay');
+  const box     = document.getElementById('promo-box');
+  const promos  = isFlipped ? PROMO_B : PROMO_W;
+  box.innerHTML = '';
+  for (const [name, glyph] of Object.entries(promos)) {
+    const btn = document.createElement('div');
+    btn.className   = 'promo-piece';
+    btn.textContent = glyph;
+    btn.title = name;
+    btn.onclick = () => {
+      overlay.classList.add('hidden');
+      const { fr, fc, tr, tc } = pendingPromo;
+      const uci = rcToUci(fr, fc) + rcToUci(tr, tc) + PROMO_UCI[glyph];
+      submitMove(uci, fr, fc, tr, tc);
+      pendingPromo = null;
+    };
+    box.appendChild(btn);
+  }
+  overlay.classList.remove('hidden');
+}
+
+/* ── API calls ── */
+async function submitMove(uci, fr, fc, tr, tc) {
+  setIndicator('opp-turn', 'Checking…');
+
+  const res  = await fetch('/api/puzzle/attempt', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: USER_ID, puzzle_id: puzzleId, move: uci, move_index: moveIndex })
+  });
+  const data = await res.json();
+
+  if (data.correct) {
+    lastFrom = [fr, fc]; lastTo = [tr, tc];
+    currentGrid = applyUciMove(currentGrid, uci);
+    addMoveEntry(uci, 'correct', 'You');
+    renderBoard(currentGrid);
+
+    if (data.complete) {
+      puzzleDone = true;
+      setIndicator('solved', '✓ Puzzle solved!');
+      showNext(true);
+    } else {
+      setIndicator('opp-turn', 'Opponent is thinking…');
+      setTimeout(() => playOpponentReply(data.opponent_reply), 600);
+      moveIndex++;
+    }
+  } else {
+    addMoveEntry(uci, 'wrong', 'You');
+    renderBoard(currentGrid);                              // clear selection first
+    setTimeout(() => flashSquares(fr, fc, tr, tc), 10);  // then flash on fresh DOM
+    setIndicator('failed', '✗ Wrong move — try again');
+    setTimeout(() => setIndicator('your-turn', 'Find the best move!'), 1800);
+  }
+}
+
+function playOpponentReply(uci) {
+  const [fr, fc] = uciToRC(uci.slice(0, 2));
+  const [tr, tc] = uciToRC(uci.slice(2, 4));
+  lastFrom = [fr, fc]; lastTo = [tr, tc];
+  currentGrid = applyUciMove(currentGrid, uci);
+  addMoveEntry(uci, 'opp', 'Opp');
+  renderBoard(currentGrid);
+  setIndicator('your-turn', 'Find the best move!');
+}
+
+/* ── UI helpers ── */
+function setIndicator(cls, text) {
+  const el = document.getElementById('turn-indicator');
+  el.className = 'turn-indicator ' + cls;
+  el.textContent = text;
+}
+
+function addMoveEntry(uci, type, who) {
+  const list = document.getElementById('moves-list');
+  const entry = document.createElement('div');
+  entry.className = 'move-entry ' + type;
+  entry.innerHTML = `<span class="who">${who}</span><span class="uci">${uci}</span>`;
+  list.appendChild(entry);
+  list.scrollTop = list.scrollHeight;
+}
+
+function showNext(solved) {
+  document.getElementById('btn-next').classList.remove('btn-hidden');
+  document.getElementById('btn-giveup').classList.add('btn-hidden');
+}
+
+/* ── Load puzzle ── */
+async function loadPuzzle() {
+  document.getElementById('loading-board').style.display = 'block';
+  document.getElementById('board-wrapper').style.display = 'none';
+  document.getElementById('moves-list').innerHTML = '';
+  document.getElementById('btn-next').classList.add('btn-hidden');
+  document.getElementById('btn-giveup').classList.remove('btn-hidden');
+  document.getElementById('themes-row').innerHTML = '';
+  moveIndex  = 0;
+  puzzleDone = false;
+  selected   = null;
+  lastFrom   = null; lastTo = null;
+
+  const res  = await fetch(`/api/puzzle/next?user_id=${USER_ID}`);
+  const data = await res.json();
+
+  if (data.error) { alert('No puzzles available.'); return; }
+
+  const puzzle = data.puzzle;
+  puzzleId = puzzle.id;
+
+  document.getElementById('puzzle-rating').textContent = puzzle.rating;
+  const themesRow = document.getElementById('themes-row');
+  (puzzle.themes || []).forEach(t => {
+    const tag = document.createElement('span'); tag.className = 'theme-tag'; tag.textContent = t; themesRow.appendChild(tag);
+  });
+
+  // Determine user color from fen_after_setup active side
+  const fenParts   = data.fen_after_setup.split(' ');
+  const activeSide = fenParts[1]; // 'w' or 'b' — this is the user's turn
+  isFlipped = (activeSide === 'b');
+
+  currentGrid = parseFen(data.fen_after_setup);
+
+  document.getElementById('loading-board').style.display = 'none';
+  document.getElementById('board-wrapper').style.display = 'block';
+
+  setIndicator('your-turn', 'Find the best move!');
+
+  // Animate the setup move before revealing board
+  const setupGrid = parseFen(puzzle.fen);
+  const [sf, sc_] = uciToRC(puzzle.setup_move.slice(0,2));
+  const [st, stc] = uciToRC(puzzle.setup_move.slice(2,4));
+  lastFrom = null; lastTo = null;
+  renderBoard(setupGrid);    // show pre-setup position briefly
+  setTimeout(() => {
+    lastFrom = [sf, sc_]; lastTo = [st, stc];
+    renderBoard(currentGrid); // snap to post-setup position with highlight
+  }, 400);
+}
+
+/* ── Buttons ── */
+document.getElementById('btn-next').addEventListener('click', loadPuzzle);
+
+document.getElementById('btn-giveup').addEventListener('click', async () => {
+  if (puzzleDone) return;
+  puzzleDone = true;
+  setIndicator('failed', 'Solution revealed');
+  showNext(false);
+});
+
+/* ── Init ── */
+loadPuzzle();
+</script>
+</body>
+</html>

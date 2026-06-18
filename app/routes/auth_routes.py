@@ -30,6 +30,16 @@ def play():
                            user_id=session.get('user_id'))
 
 
+@auth_bp.route('/puzzle')
+def puzzle_page():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login_page'))
+    return render_template('puzzle.html',
+                           active_page='puzzle',
+                           username=session.get('username'),
+                           user_id=session.get('user_id'))
+
+
 @auth_bp.route('/lobby')
 def lobby():
     if 'user_id' not in session:
