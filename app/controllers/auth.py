@@ -21,7 +21,7 @@ class AuthController:
         return render_template(
             'settings.html',
             username=session.get('username', ''),
-            tier='free',
+
             prefs={},
             can_change=True,
             change_msg='Theme customization available'
