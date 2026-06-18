@@ -39,6 +39,7 @@ class SettingsController:
             session['username'] = new_username
 
         s.country = data.get('country', s.country)
+        s.bio = data.get('bio', s.bio)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Profile updated'})
 
