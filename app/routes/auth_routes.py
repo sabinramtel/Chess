@@ -84,21 +84,7 @@ def logout():
 def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
-<<<<<<< HEAD
-    from app.models.user_model import User
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        return render_template('tier.html', active_page='profile'), 404
-    return render_template('profile.html',
-                           active_page='profile',
-                           profile_username=user.username,
-                           rating=user.rating,
-                           joined_date=user.created_at.strftime('%B %Y') if user.created_at else None,
-                           username=session.get('username'),
-                           user_id=session.get('user_id'))
-=======
     return redirect(url_for('auth.home'))
->>>>>>> 6a44969e475065cff35e9a9e59f02c809efec79b
 
 
 @auth_bp.route('/signup')
