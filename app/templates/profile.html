@@ -59,8 +59,7 @@
         background: #13151d;
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 0.75rem;
-        padding: 0.75rem 1.25rem;
-        min-width: 80px;
+        padding: 0.75rem 0.5rem;
     }
 
     .stat-value {
@@ -206,6 +205,7 @@
 
         <!-- Profile Header -->
         <div class="card p-6">
+            <!-- Top row: avatar + name + buttons -->
             <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-4 min-w-0">
                     <div class="avatar-circle" style="{% if avatar_url %}padding:0;overflow:hidden;{% endif %}">
@@ -220,28 +220,6 @@
                         <p class="text-sm text-white/40 mt-0.5">
                             Member since {{ joined_date or 'Unknown' }}
                         </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <div class="stat-pill">
-                                <span class="stat-value gold">{{ rating or 1200 }}</span>
-                                <span class="stat-label">Rating</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value gold">{{ puzzle_rating }}</span>
-                                <span class="stat-label">Puzzle Rating</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value">{{ total_solved }}</span>
-                                <span class="stat-label">Puzzles Solved</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value">{{ total_attempted }}</span>
-                                <span class="stat-label">Attempted</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value" style="color:#fb923c">{{ streak }}</span>
-                                <span class="stat-label">Streak</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -259,6 +237,30 @@
                         Edit Profile
                     </a>
                     {% endif %}
+                </div>
+            </div>
+
+            <!-- Stats row: full width, equal columns -->
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
+                <div class="stat-pill">
+                    <span class="stat-value gold">{{ rating or 1200 }}</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value gold">{{ puzzle_rating }}</span>
+                    <span class="stat-label">Puzzle Rating</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value">{{ total_solved }}</span>
+                    <span class="stat-label">Puzzles Solved</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value">{{ total_attempted }}</span>
+                    <span class="stat-label">Attempted</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value" style="color:#fb923c">{{ streak }}</span>
+                    <span class="stat-label">Streak</span>
                 </div>
             </div>
         </div>
