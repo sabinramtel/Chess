@@ -127,6 +127,8 @@ def user_profile(username):
 
 @auth_bp.route('/signup')
 def signup_page():
+    if 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return render_template('signup.html')
 
 
