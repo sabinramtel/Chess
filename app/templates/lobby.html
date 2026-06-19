@@ -352,7 +352,8 @@
     .then(data => {
       if (data.status === 'started') {
         clearInterval(pollInterval);
-        goToPlay(roomCode, myColor, data.white_username, data.black_username, data.game_state);
+        // data.color is the creator's final color (decided at join time)
+        goToPlay(roomCode, data.color || myColor, data.white_username, data.black_username, data.game_state);
       }
     });
   }
