@@ -17,19 +17,43 @@ def health():
 
 @auth_bp.route('/api/db-status')
 def db_status():
-    """Diagnostic endpoint — shows DB connectivity and configured URI (password redacted)."""
-    import os
+    """Diagnostic endpoint — shows DB connectivity and which env vars are set."""
+    import os, re
     from flask import jsonify
     from sqlalchemy import text
     from app import db
 
-    raw_uri = os.environ.get('DATABASE_URL', 'NOT SET')
-    # Redact password from URI for safe display
-    import re
+    # Check which Railway/MySQL env vars are present (mask passwords)
+    def present(key):
+        val = os.environ.get(key)
+        if val is None:
+            return 'NOT SET'
+        if 'password' in key.lower() or 'pass' in key.lower():
+            return '*** (set)'
+        return val
+
+    env_vars = {
+        'DATABASE_URL':  present('DATABASE_URL'),
+        'MYSQL_URL':     present('MYSQL_URL'),
+        'MYSQLHOST':     present('MYSQLHOST'),
+        'MYSQLPORT':     present('MYSQLPORT'),
+        'MYSQLUSER':     present('MYSQLUSER'),
+        'MYSQLPASSWORD': present('MYSQLPASSWORD'),
+        'MYSQLDATABASE': present('MYSQLDATABASE'),
+        'MYSQL_HOST':    present('MYSQL_HOST'),
+        'MYSQL_USER':    present('MYSQL_USER'),
+        'MYSQL_PASSWORD':present('MYSQL_PASSWORD'),
+        'MYSQL_DB':      present('MYSQL_DB'),
+    }
+
+    # Redact password from configured URI
+    from flask import current_app
+    raw_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', 'not configured')
     safe_uri = re.sub(r'://([^:]+):([^@]+)@', r'://\1:***@', raw_uri)
 
     try:
         db.session.execute(text('SELECT 1'))
+        db.session.rollback()
         db_ok = True
         db_error = None
     except Exception as e:
@@ -37,10 +61,10 @@ def db_status():
         db_error = str(e)
 
     return jsonify({
-        'database_url_set': raw_uri != 'NOT SET',
-        'database_url': safe_uri,
         'db_connected': db_ok,
         'db_error': db_error,
+        'configured_uri': safe_uri,
+        'env_vars': env_vars,
     })
 
 
