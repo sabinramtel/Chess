@@ -161,9 +161,12 @@ class SettingsController:
         if not file.filename:
             return jsonify({'success': False, 'message': 'No file selected'}), 400
 
-        ext = file.filename.rsplit('.', 1)[-1].lower()
-        if ext not in {'png', 'jpg', 'jpeg', 'gif', 'webp'}:
-            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
+        ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+        if not ext:
+            ext = 'jpg'
+        allowed = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff', 'heic', 'avif'}
+        if ext not in allowed:
+            ext = 'jpg'  # fallback for unknown extensions
 
         upload_dir = os.path.join('app', 'static', 'avatars')
         os.makedirs(upload_dir, exist_ok=True)

@@ -40,18 +40,6 @@ class AuthController:
             user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
 
             if user and user.check_password(password):
-                # Block unverified accounts
-                ev = EmailVerification.query.filter_by(user_id=user.id).first()
-                if ev and not ev.is_verified:
-                    session['pending_user_id'] = user.id
-                    if is_api:
-                        return jsonify({
-                            'success': False,
-                            'needs_verification': True,
-                            'message': 'Please verify your email before logging in.'
-                        }), 403
-                    return redirect(url_for('auth.verify_email_page'))
-
                 session['user_id'] = user.id
                 session['username'] = user.username
                 if is_api:
@@ -133,74 +121,13 @@ class AuthController:
         user = User(email=email, username=username)
         user.set_password(password)
         db.session.add(user)
-        db.session.flush()  # get user.id without full commit
-
-        # Create verification record
-        otp = _generate_otp()
-        ev = EmailVerification(
-            user_id=user.id,
-            otp=otp,
-            is_verified=False,
-            expires_at=_utcnow() + timedelta(minutes=15)
-        )
-        db.session.add(ev)
         db.session.commit()
 
-        # Store pending user in session so verify page knows who to verify
-        session['pending_user_id'] = user.id
-
-        from flask import current_app
-        send_otp_email(email, username, otp)
-
-        response = {
-            'success': True,
-            'message': 'Account created! Check your email for the verification code.',
-            'redirect': url_for('auth.verify_email_page')
-        }
-        if current_app.debug:
-            response['dev_otp'] = otp
-
-        return jsonify(response), 201
-
-    @staticmethod
-    def verify_email():
-        """Validate the OTP the user submitted."""
-        data = request.get_json() or {}
-        otp_input = data.get('otp', '').strip()
-
-        user_id = session.get('pending_user_id')
-        if not user_id:
-            return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 400
-
-        ev = EmailVerification.query.filter_by(user_id=user_id).first()
-        if not ev:
-            return jsonify({'success': False, 'message': 'No verification record found.'}), 400
-
-        if ev.is_verified:
-            # Already verified — just log them in
-            user = User.query.get(user_id)
-            session.pop('pending_user_id', None)
-            session['user_id'] = user.id
-            session['username'] = user.username
-            return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
-
-        if _utcnow() > ev.expires_at:
-            return jsonify({'success': False, 'message': 'Code expired. Request a new one.'}), 400
-
-        if ev.otp != otp_input:
-            return jsonify({'success': False, 'message': 'Incorrect code. Try again.'}), 400
-
-        # Mark verified and log in
-        ev.is_verified = True
-        ev.otp = None
-        db.session.commit()
-
-        user = User.query.get(user_id)
-        session.pop('pending_user_id', None)
+        # Log in immediately
         session['user_id'] = user.id
         session['username'] = user.username
 
-        return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
+        return jsonify({'success': True, 'message': 'Account created! Welcome to Project Chess.', 'redirect': '/home'}), 201
 
     @staticmethod
     def forgot_password():
@@ -263,23 +190,3 @@ class AuthController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Password reset successfully'}), 200
 
-    @staticmethod
-    def resend_otp():
-        """Generate and resend a fresh OTP."""
-        user_id = session.get('pending_user_id')
-        if not user_id:
-            return jsonify({'success': False, 'message': 'Session expired. Please register again.'}), 400
-
-        ev = EmailVerification.query.filter_by(user_id=user_id).first()
-        if not ev or ev.is_verified:
-            return jsonify({'success': False, 'message': 'Nothing to resend.'}), 400
-
-        otp = _generate_otp()
-        ev.otp = otp
-        ev.expires_at = _utcnow() + timedelta(minutes=15)
-        db.session.commit()
-
-        user = User.query.get(user_id)
-        send_otp_email(user.email, user.username, otp)
-
-        return jsonify({'success': True, 'message': 'A new code has been sent to your email.'}), 200

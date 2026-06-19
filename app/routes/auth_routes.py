@@ -23,10 +23,8 @@ def home():
         stats = UserPuzzleStats(user_id=user_id)
         db.session.add(stats)
         db.session.commit()
-    
-    settings = UserSettings.query.filter_by(user_id=user_id).first()
-    avatar_url = settings.avatar_url if settings and settings.avatar_url else None
-    
+    user_settings = UserSettings.query.filter_by(user_id=user_id).first()
+    avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None
     return render_template('home.html',
                            active_page='home',
                            username=session.get('username'),
@@ -93,16 +91,21 @@ def user_profile(username):
 
     from app.models.user_model import User
     from app.models.puzzle_stats_model import UserPuzzleStats
+    from app.models.settings_model import UserSettings
     user = User.query.filter_by(username=username).first()
     if not user:
         return render_template('tier.html', active_page='profile'), 404
 
     puzzle_stats = UserPuzzleStats.query.filter_by(user_id=user.id).first()
+    user_settings = UserSettings.query.filter_by(user_id=user.id).first()
+    avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None
 
     return render_template(
         'profile.html',
         active_page='profile',
+        profile_user=user,
         profile_username=user.username,
+        avatar_url=avatar_url,
         rating=user.rating,
         joined_date=user.created_at.strftime('%B %Y') if user.created_at else None,
         username=session.get('username'),
@@ -149,6 +152,7 @@ def check_username():
 def register():
     return AuthController.register()
 
+<<<<<<< HEAD
 
 @auth_bp.route('/verify-email')
 def verify_email_page():
@@ -205,3 +209,5 @@ def privacy():
 @auth_bp.route('/tos')
 def tos():
     return render_template('tos.html')
+=======
+>>>>>>> origin/main
