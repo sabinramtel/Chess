@@ -292,44 +292,7 @@ def handle_draw_offer(data):
 
     active_rooms[room_code]['draw_offered_by'] = color
     emit('draw_offered', {'offered_by': color}, to=room_code)
-@socketio.on('rejoin_room')
-def handle_rejoin_room(data):
-    """
-    Client sends:
-        { room_code, color, username }
-    Re-registers the socket SID in the room so moves keep working after
-    the browser navigates from lobby.html to play.html (which resets the WS connection).
-    """
-    room_code = (data.get('room_code') or '').strip().upper()
-    color = data.get('color', '').strip()
-    username = (data.get('username') or 'Player').strip()
-
-    if room_code not in active_rooms:
-        emit('error', {'message': f'Room "{room_code}" not found.'})
-        return
-
-    room = active_rooms[room_code]
-    join_room(room_code)
-    sid_to_room[request.sid] = room_code
-
-    # Update the stored SID for the player's color slot
-    if color == 'white' and room.get('white'):
-        room['white']['sid'] = request.sid
-    elif color == 'black' and room.get('black'):
-        room['black']['sid'] = request.sid
-    else:
-        # Game not started yet (creator navigated directly to play)
-        if room['creator']['username'] == username:
-            room['creator']['sid'] = request.sid
-
-    game = room.get('game')
-    if game:
-        emit('game_started', {
-            'game_state': game.to_dict(),
-            'white_username': room['white']['username'] if room.get('white') else '',
-            'black_username': room['black']['username'] if room.get('black') else '',
-            'color': color,
-        })
+# Removed duplicate rejoin handler - consolidated later
 
 
 @socketio.on('draw_accept')
@@ -370,61 +333,13 @@ def handle_draw_decline(data):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  LEGAL MOVES REQUEST  (highlights for the clicking player)
-# ══════════════════════════════════════════════════════════════════════════════
-@socketio.on('request_legal_moves')
-def handle_request_legal_moves(data):
-    """
-    Client sends:
-        { room_code, square:[r,c] }
-    Responds to sender only:
-        legal_moves_response  { legal_moves: [[r,c], ...] }
-    """
-    room_code = (data.get('room_code') or '').upper()
-    square = tuple(data.get('square', []))
-
-    if room_code not in active_rooms:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    room = active_rooms[room_code]
-    game = room.get('game')
-    if not game:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    # Only allow the player whose turn it is to request moves
-    expected_sid = (
-        room['white']['sid'] if game.current_turn == Color.WHITE else room['black']['sid']
-    )
-    if request.sid != expected_sid:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    legal_moves = game.get_legal_moves(square)
-    emit('legal_moves_response', {'legal_moves': legal_moves})
-
-
-# ══════════════════════════════════════════════════════════════════════════════
 #  REJOIN  (reconnect to an existing room after a page reload)
->>>>>>> origin/main
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('rejoin_room')
 def handle_rejoin_room(data):
     """
     Client sends:
         { room_code, color, username }
-<<<<<<< HEAD
-    Re-registers the socket SID in the room so moves keep working after the
-    browser navigates from lobby.html to play.html (which resets the WS connection).
-    """
-    room_code = (data.get('room_code') or '').strip().upper()
-    color = data.get('color', '').strip()
-    username = (data.get('username') or 'Player').strip()
-
-    if room_code not in active_rooms:
-        emit('error', {'message': f'Room "{room_code}" not found.'})
-=======
     Responds to sender with the current game state so the board re-renders.
     """
     room_code = (data.get('room_code') or '').upper()
@@ -432,37 +347,13 @@ def handle_rejoin_room(data):
     username = data.get('username', 'Player')
 
     if room_code not in active_rooms:
->>>>>>> origin/main
         return
 
     room = active_rooms[room_code]
     join_room(room_code)
     sid_to_room[request.sid] = room_code
 
-<<<<<<< HEAD
-    # Update the SID for this player's color slot
-=======
     # Update the stored sid so future events route correctly
->>>>>>> origin/main
-    if color == 'white' and room.get('white'):
-        room['white']['sid'] = request.sid
-    elif color == 'black' and room.get('black'):
-        room['black']['sid'] = request.sid
-<<<<<<< HEAD
-    else:
-        # Game not started yet (creator navigated directly to play)
-        # Update creator SID
-        if room['creator']['username'] == username:
-            room['creator']['sid'] = request.sid
-
-    game = room.get('game')
-    if game:
-        emit('game_started', {
-            'game_state': game.to_dict(),
-            'white_username': room['white']['username'] if room.get('white') else '',
-            'black_username': room['black']['username'] if room.get('black') else '',
-=======
-
     game = room.get('game')
     if game:
         white_name = room['white']['username'] if room.get('white') else username
@@ -471,13 +362,11 @@ def handle_rejoin_room(data):
             'game_state': game.to_dict(),
             'white_username': white_name,
             'black_username': black_name,
->>>>>>> origin/main
             'color': color,
         })
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
 #  LEGAL MOVES  (for move-highlight UI in play.html)
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('request_legal_moves')
