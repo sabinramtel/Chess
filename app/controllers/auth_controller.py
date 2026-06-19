@@ -37,11 +37,26 @@ class AuthController:
                 flash('All fields are required.', 'error')
                 return redirect(url_for('auth.login_page'))
 
-            user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
+            try:
+                user = User.query.filter(
+                    (User.username == identifier) | (User.email == identifier)
+                ).first()
+            except Exception as e:
+                if is_api:
+                    return jsonify({
+                        'success': False,
+                        'message': f'Database error: {str(e)}. Please check server configuration.'
+                    }), 503
+                flash('Database connection error. Please try again later.', 'error')
+                return redirect(url_for('auth.login_page'))
 
             if user and user.check_password(password):
                 # Block unverified accounts
-                ev = EmailVerification.query.filter_by(user_id=user.id).first()
+                try:
+                    ev = EmailVerification.query.filter_by(user_id=user.id).first()
+                except Exception:
+                    ev = None
+
                 if ev and not ev.is_verified:
                     session['pending_user_id'] = user.id
                     if is_api:
@@ -65,6 +80,7 @@ class AuthController:
                 return redirect(url_for('auth.login_page'))
 
         return render_template('login.html')
+
 
     @staticmethod
     def check_username():

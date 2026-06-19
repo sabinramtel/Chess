@@ -15,6 +15,35 @@ def health():
     return 'OK', 200
 
 
+@auth_bp.route('/api/db-status')
+def db_status():
+    """Diagnostic endpoint — shows DB connectivity and configured URI (password redacted)."""
+    import os
+    from flask import jsonify
+    from sqlalchemy import text
+    from app import db
+
+    raw_uri = os.environ.get('DATABASE_URL', 'NOT SET')
+    # Redact password from URI for safe display
+    import re
+    safe_uri = re.sub(r'://([^:]+):([^@]+)@', r'://\1:***@', raw_uri)
+
+    try:
+        db.session.execute(text('SELECT 1'))
+        db_ok = True
+        db_error = None
+    except Exception as e:
+        db_ok = False
+        db_error = str(e)
+
+    return jsonify({
+        'database_url_set': raw_uri != 'NOT SET',
+        'database_url': safe_uri,
+        'db_connected': db_ok,
+        'db_error': db_error,
+    })
+
+
 @auth_bp.route('/home')
 def home():
     if 'user_id' not in session:
