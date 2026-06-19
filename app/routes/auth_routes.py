@@ -152,24 +152,6 @@ def check_username():
 def register():
     return AuthController.register()
 
-<<<<<<< HEAD
-
-@auth_bp.route('/verify-email')
-def verify_email_page():
-    if 'pending_user_id' not in session:
-        return redirect(url_for('auth.login_page'))
-    return render_template('verify_otp.html')
-
-
-@auth_bp.route('/api/verify-email', methods=['POST'])
-def verify_email():
-    return AuthController.verify_email()
-
-
-@auth_bp.route('/api/resend-otp', methods=['POST'])
-def resend_otp():
-    return AuthController.resend_otp()
-
 
 @auth_bp.route('/api/quote', methods=['GET'])
 def get_quote():
@@ -209,5 +191,3 @@ def privacy():
 @auth_bp.route('/tos')
 def tos():
     return render_template('tos.html')
-=======
->>>>>>> origin/main
