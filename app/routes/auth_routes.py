@@ -15,7 +15,7 @@ def health():
     return 'OK', 200
 
 # TEMPORARY DIAGNOSTIC HANDLER
-from flask import current_app
+from flask import current_app, jsonify
 import traceback
 @auth_bp.app_errorhandler(Exception)
 def handle_exception(e):
