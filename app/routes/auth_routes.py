@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, abort
+from flask import Blueprint, render_template, session, redirect, url_for, abort, request
 from app.controllers.auth_controller import AuthController
 
 auth_bp = Blueprint('auth', __name__)
@@ -7,6 +7,8 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/')
 def index():
+    if 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return render_template('index.html')
 
 
@@ -67,6 +69,8 @@ def lobby():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login_page():
+    if request.method == 'GET' and 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return AuthController.login()
 
 
@@ -123,6 +127,8 @@ def user_profile(username):
 
 @auth_bp.route('/signup')
 def signup_page():
+    if 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return render_template('signup.html')
 
 

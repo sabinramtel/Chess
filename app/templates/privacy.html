@@ -2,10 +2,25 @@
 
 {% block title %}Privacy Policy - Project Chess{% endblock %}
 
+{% block head %}
+<style>
+    html.light-theme h1, html.light-theme h2 { color: #1a1a1a !important; }
+    html.light-theme p, html.light-theme div { color: rgba(26,26,26,0.75) !important; }
+    html.light-theme h1.gold { color: var(--primary) !important; }
+    html.light-theme .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+    html.light-theme #quick-theme-toggle { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="w-full max-w-4xl mx-auto px-4 md:px-8 py-12 space-y-8">
     <div class="card p-8">
-        <h1 class="text-3xl font-bold mb-6 gold text-center uppercase tracking-wider">Privacy Policy</h1>
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold gold uppercase tracking-wider">Privacy Policy</h1>
+            <button id="quick-theme-toggle" class="w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10 flex-shrink-0" title="Toggle Theme">
+                <span class="text-lg">🌓</span>
+            </button>
+        </div>
         
         <div class="space-y-6 text-white/80 leading-relaxed">
             <section>
@@ -44,4 +59,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('quick-theme-toggle').addEventListener('click', () => {
+        const isLight = document.documentElement.classList.contains('light-theme');
+        if (isLight) {
+            document.documentElement.classList.remove('light-theme');
+            localStorage.setItem('site_theme', 'dark');
+        } else {
+            document.documentElement.classList.add('light-theme');
+            localStorage.setItem('site_theme', 'light');
+        }
+    });
+</script>
 {% endblock %}

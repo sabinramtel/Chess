@@ -62,4 +62,9 @@ def create_app():
         from app.models.puzzle_attempt_model import PuzzleAttempt           # noqa
         db.create_all()
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        from flask import render_template
+        return render_template('404.html'), 404
+
     return app
