@@ -292,6 +292,44 @@ def handle_draw_offer(data):
 
     active_rooms[room_code]['draw_offered_by'] = color
     emit('draw_offered', {'offered_by': color}, to=room_code)
+@socketio.on('rejoin_room')
+def handle_rejoin_room(data):
+    """
+    Client sends:
+        { room_code, color, username }
+    Re-registers the socket SID in the room so moves keep working after
+    the browser navigates from lobby.html to play.html (which resets the WS connection).
+    """
+    room_code = (data.get('room_code') or '').strip().upper()
+    color = data.get('color', '').strip()
+    username = (data.get('username') or 'Player').strip()
+
+    if room_code not in active_rooms:
+        emit('error', {'message': f'Room "{room_code}" not found.'})
+        return
+
+    room = active_rooms[room_code]
+    join_room(room_code)
+    sid_to_room[request.sid] = room_code
+
+    # Update the stored SID for the player's color slot
+    if color == 'white' and room.get('white'):
+        room['white']['sid'] = request.sid
+    elif color == 'black' and room.get('black'):
+        room['black']['sid'] = request.sid
+    else:
+        # Game not started yet (creator navigated directly to play)
+        if room['creator']['username'] == username:
+            room['creator']['sid'] = request.sid
+
+    game = room.get('game')
+    if game:
+        emit('game_started', {
+            'game_state': game.to_dict(),
+            'white_username': room['white']['username'] if room.get('white') else '',
+            'black_username': room['black']['username'] if room.get('black') else '',
+            'color': color,
+        })
 
 
 @socketio.on('draw_accept')
@@ -332,9 +370,6 @@ def handle_draw_decline(data):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
-#  REJOIN ROOM  (called by play.html on reconnect after lobby → play navigation)
-=======
 #  LEGAL MOVES REQUEST  (highlights for the clicking player)
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('request_legal_moves')

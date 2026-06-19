@@ -416,11 +416,37 @@
 
   // ── Copy code ─────────────────────────────────────────────────────────────
   function copyCode() {
-    navigator.clipboard.writeText(myRoomCode || '').then(() => {
+    // Use Clipboard API if available and in a secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(myRoomCode || '').then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+      }).catch(fallbackCopy);
+    } else {
+      // Fallback for insecure contexts (e.g., HTTP)
+      fallbackCopy();
+    }
+  }
+
+  function fallbackCopy() {
+    const temp = document.createElement('textarea');
+    temp.value = myRoomCode || '';
+    // Avoid scrolling to bottom
+    temp.style.position = 'fixed';
+    temp.style.left = '-9999px';
+    document.body.appendChild(temp);
+    temp.focus();
+    temp.select();
+    try {
+      const successful = document.execCommand('copy');
       const btn = document.querySelector('.copy-btn');
-      btn.textContent = '✅ Copied!';
+      btn.textContent = successful ? '✅ Copied!' : '❌ Failed';
       setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-    });
+    } catch (err) {
+      console.error('Fallback: Unable to copy', err);
+    }
+    document.body.removeChild(temp);
   }
 
   // ── Auto-uppercase join code ──────────────────────────────────────────────
