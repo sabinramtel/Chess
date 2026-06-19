@@ -510,7 +510,7 @@ def handle_request_legal_moves(data):
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('disconnect')
 def handle_disconnect():
-    """Notify the opponent when a player disconnects mid-game."""
+    # Notify the opponent when a player disconnects mid-game."""
     sid = request.sid
     room_code = sid_to_room.pop(sid, None)
     if not room_code or room_code not in active_rooms:
