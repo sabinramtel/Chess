@@ -325,8 +325,13 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, time_control: selectedTime, increment: selectedInc })
     })
-    .then(r => r.json())
-    .then(data => {
+    .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.room_code) {
+        showError('create', data.message || data.error || 'Server error creating room. Try again.');
+        document.getElementById('btn-create').disabled = false;
+        return;
+      }
       myRoomCode = data.room_code;
       myColor    = data.color;
       document.getElementById('room-code-text').textContent = data.room_code;
