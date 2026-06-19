@@ -19,12 +19,7 @@ from flask import current_app
 import traceback
 @auth_bp.app_errorhandler(Exception)
 def handle_exception(e):
-    # Pass through HTTP errors
-    from werkzeug.exceptions import HTTPException
-    if isinstance(e, HTTPException):
-        return e
-
-    # Catch everything else and return the traceback
+    # Catch everything and return the traceback
     tb = traceback.format_exc()
     return jsonify({
         "error": "Unhandled Exception",
