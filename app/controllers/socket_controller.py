@@ -346,8 +346,7 @@ def handle_rejoin_room(data):
     Responds to sender with the current game state so the board re-renders.
     """
     room_code = (data.get('room_code') or '').upper()
-    color = data.get('color', 'white')
-    username = data.get('username', 'Player')
+    username  = (data.get('username') or 'Player').strip()
 
     if room_code not in active_rooms:
         return
@@ -356,17 +355,32 @@ def handle_rejoin_room(data):
     join_room(room_code)
     sid_to_room[request.sid] = room_code
 
-    # Update the stored sid in the correct color slot so future move events route correctly.
-    # This is needed for rooms created via HTTP (where sid was None).
-    if color in ('white', 'black'):
-        slot = room.get(color)
-        if slot is not None:
-            slot['sid'] = request.sid
-        else:
-            # slot was None (shouldn't happen normally), create it
-            room[color] = {'sid': request.sid, 'username': username}
-
     game = room.get('game')
+
+    # ── Derive color authoritatively from game state (ignore client claim) ──────
+    color = None
+    if game:
+        wname = game.white_player.username.strip().lower()
+        bname = game.black_player.username.strip().lower()
+        uname = username.lower()
+        if uname == wname:
+            color = 'white'
+        elif uname == bname:
+            color = 'black'
+
+    # Fall back to client-provided color only if game not found yet
+    if color is None:
+        color = data.get('color', 'white')
+        if color not in ('white', 'black'):
+            color = 'white'
+
+    # ── Store SID in the correct slot so handle_move can enforce turns ──────────
+    slot = room.get(color)
+    if slot is not None:
+        slot['sid'] = request.sid
+    else:
+        room[color] = {'sid': request.sid, 'username': username}
+
     if game:
         white_name = room['white']['username'] if room.get('white') else username
         black_name = room['black']['username'] if room.get('black') else username
@@ -374,8 +388,9 @@ def handle_rejoin_room(data):
             'game_state': game.to_dict(),
             'white_username': white_name,
             'black_username': black_name,
-            'color': color,
+            'color': color,          # authoritative color from game state
         })
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════

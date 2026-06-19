@@ -478,13 +478,13 @@ boardGrid.style.gridTemplateRows    = `repeat(8,${SQ}px)`;
 document.getElementById('my-name').textContent   = myUsername;
 document.getElementById('room-badge').textContent = roomCode ? `Room: ${roomCode}` : '';
 document.getElementById('info-room').textContent  = roomCode || '—';
-document.getElementById('info-color').textContent = myColor;
-document.getElementById('my-color-label').textContent  = myColor === 'white' ? '🏳️' : '🏴';
-document.getElementById('opp-color-label').textContent = myColor === 'white' ? '🏴' : '🏳️';
+document.getElementById('info-color').textContent = getMyColor();
+document.getElementById('my-color-label').textContent  = getMyColor() === 'white' ? '🏳️' : '🏴';
+document.getElementById('opp-color-label').textContent = getMyColor() === 'white' ? '🏴' : '🏳️';
 if (roomCode) document.getElementById('waiting-code').textContent = roomCode;
 document.getElementById('info-white').textContent = whiteUser;
 document.getElementById('info-black').textContent = blackUser;
-document.getElementById('opp-name').textContent   = myColor === 'white' ? blackUser : whiteUser;
+document.getElementById('opp-name').textContent   = getMyColor() === 'white' ? blackUser : whiteUser;
 
 /* ════════════════════════════════════════════════════════════════
    DRAG TO REPOSITION BOARD
@@ -531,8 +531,9 @@ function getMyColor() {
   if (gameState) {
     const wp = gameState.white_player;
     const bp = gameState.black_player;
-    if (wp && wp.username === myUsername) return 'white';
-    if (bp && bp.username === myUsername) return 'black';
+    const cleanMyName = (myUsername || '').trim().toLowerCase();
+    if (wp && wp.username && wp.username.trim().toLowerCase() === cleanMyName) return 'white';
+    if (bp && bp.username && bp.username.trim().toLowerCase() === cleanMyName) return 'black';
   }
   // Fallback: sessionStorage value (may be 'pending' during lobby transition)
   return (myColor && myColor !== 'pending') ? myColor : 'white';
@@ -814,13 +815,13 @@ document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter') 
 document.getElementById('btn-resign').onclick = () => {
   if (!roomCode || !gameState || gameState.status !== 'ongoing') return;
   if (confirm('Are you sure you want to resign?')) {
-    socket.emit('resign', { room_code: roomCode, color: myColor });
+    socket.emit('resign', { room_code: roomCode, color: getMyColor() });
   }
 };
 
 document.getElementById('btn-draw').onclick = () => {
   if (!roomCode || !gameState || gameState.status !== 'ongoing') return;
-  socket.emit('draw_offer', { room_code: roomCode, color: myColor });
+  socket.emit('draw_offer', { room_code: roomCode, color: getMyColor() });
   addChatMsg('System', 'You offered a draw.', true);
 };
 
@@ -867,7 +868,7 @@ socket.on('connect', () => {
 
   // If we already have game data (came from lobby) re-join the room
   if (roomCode) {
-    socket.emit('rejoin_room', { room_code: roomCode, color: myColor, username: myUsername });
+    socket.emit('rejoin_room', { room_code: roomCode, color: getMyColor(), username: myUsername });
   }
 });
 
@@ -885,7 +886,7 @@ socket.on('game_started', ({ game_state, white_username, black_username, color }
     // myColor is a const so we patch it via a module-level variable instead
     window._myColorOverride = color;
   }
-  const effectiveColor = window._myColorOverride || myColor;
+  const effectiveColor = getMyColor();
   document.getElementById('overlay-waiting').classList.remove('visible');
   document.getElementById('opp-name').textContent = effectiveColor === 'white' ? black_username : white_username;
   document.getElementById('my-color-label').textContent  = effectiveColor === 'white' ? '🏳️' : '🏴';
@@ -925,7 +926,7 @@ socket.on('chat_message', ({ username, message }) => {
 
 // Draw offered by opponent
 socket.on('draw_offered', ({ offered_by }) => {
-  if (offered_by !== myColor) {
+  if (offered_by !== getMyColor()) {
     document.getElementById('draw-banner').classList.add('visible');
     addChatMsg('System', `${offered_by} offered a draw.`, true);
   }
@@ -943,7 +944,7 @@ socket.on('game_over', ({ reason, winner, game_state }) => {
   let title, sub;
   if (reason === 'draw') {
     title = 'Draw!'; sub = 'The game is a draw.';
-  } else if (winner === myColor) {
+  } else if (winner === getMyColor()) {
     title = 'You Win! 🎉'; sub = reason === 'resigned' ? 'Your opponent resigned.' : 'Checkmate!';
   } else {
     title = 'You Lost'; sub = reason === 'resigned' ? 'You resigned.' : 'Checkmate!';
@@ -954,7 +955,7 @@ socket.on('game_over', ({ reason, winner, game_state }) => {
 // Opponent disconnected
 socket.on('player_disconnected', ({ color, winner, message }) => {
   addChatMsg('System', message, true);
-  if (winner === myColor) showGameOver('🏆', 'You Win!', 'Opponent disconnected.');
+  if (winner === getMyColor()) showGameOver('🏆', 'You Win!', 'Opponent disconnected.');
   else showGameOver('🔌', 'Disconnected', message);
 });
 
