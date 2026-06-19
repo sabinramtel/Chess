@@ -120,18 +120,72 @@
 
 
     <!-- ── Main Content ────────────────────────────────────────── -->
+    <!-- SVG Gradients for Puzzle Ranks -->
+    <svg width="0" height="0" class="absolute w-0 h-0">
+        <defs>
+            <linearGradient id="grad-bronze" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#8b5a2b;stop-opacity:1" />
+                <stop offset="30%" style="stop-color:#e8a462;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#cd7f32;stop-opacity:1" />
+                <stop offset="85%" style="stop-color:#f3ccaa;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#70431a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="grad-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#757575;stop-opacity:1" />
+                <stop offset="30%" style="stop-color:#f0f0f0;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#a3a3a3;stop-opacity:1" />
+                <stop offset="85%" style="stop-color:#ffffff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#5a5a5a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#b8860b;stop-opacity:1" />
+                <stop offset="30%" style="stop-color:#fff3a1;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#ffd700;stop-opacity:1" />
+                <stop offset="85%" style="stop-color:#fffae6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#996515;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="grad-diamond" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#48d1cc;stop-opacity:1" />
+                <stop offset="30%" style="stop-color:#ffffff;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#a0e6ff;stop-opacity:1" />
+                <stop offset="85%" style="stop-color:#ffffff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#008b8b;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
+
     <div class="w-full max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
 
         <!-- Welcome Banner -->
         <div class="card p-5 flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div
-                    class="w-14 h-14 rounded-full bg-[#2c3341] border border-white/10 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="#cca343" class="w-7 h-7">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
+                <div class="relative">
+                    <button id="avatar-toggle" class="w-14 h-14 rounded-full bg-[#2c3341] border border-white/10 flex items-center justify-center overflow-hidden hover:opacity-80 transition cursor-pointer">
+                        {% if avatar_url %}
+                            <img src="{{ avatar_url }}" alt="Profile" class="w-full h-full object-cover">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="#cca343" class="w-7 h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                        {% endif %}
+                    </button>
+                    <!-- Dropdown -->
+                    <div id="avatar-dropdown" class="hidden absolute left-0 top-full mt-2 w-48 rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden" style="background: #0b0c10;">
+                        <a href="/profile/{{ username }}" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition border-b border-white/5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                            Go to Profile
+                        </a>
+                        <a href="/settings" class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.127l-2.827.94a.75.75 0 01-.95-.95l.94-2.827a4.5 4.5 0 011.127-1.89l13.63-13.63zM18 6.75l-1.5-1.5" />
+                            </svg>
+                            Edit Avatar
+                        </a>
+                    </div>
                 </div>
                 <div>
                     <p id="display-username" class="text-xs uppercase tracking-[0.3em] gold font-semibold">{{ username
@@ -139,11 +193,16 @@
                     <h1 class="text-2xl md:text-3xl font-bold">Welcome back</h1>
                 </div>
             </div>
-            <a href="/play"
-                class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#4ade80] text-[#0f172a] font-semibold hover:bg-[#22c55e] transition shadow-lg shadow-emerald-500/20">
-                <span class="text-lg">▶</span>
-                <span>Play</span>
-            </a>
+            <div class="flex items-center gap-3">
+                <button id="quick-theme-toggle" class="w-12 h-12 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10" title="Toggle Theme">
+                    <span class="text-xl">🌓</span>
+                </button>
+                <a href="/play"
+                    class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#4ade80] text-[#0f172a] font-semibold hover:bg-[#22c55e] transition shadow-lg shadow-emerald-500/20">
+                    <span class="text-lg">▶</span>
+                    <span>Play</span>
+                </a>
+            </div>
         </div>
 
         <!-- Stats Row -->
@@ -152,28 +211,117 @@
             <div class="card card-glow p-5 flex justify-between items-start transition-all">
                 <div>
                     <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Streak</p>
-                    <h2 class="text-3xl font-bold">0 Days</h2>
+                    <h2 class="text-3xl font-bold">{{ streak }} Day{{ 's' if streak != 1 else '' }}</h2>
                     <p class="text-sm opacity-60 mt-2">Keep your momentum going with daily puzzles.</p>
                 </div>
                 <span class="text-3xl mt-1">🔥</span>
             </div>
             <!-- Puzzles -->
-            <div class="card card-glow p-5 flex justify-between items-start transition-all">
+            {% set ts = total_solved|int %}
+            {% if ts < 100 %}
+                {% set rank_metal = 'bronze' %}
+                {% set is_broken = true %}
+                {% set next_ms = 100 %}
+            {% elif ts == 100 %}
+                {% set rank_metal = 'bronze' %}
+                {% set is_broken = false %}
+                {% set next_ms = 100 %}
+            {% elif ts < 500 %}
+                {% set rank_metal = 'silver' %}
+                {% set is_broken = true %}
+                {% set next_ms = 500 %}
+            {% elif ts == 500 %}
+                {% set rank_metal = 'silver' %}
+                {% set is_broken = false %}
+                {% set next_ms = 500 %}
+            {% elif ts < 1000 %}
+                {% set rank_metal = 'gold' %}
+                {% set is_broken = true %}
+                {% set next_ms = 1000 %}
+            {% elif ts == 1000 %}
+                {% set rank_metal = 'gold' %}
+                {% set is_broken = false %}
+                {% set next_ms = 1000 %}
+            {% elif ts < 5000 %}
+                {% set rank_metal = 'diamond' %}
+                {% set is_broken = true %}
+                {% set next_ms = 5000 %}
+            {% else %}
+                {% set rank_metal = 'diamond' %}
+                {% set is_broken = false %}
+                {% set next_ms = 5000 %}
+            {% endif %}
+
+            <div class="card card-glow p-5 flex justify-between items-start transition-all group relative">
                 <div>
                     <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Puzzles</p>
-                    <h2 class="text-3xl font-bold">3,458</h2>
+                    <h2 class="text-3xl font-bold">{{ ts }}</h2>
                     <p class="text-sm opacity-60 mt-2">Solve more to improve tactics and pattern recognition.</p>
                 </div>
-                <span class="text-3xl mt-1">🧩</span>
+                
+                <!-- Puzzle Icon -->
+                <div class="relative cursor-pointer self-start mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-11 h-11 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] {{ 'drop-shadow-[0_0_12px_rgba(255,215,0,0.4)] scale-110' if not is_broken else 'opacity-80' }}">
+                        {% if is_broken %}
+                        <defs>
+                            <clipPath id="left-half">
+                                <polygon points="0,0 12,0 9,8 15,12 9,16 12,24 0,24" />
+                            </clipPath>
+                            <clipPath id="right-half">
+                                <polygon points="12,0 24,0 24,24 12,24 9,16 15,12 9,8" />
+                            </clipPath>
+                        </defs>
+                        <!-- Left Piece -->
+                        <g clip-path="url(#left-half)" class="origin-[8px_12px]" style="transform: translate(-2px, -1px) rotate(-6deg);">
+                            <path fill="url(#grad-{{ rank_metal }})" d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" />
+                        </g>
+                        <!-- Right Piece -->
+                        <g clip-path="url(#right-half)" class="origin-[16px_12px]" style="transform: translate(2px, 1px) rotate(6deg);">
+                            <path fill="url(#grad-{{ rank_metal }})" d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" />
+                        </g>
+                        {% else %}
+                        <!-- Intact Piece -->
+                        <path fill="url(#grad-{{ rank_metal }})" d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" />
+                        {% endif %}
+                    </svg>
+
+                    <!-- Hover Box -->
+                    <div class="hidden group-hover:block absolute right-0 top-full mt-2 w-56 rounded-lg border border-white/10 shadow-2xl z-50 p-4 text-sm" style="background: rgba(18, 20, 26, 0.95); backdrop-filter: blur(8px);">
+                        <p class="text-white/60 text-[10px] mb-2 font-bold uppercase tracking-widest text-center border-b border-white/10 pb-2">Milestones</p>
+                        <ul class="space-y-2 mt-2">
+                            <li class="flex justify-between {{ 'text-[#cd7f32] font-bold text-[15px]' if rank_metal == 'bronze' else 'text-white/60 text-xs' }}">
+                                <span>Bronze</span> <span>100</span>
+                            </li>
+                            <li class="flex justify-between {{ 'text-[#c0c0c0] font-bold text-[15px]' if rank_metal == 'silver' else 'text-white/60 text-xs' }}">
+                                <span>Silver</span> <span>500</span>
+                            </li>
+                            <li class="flex justify-between {{ 'text-[#ffd700] font-bold text-[15px]' if rank_metal == 'gold' else 'text-white/60 text-xs' }}">
+                                <span>Gold</span> <span>1000</span>
+                            </li>
+                            <li class="flex justify-between {{ 'text-[#48d1cc] font-bold text-[15px]' if rank_metal == 'diamond' else 'text-white/60 text-xs' }}">
+                                <span>Diamond</span> <span>5000</span>
+                            </li>
+                        </ul>
+                        {% if is_broken %}
+                        <div class="mt-3 pt-2 border-t border-white/10 text-xs text-center text-white/80">
+                            Fix the <span class="capitalize">{{ rank_metal }}</span> puzzle<br>by reaching {{ next_ms }}!
+                        </div>
+                        {% else %}
+                        <div class="mt-3 pt-2 border-t border-white/10 text-xs text-center text-white/80 font-semibold">
+                            Rank: Shiny <span class="capitalize">{{ rank_metal }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <!-- Game Review -->
+            <!-- Game Tip -->
             <div class="card card-glow p-5 flex justify-between items-start transition-all">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Game Review</p>
-                    <h2 class="text-2xl font-bold leading-tight">Learn from<br>mistakes</h2>
-                    <p class="text-sm opacity-60 mt-2">Analyze your last game and level up fast.</p>
+                    <p class="text-xs uppercase tracking-[0.25em] gold font-semibold mb-2">Game Tip</p>
+                    <h2 class="text-xl font-bold leading-tight">Control the<br>center</h2>
+                    <p class="text-sm opacity-60 mt-2">Always try to control the central squares in the opening.</p>
                 </div>
-                <span class="text-3xl mt-1">🔍</span>
+                <span class="text-3xl mt-1">💡</span>
             </div>
         </div>
 
@@ -200,58 +348,32 @@
                 </div>
             </div>
 
-            <!-- Review Match Card -->
+            <!-- Quote Card -->
             <div class="card card-glow overflow-hidden flex flex-col transition-all">
-                <div class="p-5 flex justify-between items-start">
+                <div class="p-5 flex justify-between items-start border-b border-white/5">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Review</p>
-                        <h3 class="text-xl font-bold mt-1">Review Match vs roma884</h3>
+                        <p class="text-xs uppercase tracking-[0.25em] gold font-semibold">Inspiration</p>
+                        <h3 class="text-xl font-bold mt-1">Grandmaster Quote</h3>
                     </div>
-                    <span class="text-2xl">⭐</span>
+                    <span class="text-2xl">📜</span>
                 </div>
-                <div class="flex-1 p-4">
-                    <div class="flex gap-2 mb-3">
-                        <div class="flex-1">
-                            <!-- Tabs -->
-                            <div class="flex gap-4 mb-3 border-b border-white/10 text-sm">
-                                <span class="tab-active">Moves</span>
-                                <span class="tab-inactive">Analysis</span>
-                            </div>
-                            <!-- Move list -->
-                            <div class="space-y-0.5 text-sm font-mono">
-                                <div class="move-row"><span class="move-num">1.</span><span
-                                        class="move-white">e4</span><span class="move-black">e5</span></div>
-                                <div class="move-row"><span class="move-num">2.</span><span
-                                        class="move-white">Nf3</span><span class="move-black">Nc6</span></div>
-                                <div class="move-row"><span class="move-num">3.</span><span
-                                        class="move-white">Bb5</span><span class="move-black">a6</span></div>
-                                <div class="move-row"><span class="move-num">4.</span><span
-                                        class="move-white">Ba4</span><span class="move-black">Nf6</span></div>
-                                <div class="move-row"><span class="move-num">5.</span><span
-                                        class="move-white">O-O</span><span class="move-black">Be7</span></div>
-                                <div class="move-row"><span class="move-num text-gray-600">...</span></div>
-                            </div>
-                        </div>
-                        <!-- Mini board -->
-                        <div class="w-28 h-28 rounded overflow-hidden shadow flex-shrink-0 self-center">
-                            <img src="/static/images/chess-board.jpg" alt="Board position"
-                                class="w-full h-full object-cover" />
-                        </div>
+                <div class="flex-1 p-6 flex flex-col items-center justify-center text-center relative min-h-[200px]">
+                    <div id="quote-spinner" class="absolute inset-0 flex items-center justify-center">
+                        <svg class="animate-spin h-8 w-8 text-white/40" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </div>
-                    <!-- Playback controls -->
-                    <div class="flex items-center justify-center gap-3 mt-2">
-                        <button
-                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏮</button>
-                        <button
-                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">▶</button>
-                        <button
-                            class="w-9 h-9 rounded-lg bg-[#252b36] hover:bg-[#2c3341] flex items-center justify-center opacity-70 hover:text-white transition">⏭</button>
+                    <blockquote id="quote-text" class="text-lg font-serif italic text-white/90 hidden opacity-0 transition-opacity duration-1000">
+                        <!-- Quote goes here -->
+                    </blockquote>
+                    <div id="author-container" class="mt-4 flex flex-col items-center justify-center gap-2 hidden opacity-0 transition-opacity duration-1000">
+                        <div class="w-12 h-12 rounded-full overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(204,163,67,0.3)] bg-[#252b36] flex items-center justify-center">
+                            <img id="author-photo" src="" alt="Author" class="w-full h-full object-cover hidden">
+                            <span id="author-fallback" class="text-xl">♟️</span>
+                        </div>
+                        <p id="author-name" class="text-sm font-semibold text-white/80 tracking-wider uppercase"></p>
                     </div>
-                </div>
-                <div class="p-4 pt-0">
-                    <button
-                        class="w-full py-3 rounded-lg bg-[#252b36] hover:bg-[#2c3341] text-sm font-semibold transition">Open
-                        Full Review</button>
                 </div>
             </div>
 
@@ -302,4 +424,87 @@
 </div>
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<script>
+    document.getElementById('quick-theme-toggle')?.addEventListener('click', () => {
+        const isLight = document.documentElement.classList.contains('light-theme');
+        if (isLight) {
+            document.documentElement.classList.remove('light-theme');
+            localStorage.setItem('site_theme', 'dark');
+        } else {
+            document.documentElement.classList.add('light-theme');
+            localStorage.setItem('site_theme', 'light');
+        }
+    });
+
+    // Avatar dropdown toggle
+    document.getElementById('avatar-toggle')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = document.getElementById('avatar-dropdown');
+        if (dropdown) dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        const toggle = document.getElementById('avatar-toggle');
+        const dropdown = document.getElementById('avatar-dropdown');
+        if (toggle && dropdown && !toggle.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Fetch Grandmaster Quote
+    document.addEventListener('DOMContentLoaded', async () => {
+        const spinner = document.getElementById('quote-spinner');
+        const quoteText = document.getElementById('quote-text');
+        const authorContainer = document.getElementById('author-container');
+        const authorName = document.getElementById('author-name');
+        const authorPhoto = document.getElementById('author-photo');
+        const authorFallback = document.getElementById('author-fallback');
+        if (!spinner || !quoteText) return;
+        
+        try {
+            const response = await fetch('/api/quote');
+            const data = await response.json();
+            quoteText.textContent = `"${data.quote}"`;
+            authorName.textContent = `- ${data.author} -`;
+            
+            if (data.author && data.author.length > 0) {
+                try {
+                    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(data.author)}&prop=pageimages&format=json&pithumbsize=200&origin=*`;
+                    const wikiRes = await fetch(wikiUrl);
+                    const wikiData = await wikiRes.json();
+                    const pages = wikiData.query.pages;
+                    const pageId = Object.keys(pages)[0];
+                    if (pageId !== "-1" && pages[pageId].thumbnail) {
+                        authorPhoto.src = pages[pageId].thumbnail.source;
+                        authorPhoto.classList.remove('hidden');
+                        authorFallback.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error("Wikipedia fetch failed", err);
+                }
+            }
+
+            spinner.style.display = 'none';
+            quoteText.classList.remove('hidden');
+            authorContainer.classList.remove('hidden');
+            
+            setTimeout(() => {
+                quoteText.classList.remove('opacity-0');
+                authorContainer.classList.remove('opacity-0');
+            }, 50);
+        } catch (error) {
+            console.error('Error fetching quote:', error);
+            quoteText.textContent = '"Chess is life."';
+            authorName.textContent = '- Bobby Fischer -';
+            spinner.style.display = 'none';
+            quoteText.classList.remove('hidden');
+            authorContainer.classList.remove('hidden');
+            setTimeout(() => {
+                quoteText.classList.remove('opacity-0');
+                authorContainer.classList.remove('opacity-0');
+            }, 50);
+        }
+    });
+</script>
+{% endblock %}

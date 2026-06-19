@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome Back - Sign In{% endblock %}
+{% block title %}Create Account - Sign Up{% endblock %}
 
 {% block head %}
 <style>
@@ -11,11 +11,6 @@
 {% endblock %}
 
 {% block body %}
-  <!-- ── Toast notification ─────────────────────────────────── -->
-  <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white">
-  </div>
-
-  <!-- ── Main layout ───────────────────────────────────────── -->
   <div class="w-full max-w-5xl flex flex-col md:flex-row gap-12 items-center justify-center">
 
     <!-- Left: Form card -->
@@ -27,39 +22,53 @@
         </svg>
       </div>
 
-      <h1 class="text-3xl font-bold tracking-wide text-center mb-1">Welcome Back</h1>
+      <h1 class="text-3xl font-bold tracking-wide text-center mb-1">Create Account</h1>
       <p class="text-xs font-semibold text-[#cca343] tracking-widest uppercase text-center mb-8">
-        Your Next Move Awaits
+        Your Journey Begins Here
       </p>
 
-      <form id="login-form" class="w-full space-y-5" novalidate>
+      <form id="signup-form" class="w-full space-y-5" novalidate>
         <div>
-          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email or Username</label>
-          <input id="identifier" type="text" placeholder="Enter your email or username"
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email</label>
+          <input id="email" type="email" placeholder="Enter your email"
             class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
-          <p id="identifier-error" class="field-error"></p>
+          <p id="email-error" class="field-error"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Username</label>
+          <input id="username" type="text" placeholder="Choose a username"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="username-error" class="field-error"></p>
         </div>
 
         <div>
           <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Password</label>
-          <input id="password" type="password" placeholder="Enter your password"
+          <input id="password" type="password" placeholder="At least 8 characters"
             class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
           <p id="password-error" class="field-error"></p>
         </div>
 
-        <div class="flex items-center justify-between pt-1">
-          <div class="flex items-center gap-2">
-            <input id="remember" type="checkbox"
-              class="w-4 h-4 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer" />
-            <label for="remember" class="text-xs text-gray-400 cursor-pointer select-none">Remember me</label>
-          </div>
-          <a href="/forgot-password" class="text-xs text-[#cca343] hover:underline font-medium">Forgot password?</a>
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Confirm Password</label>
+          <input id="confirm-password" type="password" placeholder="Re-enter your password"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="confirm-password-error" class="field-error"></p>
         </div>
 
-        <div class="pt-4">
-          <button id="login-btn" type="submit"
+        <div class="flex items-start gap-2 pt-1">
+          <input id="agreed" type="checkbox"
+            class="w-4 h-4 mt-0.5 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer flex-shrink-0" />
+          <label for="agreed" class="text-xs text-gray-400 cursor-pointer select-none leading-relaxed">
+            I agree to the <span class="text-[#cca343]">Terms of Service</span> and <span class="text-[#cca343]">Privacy Policy</span>
+          </label>
+        </div>
+        <p id="terms-error" class="field-error"></p>
+
+        <div class="pt-2">
+          <button id="signup-btn" type="submit"
             class="w-full bg-[#cca343] hover:bg-[#b58f37] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 font-bold uppercase text-xs tracking-widest py-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#cca343]/10">
-            Sign In
+            Create Account
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
@@ -68,8 +77,8 @@
       </form>
 
       <p class="text-sm text-gray-500 mt-8">
-        Don't have an account?
-        <a href="/signup" class="text-[#cca343] hover:underline font-medium">Sign up</a>
+        Already have an account?
+        <a href="/login" class="text-[#cca343] hover:underline font-medium">Sign in</a>
       </p>
     </div>
 
@@ -78,36 +87,34 @@
       <div class="flex gap-4 items-start">
         <div class="text-2xl mt-1 select-none">♟️</div>
         <div>
-          <h3 class="text-lg font-semibold text-gray-100">Resume Your Game</h3>
-          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Pick up right where you left off and continue your winning streak</p>
+          <h3 class="text-lg font-semibold text-gray-100">Start Playing Instantly</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Jump into games, challenges, and tournaments right after signing up</p>
         </div>
       </div>
       <div class="flex gap-4 items-start">
-        <div class="text-2xl mt-1 select-none">📊</div>
+        <div class="text-2xl mt-1 select-none">🧩</div>
         <div>
-          <h3 class="text-lg font-semibold text-gray-100">Track Your Progress</h3>
-          <p class="text-sm text-gray-400 mt-1 leading-relaxed">View your stats, rating history, and analyze past games</p>
+          <h3 class="text-lg font-semibold text-gray-100">Train with Puzzles</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Solve thousands of puzzles to sharpen your tactics and pattern recognition</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">📈</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Track Your Rating</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Watch your Elo climb as you improve game by game</p>
         </div>
       </div>
       <div class="flex gap-4 items-start">
         <div class="text-2xl mt-1 select-none">🤝</div>
         <div>
           <h3 class="text-lg font-semibold text-gray-100">Challenge Friends</h3>
-          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Invite friends for a match or jump into the community arena</p>
-        </div>
-      </div>
-      <div class="flex gap-4 items-start">
-        <div class="text-2xl mt-1 select-none">💡</div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-100">Every Move Counts</h3>
-          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Great players aren't born — they're made one game at a time</p>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Invite friends for a match or join the community arena</p>
         </div>
       </div>
     </div>
 
   </div>
-
-  <div id="toast" class="hidden"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -123,7 +130,7 @@
   }
 
   function clearAllErrors() {
-    ['identifier-error', 'password-error'].forEach(clearError);
+    ['email-error', 'username-error', 'password-error', 'confirm-password-error', 'terms-error'].forEach(clearError);
   }
 
   function setInputState(inputId, state) {
@@ -144,74 +151,60 @@
   }
 
   function setLoading(on) {
-    const btn = document.getElementById('login-btn');
+    const btn = document.getElementById('signup-btn');
     btn.disabled = on;
     btn.innerHTML = on
       ? `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-         </svg> Signing In...`
-      : `Sign In
+         </svg> Creating Account...`
+      : `Create Account
          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
          </svg>`;
   }
 
-  document.getElementById('login-form').addEventListener('submit', async function (e) {
+  document.getElementById('signup-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     clearAllErrors();
 
-    const identifier = document.getElementById('identifier').value.trim();
-    const password   = document.getElementById('password').value;
-
-    let hasError = false;
-
-    if (!identifier) {
-      showError('identifier-error', 'Email or username is required');
-      setInputState('identifier', 'error');
-      hasError = true;
-    }
-
-    if (!password) {
-      showError('password-error', 'Password is required');
-      setInputState('password', 'error');
-      hasError = true;
-    }
-
-    if (hasError) return;
+    const email           = document.getElementById('email').value.trim();
+    const username        = document.getElementById('username').value.trim();
+    const password        = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const agreed          = document.getElementById('agreed').checked;
 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('/api/register', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ identifier, password })
+        body:    JSON.stringify({ email, username, password, confirm_password: confirmPassword, agreed })
       });
 
       const data = await res.json();
 
       if (data.success) {
-        try { window.localStorage && window.localStorage.setItem('username', data.username || ''); } catch (e) {}
-        window.location.href = data.redirect || '/home';
-      } else if (data.needs_verification) {
-        showToast('Please verify your email first. Redirecting…');
-        setTimeout(() => { window.location.href = '/verify-email'; }, 1500);
+        showToast('Account created! Welcome to Project Chess.', 'success');
+        setTimeout(() => { window.location.href = data.redirect || '/home'; }, 1500);
       } else if (data.errors) {
+        const fieldMap = {
+          email:            'email-error',
+          username:         'username-error',
+          password:         'password-error',
+          confirm_password: 'confirm-password-error',
+          terms:            'terms-error'
+        };
         Object.entries(data.errors).forEach(([field, msg]) => {
-          if (field === 'identifier') {
-            showError('identifier-error', msg);
-            setInputState('identifier', 'error');
-          } else if (field === 'password') {
-            showError('password-error', msg);
-            setInputState('password', 'error');
-          }
+          const errId = fieldMap[field];
+          if (errId) showError(errId, msg);
         });
       } else {
-        showToast(data.message || 'Login failed. Please try again.');
+        showToast(data.message || 'Registration failed. Please try again.');
       }
     } catch {
-      showToast('Cannot reach server. Make sure the backend is running.');
+      showToast('Cannot reach server. Make sure the backend is running on port 5000.');
     } finally {
       setLoading(false);
     }

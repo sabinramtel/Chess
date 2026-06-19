@@ -38,7 +38,14 @@ class SettingsController:
             user.username = new_username
             session['username'] = new_username
 
+        new_email = data.get('email', '').strip().lower()
+        if new_email and new_email != user.email:
+            if User.query.filter_by(email=new_email).first():
+                return jsonify({'success': False, 'message': 'Email already taken'}), 409
+            user.email = new_email
+
         s.country = data.get('country', s.country)
+        s.bio = data.get('bio', s.bio)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Profile updated'})
 
@@ -154,9 +161,12 @@ class SettingsController:
         if not file.filename:
             return jsonify({'success': False, 'message': 'No file selected'}), 400
 
-        ext = file.filename.rsplit('.', 1)[-1].lower()
-        if ext not in {'png', 'jpg', 'jpeg', 'gif', 'webp'}:
-            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
+        ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+        if not ext:
+            ext = 'jpg'
+        allowed = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff', 'heic', 'avif'}
+        if ext not in allowed:
+            ext = 'jpg'  # fallback for unknown extensions
 
         upload_dir = os.path.join('app', 'static', 'avatars')
         os.makedirs(upload_dir, exist_ok=True)
