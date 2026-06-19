@@ -1431,11 +1431,10 @@
                 const res = await fetch('/api/settings/avatar', { method: 'POST', body: fd });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    showToast(data.message, 'success');
-                    // Sync img src to the server URL (cache-busted)
-                    document.getElementById('avatar-img').src = data.url;
+                    showToast('Avatar updated!', 'success');
+                    document.getElementById('avatar-img').src = data.avatar_url + '?t=' + Date.now();
                 } else {
-                    showToast(data.error || 'Upload failed', 'error');
+                    showToast(data.message || 'Upload failed', 'error');
                 }
             } catch {
                 showToast('Network error — please try again', 'error');
