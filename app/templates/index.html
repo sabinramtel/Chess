@@ -187,7 +187,7 @@
 
 {% block scripts %}
 <script>
-  const API_BASE = 'http://127.0.0.1:5000';
+  const API_BASE = '';
 
   function showError(id, msg) {
     const el = document.getElementById(id);
@@ -328,7 +328,7 @@
         showToast(data.message || 'Registration failed. Please try again.');
       }
     } catch {
-      showToast('Cannot reach server. Make sure the backend is running on port 5000.');
+      showToast('Cannot reach server. Make sure the backend is running.');
     } finally {
       setLoading(false);
     }

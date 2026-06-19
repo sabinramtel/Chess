@@ -205,7 +205,7 @@
         showToast(data.message || 'Login failed. Please try again.');
       }
     } catch {
-      showToast('Cannot reach server. Make sure the backend (app.py) is running on port 5000.');
+      showToast('Cannot reach server. Make sure the backend is running.');
     } finally {
       setLoading(false);
     }
