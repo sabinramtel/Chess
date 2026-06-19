@@ -317,6 +317,78 @@ def handle_draw_decline(data):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  REJOIN ROOM  (called by play.html on reconnect after lobby → play navigation)
+# ══════════════════════════════════════════════════════════════════════════════
+@socketio.on('rejoin_room')
+def handle_rejoin_room(data):
+    """
+    Client sends:
+        { room_code, color, username }
+    Re-registers the socket SID in the room so moves keep working after the
+    browser navigates from lobby.html to play.html (which resets the WS connection).
+    """
+    room_code = (data.get('room_code') or '').strip().upper()
+    color = data.get('color', '').strip()
+    username = (data.get('username') or 'Player').strip()
+
+    if room_code not in active_rooms:
+        emit('error', {'message': f'Room "{room_code}" not found.'})
+        return
+
+    room = active_rooms[room_code]
+    join_room(room_code)
+    sid_to_room[request.sid] = room_code
+
+    # Update the SID for this player's color slot
+    if color == 'white' and room.get('white'):
+        room['white']['sid'] = request.sid
+    elif color == 'black' and room.get('black'):
+        room['black']['sid'] = request.sid
+    else:
+        # Game not started yet (creator navigated directly to play)
+        # Update creator SID
+        if room['creator']['username'] == username:
+            room['creator']['sid'] = request.sid
+
+    game = room.get('game')
+    if game:
+        emit('game_started', {
+            'game_state': game.to_dict(),
+            'white_username': room['white']['username'] if room.get('white') else '',
+            'black_username': room['black']['username'] if room.get('black') else '',
+            'color': color,
+        })
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  LEGAL MOVES  (for move-highlight UI in play.html)
+# ══════════════════════════════════════════════════════════════════════════════
+@socketio.on('request_legal_moves')
+def handle_request_legal_moves(data):
+    """
+    Client sends:
+        { room_code, square: [row, col] }
+    Server responds to requester only:
+        legal_moves_response  { legal_moves: [[r,c], ...] }
+    """
+    room_code = (data.get('room_code') or '').upper()
+    square = data.get('square')
+
+    if room_code not in active_rooms:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    room = active_rooms[room_code]
+    game = room.get('game')
+    if not game or not square:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    legal = GameController.get_legal_moves(game, tuple(square))
+    emit('legal_moves_response', {'legal_moves': legal})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  DISCONNECT
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('disconnect')
