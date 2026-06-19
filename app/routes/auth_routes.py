@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for, abort
 from app.controllers.auth_controller import AuthController
 
 auth_bp = Blueprint('auth', __name__)
@@ -94,7 +94,7 @@ def user_profile(username):
     from app.models.settings_model import UserSettings
     user = User.query.filter_by(username=username).first()
     if not user:
-        return render_template('tier.html', active_page='profile'), 404
+        abort(404)
 
     puzzle_stats = UserPuzzleStats.query.filter_by(user_id=user.id).first()
     user_settings = UserSettings.query.filter_by(user_id=user.id).first()
