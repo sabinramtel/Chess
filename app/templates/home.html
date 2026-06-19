@@ -18,6 +18,21 @@
         border-radius: 1rem;
     }
 
+    @keyframes fire-flicker {
+        0%   { transform: scale(1)    rotate(-3deg); filter: drop-shadow(0 0 6px #ff6a00cc); }
+        25%  { transform: scale(1.12) rotate(2deg);  filter: drop-shadow(0 0 12px #ff4500cc); }
+        50%  { transform: scale(1.06) rotate(-2deg); filter: drop-shadow(0 0 8px #ffaa00bb); }
+        75%  { transform: scale(1.14) rotate(3deg);  filter: drop-shadow(0 0 14px #ff6a00cc); }
+        100% { transform: scale(1)    rotate(-3deg); filter: drop-shadow(0 0 6px #ff6a00cc); }
+    }
+    .fire-icon {
+        font-size: 2rem;
+        margin-top: 0.25rem;
+        display: inline-block;
+        animation: fire-flicker 1.4s ease-in-out infinite;
+        transform-origin: bottom center;
+    }
+
     .card-glow {
         background: #0b0c10;
     }
@@ -222,7 +237,7 @@
                     <h2 class="text-3xl font-bold">{{ streak }} Day{{ 's' if streak != 1 else '' }}</h2>
                     <p class="text-sm opacity-60 mt-2">Keep your momentum going with daily puzzles.</p>
                 </div>
-                <span class="text-3xl mt-1">🔥</span>
+                <span class="fire-icon">🔥</span>
             </div>
             <!-- Puzzles -->
             {% set ts = total_solved|int %}
@@ -524,7 +539,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         loadQuote();
-        setInterval(loadQuote, 20000);
+        setInterval(loadQuote, 8000);
     });
 </script>
 {% endblock %}
