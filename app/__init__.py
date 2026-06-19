@@ -28,6 +28,23 @@ def create_database_if_not_exists():
     conn.close()
 
 
+def migrate_users_table():
+    """Safely adds the 'rating' column to the users table if it doesn't exist."""
+    try:
+        # Check if 'rating' column exists
+        result = db.session.execute(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'rating'"
+        ).fetchone()
+
+        if not result:
+            print("Adding missing 'rating' column to users table...")
+            db.session.execute("ALTER TABLE users ADD COLUMN rating INT DEFAULT 1200")
+            db.session.commit()
+            print("Rating column added successfully.")
+    except Exception as e:
+        print(f"Migration failed: {e}")
+
+
 def create_app():
     # Only try to create database locally if not using a full connection string
     if not os.getenv('DATABASE_URL'):
@@ -62,8 +79,13 @@ def create_app():
             from app.models.puzzle_stats_model import UserPuzzleStats           # noqa
             from app.models.puzzle_attempt_model import PuzzleAttempt           # noqa
             db.create_all()
+
+            # Perform schema migration for missing columns
+            migrate_users_table()
+
     except Exception as e:
         print(f"CRITICAL ERROR during app initialization: {e}")
         # We still return the app so the server can at least start and we can see logs
 
     return app
+
