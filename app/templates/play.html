@@ -673,21 +673,19 @@ function isPieceMyColor(piece) {
   return blackPieces.includes(piece);
 }
 
-async function fetchLegalMoves(row, col) {
-  try {
-    const resp = await fetch('/api/game/legal-moves', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game_id: '__local__', square: [row, col] })
-    });
-    // The REST endpoint needs a game_id but we're socket-based now.
-    // We'll get legal moves from the server via a simple REST call that
-    // looks up the room, or just show all highlighted squares as a visual aid.
-    // For a clean solution: compute allowed squares client-side from the last known state
-    // (we already have validMoves from the socket state, so just re-use those)
-    validMoves = [];
-  } catch (e) { validMoves = []; }
+/* ════════════════════════════════════════════════════════════════
+   LEGAL MOVES VIA SOCKET  (request → response)
+════════════════════════════════════════════════════════════════ */
+// fetchLegalMoves is called from handleClick (only after the board renders
+// and socket is connected), so socket is always defined at call-time.
+function fetchLegalMoves(row, col) {
+  socket.emit('request_legal_moves', {
+    room_code: roomCode,
+    square:    [row, col],
+  });
+  validMoves = []; // updated when legal_moves_response arrives
 }
+
 
 /* ════════════════════════════════════════════════════════════════
    MOVE via SOCKET
@@ -740,29 +738,6 @@ function showPromoModal() {
     box.appendChild(btn);
   }
   document.getElementById('promo-modal').classList.add('visible');
-}
-
-/* ════════════════════════════════════════════════════════════════
-   LEGAL MOVES VIA SOCKET  (request → response)
-════════════════════════════════════════════════════════════════ */
-// We compute valid move highlights after a piece is selected.
-// Since we have the full game state client-side, we just highlight
-// squares the server would allow — we do this by asking the server
-// through the REST API if available, or we highlight nothing and
-// let the server reject bad moves. The UX-friendly approach is to
-// send a legal-moves request over REST using the room code.
-socket.on('legal_moves_response', ({ legal_moves }) => {
-  validMoves = legal_moves || [];
-  renderGameState();
-});
-
-// Override fetchLegalMoves to go via socket
-async function fetchLegalMoves(row, col) {
-  socket.emit('request_legal_moves', {
-    room_code: roomCode,
-    square: [row, col],
-  });
-  validMoves = []; // will be updated when response arrives
 }
 
 /* ════════════════════════════════════════════════════════════════
