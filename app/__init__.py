@@ -31,14 +31,13 @@ def create_database_if_not_exists():
 def migrate_users_table():
     """Safely adds the 'rating' column to the users table if it doesn't exist."""
     try:
-        # Check if 'rating' column exists
-        result = db.session.execute(
-            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'rating'"
-        ).fetchone()
-
-        if not result:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('users')]
+        
+        if 'rating' not in columns:
             print("Adding missing 'rating' column to users table...")
-            db.session.execute("ALTER TABLE users ADD COLUMN rating INT DEFAULT 1200")
+            db.session.execute(db.text("ALTER TABLE users ADD COLUMN rating INT DEFAULT 1200"))
             db.session.commit()
             print("Rating column added successfully.")
     except Exception as e:
