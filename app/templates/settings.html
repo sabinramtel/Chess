@@ -660,6 +660,64 @@
         color: #fca5a5;
         border: 1px solid #7f1d1d;
     }
+
+    /* ── Info hint box ──────────────────────────────── */
+    .settings-info-box {
+        background: #13151d;
+        border: 1px solid rgba(255,255,255,0.07);
+    }
+    .settings-info-text { color: rgba(255,255,255,0.5); }
+
+    /* ── Light Theme Overrides (settings page only) ── */
+    html.light-theme .field-input {
+        background: #f4f0e8 !important;
+        border-color: rgba(0,0,0,0.15) !important;
+        color: #1a1a1a !important;
+    }
+    html.light-theme .field-input::placeholder {
+        color: rgba(0,0,0,0.35) !important;
+    }
+    html.light-theme select.field-input option {
+        background: #f4f0e8;
+        color: #1a1a1a;
+    }
+    html.light-theme .field-label {
+        color: rgba(0,0,0,0.55) !important;
+    }
+    html.light-theme .sidebar-link.active {
+        background: rgba(204,163,67,0.15) !important;
+        color: var(--primary) !important;
+    }
+    html.light-theme .section-header p { color: rgba(0,0,0,0.45) !important; }
+    html.light-theme .toggle-info p    { color: rgba(0,0,0,0.45) !important; }
+    html.light-theme .toggle-wrap {
+        border-bottom-color: rgba(0,0,0,0.07) !important;
+    }
+    html.light-theme .btn-ghost {
+        background: #e8e3da !important;
+        color: #374151 !important;
+    }
+    html.light-theme .btn-ghost:hover { background: #ddd8ce !important; }
+    html.light-theme .theme-card,
+    html.light-theme .piece-card,
+    html.light-theme .orient-card,
+    html.light-theme .appearance-card,
+    html.light-theme .privacy-card {
+        background: #f0ece4 !important;
+        border-color: rgba(0,0,0,0.1) !important;
+        color: #1a1a1a !important;
+    }
+    html.light-theme .toggle-slider { background: #c5bfb5 !important; }
+    html.light-theme .appearance-label,
+    html.light-theme .theme-label,
+    html.light-theme .piece-label,
+    html.light-theme .orient-label,
+    html.light-theme .privacy-label { color: rgba(0,0,0,0.65) !important; }
+    html.light-theme .settings-info-box {
+        background: #f0ece4 !important;
+        border-color: rgba(0,0,0,0.08) !important;
+    }
+    html.light-theme .settings-info-text { color: rgba(0,0,0,0.55) !important; }
 </style>
 {% endblock %}
 
@@ -1214,9 +1272,8 @@
                         </label>
                     </div>
 
-                    <div class="rounded-xl p-4 mb-6 text-sm"
-                        style="background:#13151d; border:1px solid rgba(255,255,255,0.07);">
-                        <p class="text-white/50">Board theme and piece set can be changed in <button
+                    <div class="rounded-xl p-4 mb-6 text-sm settings-info-box">
+                        <p class="settings-info-text">Board theme and piece set can be changed in <button
                                 class="text-[var(--primary)] hover:underline" onclick="switchSection('game')">Game
                                 Preferences</button>.</p>
                     </div>

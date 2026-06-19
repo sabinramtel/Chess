@@ -57,6 +57,75 @@
         html.light-theme nav .nav-icon { color: #1a1a1a; }
         html.light-theme nav .nav-icon.active { color: var(--primary); }
 
+        /* ── Light Theme: Card & Block Overrides ──────────── */
+        html.light-theme .card {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.09) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .card-glow {
+            background: #ffffff !important;
+        }
+        html.light-theme .card-glow:hover {
+            box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+        }
+
+        /* Inner containers that use hardcoded dark backgrounds */
+        html.light-theme .bg-\[\#252b36\],
+        html.light-theme .bg-\[\#2c3341\],
+        html.light-theme .bg-\[\#0b0c10\],
+        html.light-theme .bg-\[\#13151d\],
+        html.light-theme .bg-\[\#1a1f29\],
+        html.light-theme .bg-\[\#1e2130\] {
+            background-color: #ede8e0 !important;
+        }
+
+        /* Stat pills and game rows (profile page) */
+        html.light-theme .stat-pill {
+            background: #f0ece4 !important;
+            border-color: rgba(0,0,0,0.08) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .stat-label { color: rgba(0,0,0,0.45) !important; }
+        html.light-theme .game-row {
+            background: #f0ece4 !important;
+            border-color: rgba(0,0,0,0.07) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .game-row:hover { border-color: rgba(204,163,67,0.3) !important; }
+
+        /* Borders and faint text */
+        html.light-theme .border-white\/10 { border-color: rgba(0,0,0,0.09) !important; }
+        html.light-theme .border-white\/5  { border-color: rgba(0,0,0,0.06) !important; }
+        html.light-theme .text-white\/40   { color: rgba(0,0,0,0.45) !important; }
+        html.light-theme .opacity-60       { opacity: 0.55 !important; }
+
+        /* Settings dropdown */
+        html.light-theme #settings-dropdown {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        html.light-theme #settings-dropdown a { color: #1a1a1a !important; }
+        html.light-theme #settings-dropdown a:hover { background: rgba(0,0,0,0.06) !important; }
+
+        /* Footer */
+        html.light-theme footer { border-color: rgba(0,0,0,0.08) !important; color: #1a1a1a; }
+
+        /* ── Light Theme: Input / Textarea / Select text ─── */
+        html.light-theme input,
+        html.light-theme input[type="text"],
+        html.light-theme input[type="email"],
+        html.light-theme input[type="password"],
+        html.light-theme textarea,
+        html.light-theme select {
+            color: #1a1a1a !important;
+            border-color: rgba(0,0,0,0.18) !important;
+        }
+        html.light-theme input::placeholder,
+        html.light-theme textarea::placeholder {
+            color: rgba(0,0,0,0.35) !important;
+        }
+
         /* ── Shared Navbar Styles ─────────────────────────── */
         .nav-icon {
             display: flex;
