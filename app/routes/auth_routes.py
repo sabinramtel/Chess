@@ -35,7 +35,6 @@ def db_status():
     from sqlalchemy import text
     from app import db
 
-    # Check which Railway/MySQL env vars are present (mask passwords)
     def present(key):
         val = os.environ.get(key)
         if val is None:
@@ -58,8 +57,6 @@ def db_status():
         'MYSQL_DB':      present('MYSQL_DB'),
     }
 
-    # Redact password from configured URI
-    from flask import current_app
     raw_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', 'not configured')
     safe_uri = re.sub(r'://([^:]+):([^@]+)@', r'://\1:***@', raw_uri)
 
@@ -151,16 +148,10 @@ def logout():
     return redirect(url_for('auth.login_page'))
 
 
-
-
-
 @auth_bp.route('/profile/<username>')
 def user_profile(username):
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
-<<<<<<< HEAD
-    return redirect(url_for('auth.home'))
-=======
 
     from app.models.user_model import User
     from app.models.puzzle_stats_model import UserPuzzleStats
@@ -197,7 +188,6 @@ def user_profile(username):
 @auth_bp.route('/signup')
 def signup_page():
     return render_template('signup.html')
->>>>>>> origin/main
 
 
 @auth_bp.route('/forgot-password')
@@ -226,7 +216,6 @@ def check_username():
 def register():
     return AuthController.register()
 
-<<<<<<< HEAD
 
 @auth_bp.route('/verify-email')
 def verify_email_page():
@@ -283,5 +272,3 @@ def privacy():
 @auth_bp.route('/tos')
 def tos():
     return render_template('tos.html')
-=======
->>>>>>> origin/main
