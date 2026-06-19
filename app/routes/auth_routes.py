@@ -10,6 +10,11 @@ def index():
     return render_template('index.html')
 
 
+@auth_bp.route('/health')
+def health():
+    return 'OK', 200
+
+
 @auth_bp.route('/home')
 def home():
     if 'user_id' not in session:
