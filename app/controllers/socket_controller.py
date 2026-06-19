@@ -182,8 +182,11 @@ def handle_move(data):
 
     # Enforce turn: only the player whose turn it is may move
     current_turn = game.current_turn  # Color enum
-    expected_sid = room['white']['sid'] if current_turn == Color.WHITE else room['black']['sid']
-    if request.sid != expected_sid:
+    white_sid = room['white']['sid'] if room.get('white') else None
+    black_sid = room['black']['sid'] if room.get('black') else None
+    expected_sid = white_sid if current_turn == Color.WHITE else black_sid
+    # Only enforce if SIDs are known (skip for HTTP-created rooms before rejoin)
+    if expected_sid is not None and request.sid != expected_sid:
         emit('move_error', {'message': "It's not your turn"})
         return
 
@@ -353,7 +356,16 @@ def handle_rejoin_room(data):
     join_room(room_code)
     sid_to_room[request.sid] = room_code
 
-    # Update the stored sid so future events route correctly
+    # Update the stored sid in the correct color slot so future move events route correctly.
+    # This is needed for rooms created via HTTP (where sid was None).
+    if color in ('white', 'black'):
+        slot = room.get(color)
+        if slot is not None:
+            slot['sid'] = request.sid
+        else:
+            # slot was None (shouldn't happen normally), create it
+            room[color] = {'sid': request.sid, 'username': username}
+
     game = room.get('game')
     if game:
         white_name = room['white']['username'] if room.get('white') else username
