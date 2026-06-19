@@ -522,13 +522,27 @@ let moveHistory = [];
 let pendingPromoFrom = null, pendingPromoTo = null;
 
 function getMyColor() {
-  return window._myColorOverride || myColor;
+  // Highest priority: explicit override set by game_started socket event
+  if (window._myColorOverride && window._myColorOverride !== 'pending') {
+    return window._myColorOverride;
+  }
+  // Derive from game state authoritatively — compare logged-in username
+  // against white_player / black_player in the game state
+  if (gameState) {
+    const wp = gameState.white_player;
+    const bp = gameState.black_player;
+    if (wp && wp.username === myUsername) return 'white';
+    if (bp && bp.username === myUsername) return 'black';
+  }
+  // Fallback: sessionStorage value (may be 'pending' during lobby transition)
+  return (myColor && myColor !== 'pending') ? myColor : 'white';
 }
 
 function isMyTurn() {
   if (!gameState) return false;
   return gameState.current_turn === getMyColor();
 }
+
 
 /* ════════════════════════════════════════════════════════════════
    BOARD RENDER
