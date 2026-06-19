@@ -37,6 +37,13 @@
 
     .btn-gold:hover { filter: brightness(0.88); }
 
+    .avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        width: 76px;
+        height: 76px;
+    }
+
     .avatar-circle {
         width: 76px;
         height: 76px;
@@ -50,7 +57,28 @@
         font-weight: 700;
         color: var(--primary);
         flex-shrink: 0;
+        overflow: hidden;
     }
+
+    .avatar-upload-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.55);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+    }
+
+    .avatar-wrapper:hover .avatar-upload-overlay { opacity: 1; }
+
+    .avatar-upload-overlay svg { width: 20px; height: 20px; color: #fff; }
+    .avatar-upload-overlay span { font-size: 0.5rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; }
 
     .stat-pill {
         display: flex;
@@ -59,8 +87,7 @@
         background: #13151d;
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 0.75rem;
-        padding: 0.75rem 1.25rem;
-        min-width: 80px;
+        padding: 0.75rem 0.5rem;
     }
 
     .stat-value {
@@ -206,13 +233,28 @@
 
         <!-- Profile Header -->
         <div class="card p-6">
+            <!-- Top row: avatar + name + buttons -->
             <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-4 min-w-0">
-                    <div class="avatar-circle" style="{% if avatar_url %}padding:0;overflow:hidden;{% endif %}">
-                        {% if avatar_url %}
-                            <img src="{{ avatar_url }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
-                        {% else %}
-                            {{ profile_username[0] | upper }}
+                    <div class="avatar-wrapper">
+                        <div class="avatar-circle" id="avatar-display">
+                            {% if avatar_url %}
+                                <img id="avatar-img" src="{{ avatar_url }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">
+                                <span id="avatar-initials" class="hidden">{{ profile_username[0] | upper }}</span>
+                            {% else %}
+                                <img id="avatar-img" src="" alt="avatar" class="hidden" style="width:100%;height:100%;object-fit:cover;">
+                                <span id="avatar-initials">{{ profile_username[0] | upper }}</span>
+                            {% endif %}
+                        </div>
+                        {% if is_own_profile %}
+                        <div class="avatar-upload-overlay" onclick="document.getElementById('avatar-file-input').click()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                            </svg>
+                            <span>Upload</span>
+                        </div>
+                        <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(this)">
                         {% endif %}
                     </div>
                     <div class="min-w-0">
@@ -220,28 +262,6 @@
                         <p class="text-sm text-white/40 mt-0.5">
                             Member since {{ joined_date or 'Unknown' }}
                         </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <div class="stat-pill">
-                                <span class="stat-value gold">{{ rating or 1200 }}</span>
-                                <span class="stat-label">Rating</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value gold">{{ puzzle_rating }}</span>
-                                <span class="stat-label">Puzzle Rating</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value">{{ total_solved }}</span>
-                                <span class="stat-label">Puzzles Solved</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value">{{ total_attempted }}</span>
-                                <span class="stat-label">Attempted</span>
-                            </div>
-                            <div class="stat-pill">
-                                <span class="stat-value" style="color:#fb923c">{{ streak }}</span>
-                                <span class="stat-label">Streak</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -259,6 +279,30 @@
                         Edit Profile
                     </a>
                     {% endif %}
+                </div>
+            </div>
+
+            <!-- Stats row: full width, equal columns -->
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
+                <div class="stat-pill">
+                    <span class="stat-value gold">{{ rating or 1200 }}</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value gold">{{ puzzle_rating }}</span>
+                    <span class="stat-label">Puzzle Rating</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value">{{ total_solved }}</span>
+                    <span class="stat-label">Puzzles Solved</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value">{{ total_attempted }}</span>
+                    <span class="stat-label">Attempted</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-value" style="color:#fb923c">{{ streak }}</span>
+                    <span class="stat-label">Streak</span>
                 </div>
             </div>
         </div>
@@ -346,6 +390,26 @@
     function toggleHidden() {
         document.getElementById('hidden-toggle').classList.toggle('open');
         document.getElementById('hidden-games').classList.toggle('open');
+    }
+
+    async function handleAvatarUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const formData = new FormData();
+        formData.append('avatar', input.files[0]);
+        try {
+            const res = await fetch('/api/settings/avatar', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) {
+                const img = document.getElementById('avatar-img');
+                const initials = document.getElementById('avatar-initials');
+                img.src = data.avatar_url + '?t=' + Date.now();
+                img.classList.remove('hidden');
+                initials.classList.add('hidden');
+            }
+        } catch (e) {
+            console.error('Avatar upload failed', e);
+        }
+        input.value = '';
     }
 
     document.getElementById('quick-theme-toggle')?.addEventListener('click', () => {
