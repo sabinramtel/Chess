@@ -15,6 +15,7 @@ def home():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
     from app.models.puzzle_stats_model import UserPuzzleStats
+    from app.models.settings_model import UserSettings
     from app import db
     user_id = session.get('user_id')
     stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
@@ -22,13 +23,18 @@ def home():
         stats = UserPuzzleStats(user_id=user_id)
         db.session.add(stats)
         db.session.commit()
+    
+    settings = UserSettings.query.filter_by(user_id=user_id).first()
+    avatar_url = settings.avatar_url if settings and settings.avatar_url else None
+    
     return render_template('home.html',
                            active_page='home',
                            username=session.get('username'),
                            user_id=user_id,
                            streak=stats.streak_current,
                            puzzle_rating=stats.puzzle_rating,
-                           total_solved=stats.total_solved)
+                           total_solved=stats.total_solved,
+                           avatar_url=avatar_url)
 
 
 @auth_bp.route('/play')
@@ -159,3 +165,43 @@ def verify_email():
 @auth_bp.route('/api/resend-otp', methods=['POST'])
 def resend_otp():
     return AuthController.resend_otp()
+
+
+@auth_bp.route('/api/quote', methods=['GET'])
+def get_quote():
+    import requests
+    from flask import current_app, jsonify
+    api_key = current_app.config.get('GROQ_API_KEY')
+    if not api_key:
+        return jsonify({'quote': 'Chess is life. - Bobby Fischer (Fallback)'}), 200
+
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'model': 'llama-3.1-8b-instant',
+        'messages': [{'role': 'user', 'content': 'Give me exactly one very short, inspiring chess quote from a grandmaster. Return ONLY a valid JSON object with exactly two keys: "quote" (the quote text) and "author" (the full standard Wikipedia name of the grandmaster). Do not include any markdown formatting or extra text.'}],
+        'max_tokens': 100
+    }
+    try:
+        response = requests.post('https://api.groq.com/openai/v1/chat/completions', headers=headers, json=payload, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        content = data['choices'][0]['message']['content'].strip()
+        import json
+        parsed = json.loads(content)
+        return jsonify({'quote': parsed.get('quote', ''), 'author': parsed.get('author', '')})
+    except Exception as e:
+        print(f"Groq API Error: {e}")
+        return jsonify({'quote': 'The blunders are all there on the board, waiting to be made.', 'author': 'Savielly Tartakower'}), 200
+
+
+@auth_bp.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+
+@auth_bp.route('/tos')
+def tos():
+    return render_template('tos.html')
