@@ -5,6 +5,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'random-secret-key')
+    GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 
     MYSQL_USER     = os.environ.get('MYSQL_USER', 'root')
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
