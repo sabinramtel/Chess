@@ -152,7 +152,6 @@ def check_username():
 def register():
     return AuthController.register()
 
-<<<<<<< HEAD
 
 @auth_bp.route('/verify-email')
 def verify_email_page():
@@ -209,5 +208,3 @@ def privacy():
 @auth_bp.route('/tos')
 def tos():
     return render_template('tos.html')
-=======
->>>>>>> origin/main
