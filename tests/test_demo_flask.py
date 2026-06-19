@@ -12,7 +12,7 @@ class TestFlaskBasics(unittest.TestCase):
         self.app.secret_key = "secret_keyy"
         auth = Blueprint("auth", __name__)
 
-        @auth.route("/login")
+        @auth.route("/login", endpoint="login_page")
         def login():
             return "this is the login page"
 
