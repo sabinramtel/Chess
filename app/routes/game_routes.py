@@ -98,3 +98,98 @@ def save(game):
     
     record = GameController.save_game_record(game, white_user_id, black_user_id)
     return jsonify(record.to_dict()), 201
+
+
+# ── HTTP Lobby Endpoints (replaces socket lobby for Render compatibility) ──────
+
+@game_bp.route('/create-room', methods=['POST'])
+def create_room():
+    """Create a multiplayer room and return the room code."""
+    from app.controllers.socket_controller import active_rooms, _make_room_code
+    import random
+
+    data = request.json or {}
+    username = (data.get('username') or session.get('username') or 'Player').strip()
+    time_control = int(data.get('time_control', 180))
+    increment = int(data.get('increment', 0))
+
+    room_code = _make_room_code()
+    # Randomly assign creator's color
+    color = random.choice(['white', 'black'])
+    active_rooms[room_code] = {
+        'creator': {'sid': None, 'username': username, 'color': color},
+        'white': {'username': username} if color == 'white' else None,
+        'black': {'username': username} if color == 'black' else None,
+        'game': None,
+        'time_control': time_control,
+        'increment': increment,
+        'draw_offered_by': None,
+        'status': 'waiting',
+    }
+    return jsonify({'room_code': room_code, 'color': color}), 201
+
+
+@game_bp.route('/join-room', methods=['POST'])
+def join_room_http():
+    """Join an existing room. Starts the game immediately."""
+    from app.controllers.socket_controller import active_rooms
+    from app.controllers.game_controller import GameController
+
+    data = request.json or {}
+    username = (data.get('username') or session.get('username') or 'Player').strip()
+    room_code = (data.get('room_code') or '').strip().upper()
+
+    if room_code not in active_rooms:
+        return jsonify({'success': False, 'message': 'Room not found'}), 404
+
+    room = active_rooms[room_code]
+    if room.get('status') != 'waiting':
+        return jsonify({'success': False, 'message': 'Game already started'}), 409
+
+    # Assign joiner the opposite color
+    creator = room['creator']
+    creator_color = creator.get('color', 'white')
+    joiner_color = 'black' if creator_color == 'white' else 'white'
+
+    if joiner_color == 'white':
+        room['white'] = {'username': username}
+    else:
+        room['black'] = {'username': username}
+
+    white_username = room['white']['username'] if room['white'] else username
+    black_username = room['black']['username'] if room['black'] else username
+
+    game = GameController.create_game(white_username, black_username,
+                                      room['time_control'], room['increment'])
+    room['game'] = game
+    room['status'] = 'started'
+
+    return jsonify({
+        'success': True,
+        'room_code': room_code,
+        'color': joiner_color,
+        'white_username': white_username,
+        'black_username': black_username,
+        'game_state': game.to_dict(),
+    }), 200
+
+
+@game_bp.route('/room-status/<room_code>', methods=['GET'])
+def room_status(room_code):
+    """Poll this endpoint to detect when the opponent has joined."""
+    from app.controllers.socket_controller import active_rooms
+
+    room = active_rooms.get(room_code.upper())
+    if not room:
+        return jsonify({'status': 'not_found'}), 404
+
+    if room.get('status') == 'started' and room.get('game'):
+        game = room['game']
+        return jsonify({
+            'status': 'started',
+            'white_username': room['white']['username'] if room['white'] else '',
+            'black_username': room['black']['username'] if room['black'] else '',
+            'game_state': game.to_dict(),
+        }), 200
+
+    return jsonify({'status': 'waiting'}), 200
