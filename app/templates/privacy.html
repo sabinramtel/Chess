@@ -2,6 +2,16 @@
 
 {% block title %}Privacy Policy - Project Chess{% endblock %}
 
+{% block head %}
+<style>
+    html.light-theme h1, html.light-theme h2 { color: #1a1a1a !important; }
+    html.light-theme p, html.light-theme div { color: rgba(26,26,26,0.75) !important; }
+    html.light-theme h1.gold { color: var(--primary) !important; }
+    html.light-theme .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+    html.light-theme #quick-theme-toggle { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="w-full max-w-4xl mx-auto px-4 md:px-8 py-12 space-y-8">
     <div class="card p-8">
