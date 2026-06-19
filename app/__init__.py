@@ -29,19 +29,22 @@ def create_database_if_not_exists():
 
 
 def migrate_users_table():
-    """Safely adds the 'rating' column to the users table if it doesn't exist."""
+    """Forcibly adds the 'rating' column to the users table if it's missing."""
+    print("Checking for 'rating' column in users table...")
     try:
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('users')]
-        
-        if 'rating' not in columns:
-            print("Adding missing 'rating' column to users table...")
-            db.session.execute(db.text("ALTER TABLE users ADD COLUMN rating INT DEFAULT 1200"))
-            db.session.commit()
-            print("Rating column added successfully.")
+        # Direct attempt to add the column
+        db.session.execute(db.text("ALTER TABLE users ADD COLUMN rating INT DEFAULT 1200"))
+        db.session.commit()
+        print("SUCCESS: 'rating' column added to users table.")
     except Exception as e:
-        print(f"Migration failed: {e}")
+        err_msg = str(e).lower()
+        if "duplicate column" in err_msg or "1060" in err_msg:
+            print("INFO: 'rating' column already exists. Skipping migration.")
+        else:
+            print(f"ERROR: Migration failed with unexpected error: {e}")
+    finally:
+        # Ensure session is clean
+        db.session.rollback()
 
 
 def create_app():
@@ -78,10 +81,10 @@ def create_app():
             from app.models.puzzle_stats_model import UserPuzzleStats           # noqa
             from app.models.puzzle_attempt_model import PuzzleAttempt           # noqa
             db.create_all()
-
-            # Perform schema migration for missing columns
+            
+            # Force schema migration for the rating column
             migrate_users_table()
-
+            
     except Exception as e:
         print(f"CRITICAL ERROR during app initialization: {e}")
         # We still return the app so the server can at least start and we can see logs
