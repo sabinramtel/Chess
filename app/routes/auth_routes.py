@@ -14,6 +14,23 @@ def index():
 def health():
     return 'OK', 200
 
+# TEMPORARY DIAGNOSTIC HANDLER
+from flask import current_app
+import traceback
+@auth_bp.app_errorhandler(Exception)
+def handle_exception(e):
+    # Pass through HTTP errors
+    from werkzeug.exceptions import HTTPException
+    if isinstance(e, HTTPException):
+        return e
+
+    # Catch everything else and return the traceback
+    tb = traceback.format_exc()
+    return jsonify({
+        "error": "Unhandled Exception",
+        "message": str(e),
+        "traceback": tb
+    }), 500
 
 @auth_bp.route('/api/db-status')
 def db_status():
