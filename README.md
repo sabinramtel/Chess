@@ -430,3 +430,6 @@ Give a ⭐️ if this project helped you, and follow for more!
 <sub>Built with ♟️, ☕ and a lot of <code>console.log</code> by <b>Your Name</b></sub>
 
 </div>
+
+## Testing
+To run the test suite, simply run `pytest` in the terminal.
