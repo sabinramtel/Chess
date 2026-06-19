@@ -119,7 +119,7 @@ def create_room():
         except (ValueError, TypeError):
             increment = 0
         room_code = _make_room_code()
-        # Color is decided randomly when the second player joins.
+        # Creator gets white, guest gets black when the second player joins.
         # Store the creator without a color slot for now.
         active_rooms[room_code] = {
             'creator': {'sid': None, 'username': username, 'color': None},
@@ -141,7 +141,7 @@ def create_room():
 
 @game_bp.route('/join-room', methods=['POST'])
 def join_room_http():
-    """Join an existing room. Assigns random colors and starts the game."""
+    """Join an existing room. Creator gets white, guest gets black, and starts the game."""
     try:
         import random
         from app.controllers.socket_controller import active_rooms
@@ -158,13 +158,9 @@ def join_room_http():
             return jsonify({'success': False, 'message': 'Game already started'}), 409
         creator = room['creator']
         creator_username = creator['username']
-        # Randomly decide who gets white (first move)
-        if random.choice([True, False]):
-            creator_color = 'white'
-            joiner_color  = 'black'
-        else:
-            creator_color = 'black'
-            joiner_color  = 'white'
+        # Creator always gets white (first move), joiner gets black
+        creator_color = 'white'
+        joiner_color  = 'black'
         creator['color'] = creator_color
         room['white'] = {'username': creator_username if creator_color == 'white' else username}
         room['black'] = {'username': creator_username if creator_color == 'black' else username}

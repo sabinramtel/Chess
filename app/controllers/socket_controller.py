@@ -89,9 +89,9 @@ def handle_join_game(data):
         { username, room_code }
     If the room exists and only has one player → start the game.
     Emits to the joiner:
-        joined_game  { room_code, color: randomized, game_state }
+        joined_game  { room_code, color: black, game_state }
     Emits to the creator:
-        game_started { game_state, white_username, black_username, color: randomized }
+        game_started { game_state, white_username, black_username, color: white }
     """
     room_code = (data.get('room_code') or '').strip().upper()
     username = (data.get('username') or 'Player').strip() or 'Player'
@@ -111,22 +111,16 @@ def handle_join_game(data):
         emit('error', {'message': 'You cannot join your own room.'})
         return
 
-    # ── Register second player & Randomize Colors ─────────────────────────────
+    # ── Register second player & Assign Colors (Creator=white, Guest=black) ──
     creator_data = room['creator']
     guest_data = {'sid': request.sid, 'username': username}
     sid_to_room[request.sid] = room_code
     join_room(room_code)
 
-    if random.choice([True, False]):
-        room['white'] = creator_data
-        room['black'] = guest_data
-        creator_color = 'white'
-        guest_color = 'black'
-    else:
-        room['white'] = guest_data
-        room['black'] = creator_data
-        creator_color = 'black'
-        guest_color = 'white'
+    room['white'] = creator_data
+    room['black'] = guest_data
+    creator_color = 'white'
+    guest_color = 'black'
 
     # ── Create the game ───────────────────────────────────────────────────────
     game = GameController.create_game(
