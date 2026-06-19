@@ -15,6 +15,7 @@ def home():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
     from app.models.puzzle_stats_model import UserPuzzleStats
+    from app.models.settings_model import UserSettings
     from app import db
     user_id = session.get('user_id')
     stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
@@ -22,13 +23,16 @@ def home():
         stats = UserPuzzleStats(user_id=user_id)
         db.session.add(stats)
         db.session.commit()
+    user_settings = UserSettings.query.filter_by(user_id=user_id).first()
+    avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None
     return render_template('home.html',
                            active_page='home',
                            username=session.get('username'),
                            user_id=user_id,
                            streak=stats.streak_current,
                            puzzle_rating=stats.puzzle_rating,
-                           total_solved=stats.total_solved)
+                           total_solved=stats.total_solved,
+                           avatar_url=avatar_url)
 
 
 @auth_bp.route('/play')
@@ -87,16 +91,21 @@ def user_profile(username):
 
     from app.models.user_model import User
     from app.models.puzzle_stats_model import UserPuzzleStats
+    from app.models.settings_model import UserSettings
     user = User.query.filter_by(username=username).first()
     if not user:
         return render_template('tier.html', active_page='profile'), 404
 
     puzzle_stats = UserPuzzleStats.query.filter_by(user_id=user.id).first()
+    user_settings = UserSettings.query.filter_by(user_id=user.id).first()
+    avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None
 
     return render_template(
         'profile.html',
         active_page='profile',
+        profile_user=user,
         profile_username=user.username,
+        avatar_url=avatar_url,
         rating=user.rating,
         joined_date=user.created_at.strftime('%B %Y') if user.created_at else None,
         username=session.get('username'),
@@ -143,19 +152,3 @@ def check_username():
 def register():
     return AuthController.register()
 
-
-@auth_bp.route('/verify-email')
-def verify_email_page():
-    if 'pending_user_id' not in session:
-        return redirect(url_for('auth.login_page'))
-    return render_template('verify_otp.html')
-
-
-@auth_bp.route('/api/verify-email', methods=['POST'])
-def verify_email():
-    return AuthController.verify_email()
-
-
-@auth_bp.route('/api/resend-otp', methods=['POST'])
-def resend_otp():
-    return AuthController.resend_otp()
