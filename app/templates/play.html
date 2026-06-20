@@ -993,11 +993,17 @@ socket.on('draw_declined', () => {
 // Game over
 socket.on('game_over', ({ reason, winner, game_state }) => {
   if (game_state) { gameState = game_state; renderGameState(); }
-  const icons  = { resigned:'🏳️', draw:'🤝', checkmate:'♟️' };
+  const icons  = { resigned:'🏳️', draw:'🤝', checkmate:'♟️', timeout:'⏰' };
   const icon   = icons[reason] || '🏁';
   let title, sub;
   if (reason === 'draw') {
     title = 'Draw!'; sub = 'The game is a draw.';
+  } else if (reason === 'timeout') {
+    if (winner === getMyColor()) {
+      title = 'You Win! 🎉'; sub = "Opponent ran out of time!";
+    } else {
+      title = 'Time\'s Up!'; sub = 'You ran out of time.';
+    }
   } else if (winner === getMyColor()) {
     title = 'You Win! 🎉'; sub = reason === 'resigned' ? 'Your opponent resigned.' : 'Checkmate!';
   } else {

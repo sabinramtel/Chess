@@ -16,11 +16,14 @@ Room lifecycle
 
 import random
 import string
+import threading
+import time
 from flask_socketio import emit, join_room, leave_room
 from flask import request
 from app import socketio
 from app.controllers.game_controller import GameController
 from app.models.piece_model import Color
+from app.models.game_model import GameStatus
 
 # ── In-memory room store ──────────────────────────────────────────────────────
 # Structure: { room_code: RoomData }
@@ -45,6 +48,45 @@ def _room_game_state(room: dict) -> dict | None:
     """Return the serialised game state, or None if game not started."""
     game = room.get('game')
     return game.to_dict() if game else None
+
+
+def _apply_timeout(room_code: str, game) -> bool:
+    """
+    Check if the active player's timer has expired.
+    If so, mark the game as timed-out and emit game_over to the room.
+    Returns True if a timeout was triggered.
+    """
+    if game.status != GameStatus.ONGOING:
+        return False
+    current_player = game.get_current_player()
+    if not current_player.timer.is_expired():
+        return False
+
+    loser  = game.current_turn
+    winner = Color.BLACK if loser == Color.WHITE else Color.WHITE
+    game.status = GameStatus.TIMEOUT
+    game.winner = winner
+    socketio.emit('game_over', {
+        'reason':     'timeout',
+        'winner':     winner.value,
+        'game_state': game.to_dict(),
+    }, to=room_code)
+    return True
+
+
+def _timer_watchdog():
+    """Background thread: fires game_over when a player's clock hits zero."""
+    while True:
+        time.sleep(1)
+        for room_code, room in list(active_rooms.items()):
+            game = room.get('game')
+            if game:
+                _apply_timeout(room_code, game)
+
+
+# Start the watchdog once when this module is first imported
+_watchdog_thread = threading.Thread(target=_timer_watchdog, daemon=True)
+_watchdog_thread.start()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -172,6 +214,10 @@ def handle_move(data):
     game = room.get('game')
     if not game:
         emit('move_error', {'message': 'Game not started yet'})
+        return
+
+    # Check timeout before processing the move
+    if _apply_timeout(room_code, game):
         return
 
     # Enforce turn: only the player whose turn it is may move
