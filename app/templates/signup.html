@@ -5,137 +5,154 @@
 {% block head %}
 <style>
   body {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
   }
 </style>
 {% endblock %}
 
 {% block body %}
-  <style>
-    @keyframes spin-chess {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
+<style>
+  @keyframes spin-chess {
+    from {
+      transform: rotate(0deg);
     }
-  </style>
 
-  <div class="w-full flex-1 flex items-center justify-center px-4 py-10">
-    <div class="w-full max-w-5xl flex flex-col md:flex-row gap-10 lg:gap-16 items-center justify-center">
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
 
-      <!-- Left: Form card -->
-      <div class="w-full max-w-md flex-shrink-0 bg-[#1a1f29]/95 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+<div class="w-full flex-1 flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-5xl flex flex-col md:flex-row gap-10 lg:gap-16 items-center justify-center">
 
-        <div class="mb-4 flex justify-center">
-          <div id="chess-spinner" style="font-size:3rem;color:#cca343;line-height:1;display:inline-block;">
-            <span id="piece-pawn">♟</span>
-            <span id="piece-knight" style="display:none;">♞</span>
-          </div>
-        </div>
+    <!-- Left: Form card -->
+    <div
+      class="w-full max-w-md flex-shrink-0 bg-[#1a1f29]/95 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
 
-        <h1 class="text-3xl font-bold tracking-wide text-center mb-1">Create Account</h1>
-        <p class="text-xs font-semibold text-[#cca343] tracking-widest uppercase text-center mb-8">
-          Your Journey Begins Here
-        </p>
-
-        <form id="signup-form" class="w-full space-y-5" novalidate>
-          <div>
-            <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email</label>
-            <input id="email" type="email" placeholder="Enter your email" autofocus autocomplete="email"
-              class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
-            <p id="email-error" class="field-error"></p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Username</label>
-            <input id="username" type="text" placeholder="Choose a username" autocomplete="username"
-              class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
-            <p id="username-error" class="field-error"></p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Password</label>
-            <input id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password"
-              class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
-            <p id="password-error" class="field-error"></p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Confirm Password</label>
-            <input id="confirm-password" type="password" placeholder="Re-enter your password"
-              class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
-            <p id="confirm-password-error" class="field-error"></p>
-          </div>
-
-          <div class="flex items-start gap-2 pt-1">
-            <input id="agreed" type="checkbox"
-              class="w-4 h-4 mt-0.5 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer flex-shrink-0" />
-            <label for="agreed" class="text-xs text-gray-400 cursor-pointer select-none leading-relaxed">
-              I agree to the <a href="/tos" target="_blank" rel="noopener noreferrer" class="text-[#cca343] hover:underline">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" class="text-[#cca343] hover:underline">Privacy Policy</a>
-            </label>
-          </div>
-          <p id="terms-error" class="field-error"></p>
-
-          <div class="pt-2">
-            <button id="signup-btn" type="submit"
-              class="w-full bg-[#cca343] hover:bg-[#b58f37] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 font-bold uppercase text-xs tracking-widest py-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#cca343]/10">
-              Create Account
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </button>
-          </div>
-        </form>
-
-        <p class="text-sm text-gray-500 mt-8">
-          Already have an account?
-          <a href="/login" class="text-[#cca343] hover:underline font-medium">Sign in</a>
-        </p>
-      </div>
-
-      <!-- Right: Encouraging messages — hidden on mobile -->
-      <div class="hidden md:flex flex-col gap-8 w-full max-w-sm">
-        <div class="flex gap-4 items-start">
-          <div class="text-2xl mt-1 select-none">♟️</div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-100">Start Playing Instantly</h3>
-            <p class="text-sm text-gray-400 mt-1 leading-relaxed">Jump into games, challenges, and tournaments right after signing up</p>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="text-2xl mt-1 select-none">🧩</div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-100">Train with Puzzles</h3>
-            <p class="text-sm text-gray-400 mt-1 leading-relaxed">Solve thousands of puzzles to sharpen your tactics and pattern recognition</p>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="text-2xl mt-1 select-none">📈</div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-100">Track Your Rating</h3>
-            <p class="text-sm text-gray-400 mt-1 leading-relaxed">Watch your Elo climb as you improve game by game</p>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="text-2xl mt-1 select-none">🤝</div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-100">Challenge Friends</h3>
-            <p class="text-sm text-gray-400 mt-1 leading-relaxed">Invite friends for a match or join the community arena</p>
-          </div>
+      <div class="mb-4 flex justify-center">
+        <div id="chess-spinner" style="font-size:3rem;color:#cca343;line-height:1;display:inline-block;">
+          <span id="piece-pawn">♟</span>
+          <span id="piece-knight" style="display:none;">♞</span>
         </div>
       </div>
 
+      <h1 class="text-3xl font-bold tracking-wide text-center mb-1">Create an Account</h1>
+      <p class="text-xs font-semibold text-[#cca343] tracking-widest uppercase text-center mb-8">
+        Your Journey Begins Here!!
+      </p>
+
+      <form id="signup-form" class="w-full space-y-5" novalidate>
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email</label>
+          <input id="email" type="email" placeholder="Enter your email" autofocus autocomplete="email"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="email-error" class="field-error"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Username</label>
+          <input id="username" type="text" placeholder="Choose a username" autocomplete="username"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="username-error" class="field-error"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Password</label>
+          <input id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="password-error" class="field-error"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Confirm Password</label>
+          <input id="confirm-password" type="password" placeholder="Re-enter your password"
+            class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
+          <p id="confirm-password-error" class="field-error"></p>
+        </div>
+
+        <div class="flex items-start gap-2 pt-1">
+          <input id="agreed" type="checkbox"
+            class="w-4 h-4 mt-0.5 rounded accent-[#cca343] bg-[#252b36] border-gray-700 focus:ring-0 cursor-pointer flex-shrink-0" />
+          <label for="agreed" class="text-xs text-gray-400 cursor-pointer select-none leading-relaxed">
+            I agree to the <a href="/tos" target="_blank" rel="noopener noreferrer"
+              class="text-[#cca343] hover:underline">Terms of Service</a> and <a href="/privacy" target="_blank"
+              rel="noopener noreferrer" class="text-[#cca343] hover:underline">Privacy Policy</a>
+          </label>
+        </div>
+        <p id="terms-error" class="field-error"></p>
+
+        <div class="pt-2">
+          <button id="signup-btn" type="submit"
+            class="w-full bg-[#cca343] hover:bg-[#b58f37] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 font-bold uppercase text-xs tracking-widest py-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#cca343]/10">
+            Create Account
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      <p class="text-sm text-gray-500 mt-8">
+        Already have an account?
+        <a href="/login" class="text-[#cca343] hover:underline font-medium">Sign in</a>
+      </p>
     </div>
-  </div>
 
-  <div id="toast" class="hidden"></div>
-  <button id="quick-theme-toggle" class="fixed bottom-14 right-4 z-50 w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10" title="Toggle Theme">
-    <span class="text-lg">🌓</span>
-  </button>
+    <!-- Right: Encouraging messages — hidden on mobile -->
+    <div class="hidden md:flex flex-col gap-8 w-full max-w-sm">
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">♟️</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Start Playing Instantly</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Jump into games, challenges, and tournaments right after
+            signing up</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">🧩</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Train with Puzzles</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Solve thousands of puzzles to sharpen your mind, tactics
+            and
+            pattern recognition</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">📈</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Track Your Rating</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Watch your Elo climb as you improve game by game</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <div class="text-2xl mt-1 select-none">🤝</div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-100">Challenge Friends</h3>
+          <p class="text-sm text-gray-400 mt-1 leading-relaxed">Invite friends for a match or join the community arena
+          </p>
+        </div>
+      </div>
+    </div>
 
-  <div class="w-full text-center py-4 text-xs text-gray-600">
-    <a href="/tos" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Terms of Service</a>
-    <span class="mx-2">·</span>
-    <a href="/privacy" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Privacy Policy</a>
   </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+<button id="quick-theme-toggle"
+  class="fixed bottom-14 right-4 z-50 w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10"
+  title="Toggle Theme">
+  <span class="text-lg">🌓</span>
+</button>
+
+<div class="w-full text-center py-4 text-xs text-gray-600">
+  <a href="/tos" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Terms of
+    Service</a>
+  <span class="mx-2">·</span>
+  <a href="/privacy" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Privacy
+    Policy</a>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -151,20 +168,20 @@
     }
   });
 
-  (function() {
+  (function () {
     const spinner = document.getElementById('chess-spinner');
-    const pawn    = document.getElementById('piece-pawn');
-    const knight  = document.getElementById('piece-knight');
+    const pawn = document.getElementById('piece-pawn');
+    const knight = document.getElementById('piece-knight');
     let showingPawn = true;
 
     function doSpin() {
       spinner.style.animation = 'none';
       void spinner.offsetWidth;
       spinner.style.animation = 'spin-chess 0.28s ease-in forwards';
-      setTimeout(function() {
+      setTimeout(function () {
         showingPawn = !showingPawn;
-        pawn.style.display   = showingPawn ? 'inline' : 'none';
-        knight.style.display = showingPawn ? 'none'   : 'inline';
+        pawn.style.display = showingPawn ? 'inline' : 'none';
+        knight.style.display = showingPawn ? 'none' : 'inline';
         spinner.style.animation = 'none';
         spinner.style.transform = 'rotate(0deg)';
         setTimeout(doSpin, 900);
@@ -198,9 +215,8 @@
   function showToast(msg, type = 'error') {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white transition-all ${
-      type === 'error' ? 'bg-red-600' : 'bg-green-600'
-    }`;
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white transition-all ${type === 'error' ? 'bg-red-600' : 'bg-green-600'
+      }`;
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 4000);
   }
@@ -223,19 +239,19 @@
     e.preventDefault();
     clearAllErrors();
 
-    const email           = document.getElementById('email').value.trim();
-    const username        = document.getElementById('username').value.trim();
-    const password        = document.getElementById('password').value;
+    const email = document.getElementById('email').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
-    const agreed          = document.getElementById('agreed').checked;
+    const agreed = document.getElementById('agreed').checked;
 
     setLoading(true);
 
     try {
       const res = await fetch('/api/register', {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email, username, password, confirm_password: confirmPassword, agreed })
+        body: JSON.stringify({ email, username, password, confirm_password: confirmPassword, agreed })
       });
 
       const data = await res.json();
@@ -245,11 +261,11 @@
         setTimeout(() => { window.location.href = data.redirect || '/home'; }, 1500);
       } else if (data.errors) {
         const fieldMap = {
-          email:            'email-error',
-          username:         'username-error',
-          password:         'password-error',
+          email: 'email-error',
+          username: 'username-error',
+          password: 'password-error',
           confirm_password: 'confirm-password-error',
-          terms:            'terms-error'
+          terms: 'terms-error'
         };
         Object.entries(data.errors).forEach(([field, msg]) => {
           const errId = fieldMap[field];
