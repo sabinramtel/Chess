@@ -7,8 +7,15 @@ def make_test_app():
     app = Flask(__name__)
     app.secret_key = "test-secret-key"
     bp = Blueprint("auth", __name__)
-    bp.route("/", endpoint="home")(lambda: "home")
-    bp.route("/login", endpoint="login_page")(lambda: "login_page")
+    @bp.route("/", endpoint="home")
+    def home():
+        return "home"
+    @bp.route("/login", endpoint="login_page")
+    def login():
+        return ""
+    @bp.route("/verify", endpoint="verify_email_page")
+    def verify():
+        return ""
     app.register_blueprint(bp)
     return app
 
@@ -37,7 +44,7 @@ class TestRegister(unittest.TestCase):
         with self.app.test_request_context(method="POST", json=data):
             response, status = AuthController.register()
             self.assertEqual(status, 201)
-            self.assertIn("user_id", session)
+            self.assertIn("pending_user_id", session)
 
 class TestLogin(unittest.TestCase):
     def setUp(self):

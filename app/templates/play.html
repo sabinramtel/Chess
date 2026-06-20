@@ -588,7 +588,7 @@ function renderBoard(grid) {
 
   // Build display order (flip rows & cols for black)
   const flipped = getMyColor() === 'black';
-  const rows = flipped ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
+  const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
   const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
 
   for (let dr = 0; dr < 8; dr++) {
@@ -615,13 +615,13 @@ function renderBoard(grid) {
       if (dc === 0) {
         const rl = document.createElement('span');
         rl.className = 'coord-rank';
-        rl.textContent = flipped ? RANKS[7 - row] : RANKS[row];
+        rl.textContent = RANKS[row];
         sq.appendChild(rl);
       }
       if (dr === 7) {
         const fl = document.createElement('span');
         fl.className = 'coord-file';
-        fl.textContent = flipped ? FILES[7 - col] : FILES[col];
+        fl.textContent = FILES[col];
         sq.appendChild(fl);
       }
 
