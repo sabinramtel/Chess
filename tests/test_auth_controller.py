@@ -24,16 +24,17 @@ class TestRegister(unittest.TestCase):
         self.app = make_test_app()
 
     @patch("app.controllers.auth_controller.User")
-    @patch("app.controllers.auth_controller.db.session")
-    def test_register_missing_fields(self, mock_session, mock_user):
+    def test_register_missing_fields(self, mock_user):
         with self.app.test_request_context(method="POST", json={}):
-            response, status = AuthController.register()
+            response, status = AuthController().register()
             self.assertEqual(status, 400)
 
     @patch("app.controllers.auth_controller.User")
-    @patch("app.controllers.auth_controller.db.session")
-    def test_register_success(self, mock_session, mock_user):
-        mock_user.query.filter_by.return_value.first.return_value = None
+    @patch("app.controllers.auth_controller.EmailVerification")
+    def test_register_success(self, mock_ev, mock_user):
+        mock_user.return_value.find_by.return_value = None
+        mock_user.return_value.id = 1
+        mock_user.return_value.username = "testuser"
         data = {
             "email": "test@test.com",
             "username": "testuser",
@@ -42,7 +43,7 @@ class TestRegister(unittest.TestCase):
             "agreed": True
         }
         with self.app.test_request_context(method="POST", json=data):
-            response, status = AuthController.register()
+            response, status = AuthController().register()
             self.assertEqual(status, 201)
 
 class TestLogin(unittest.TestCase):
@@ -53,7 +54,7 @@ class TestLogin(unittest.TestCase):
     def test_login_get(self, mock_render):
         mock_render.return_value = "login_page"
         with self.app.test_request_context(method="GET"):
-            result = AuthController.login()
+            result = AuthController().login()
             self.assertEqual(result, "login_page")
 
     @patch("app.controllers.auth_controller.User")
@@ -62,10 +63,11 @@ class TestLogin(unittest.TestCase):
         fake_user.id = 1
         fake_user.username = "testuser"
         fake_user.check_password.return_value = True
-        mock_user.query.filter.return_value.first.return_value = fake_user
+        mock_user.from_db.return_value = fake_user
+        mock_user.return_value.find_by.return_value = {"id": 1, "username": "testuser"}
 
         with self.app.test_request_context(method="POST", json={"identifier": "testuser", "password": "password123"}):
-            response, status = AuthController.login()
+            response, status = AuthController().login()
             self.assertEqual(status, 200)
             self.assertEqual(session["user_id"], 1)
 
@@ -73,10 +75,11 @@ class TestLogin(unittest.TestCase):
     def test_login_fail(self, mock_user):
         fake_user = MagicMock()
         fake_user.check_password.return_value = False
-        mock_user.query.filter.return_value.first.return_value = fake_user
+        mock_user.from_db.return_value = fake_user
+        mock_user.return_value.find_by.return_value = {"id": 1}
 
         with self.app.test_request_context(method="POST", json={"identifier": "testuser", "password": "wrong"}):
-            response, status = AuthController.login()
+            response, status = AuthController().login()
             self.assertEqual(status, 401)
             self.assertNotIn("user_id", session)
 
