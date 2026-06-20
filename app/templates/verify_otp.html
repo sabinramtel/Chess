@@ -9,6 +9,7 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
+        padding: 1.5rem;
         background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/static/images/chess-board.jpg') center/cover no-repeat fixed;
     }
 
@@ -16,7 +17,7 @@
         background: #0d0e12;
         border: 1px solid rgba(204, 163, 67, 0.2);
         border-radius: 16px;
-        padding: 48px 40px;
+        padding: clamp(1.5rem, 5vw, 48px) clamp(1.25rem, 5vw, 40px);
         width: 100%;
         max-width: 420px;
     }
