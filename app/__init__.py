@@ -64,13 +64,13 @@ def create_app():
         CORS(app)
 
         from app.routes.auth_routes import auth_bp
-        from app.routes.settings_routes import settings_bp
-        from app.routes.game_routes import game_bp
-        from app.routes.puzzle_routes import puzzle_bp
+        from app.routes.settings_routes import SettingsRoutes
+        from app.routes.game_routes import GameRoutes
+        from app.routes.puzzle_routes import PuzzleRoutes
         app.register_blueprint(auth_bp)
-        app.register_blueprint(settings_bp)
-        app.register_blueprint(game_bp)
-        app.register_blueprint(puzzle_bp)
+        app.register_blueprint(SettingsRoutes().register())
+        app.register_blueprint(GameRoutes().register())
+        app.register_blueprint(PuzzleRoutes().register())
 
         with app.app_context():
             # Register socket handlers by importing the controller
@@ -80,10 +80,16 @@ def create_app():
             from app.models.puzzle_model import Puzzle                          # noqa
             from app.models.puzzle_stats_model import UserPuzzleStats           # noqa
             from app.models.puzzle_attempt_model import PuzzleAttempt           # noqa
-            db.create_all()
             
-            # Force schema migration for the rating column
-            migrate_users_table()
+            # Create PyMySQL tables first (users, email_verifications)
+            from app.models.database import Database
+            try:
+                Database.create_tables()
+            except Exception as e:
+                print(f"Warning: PyMySQL schema creation failed: {e}")
+
+            # Create remaining SQLAlchemy tables
+            db.create_all()
             
     except Exception as e:
         print(f"CRITICAL ERROR during app initialization: {e}")

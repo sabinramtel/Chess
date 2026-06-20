@@ -1,30 +1,86 @@
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app.models.base_model import BaseModel
+from app.models.database import Database
+from datetime import datetime
 
+class User(BaseModel):
+    @property
+    def table(self):
+        return "users"
 
-class User(db.Model):
-    __tablename__ = 'users'
+    def __init__(self, username=None, email=None, password=None, rating=1200):
+        self.username = username
+        self.email = email
+        self.__password = None
+        self.rating = rating
+        self.created_at = None
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(512), nullable=False)
-    rating = db.Column(db.Integer, default=1200)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+        if password:
+            self.set_password(password)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    def set_password(self, plain_password):
+        self.__password = generate_password_hash(plain_password, method='pbkdf2:sha256:100000')
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    def check_password(self, plain_password):
+        if self.__password is None:
+            return False
+        return check_password_hash(self.__password, plain_password)
+
+    def save(self):
+        db = Database()
+        db.execute(
+            "INSERT INTO users (username, email, password_hash, rating) VALUES (%s, %s, %s, %s)",
+            (self.username, self.email, self.__password, self.rating),
+        )
+        db.close()
+        # Since auth_controller needs the user.id immediately, let's fetch it.
+        result = self.find_by("email", self.email)
+        if result:
+            self.id = result['id']
+
+    def update(self, user_id, update_password=False):
+        db = Database()
+        if update_password:
+            db.execute(
+                "UPDATE users SET username=%s, email=%s, password_hash=%s, rating=%s WHERE id=%s",
+                (self.username, self.email, self.__password, self.rating, user_id),
+            )
+        else:
+            db.execute(
+                "UPDATE users SET username=%s, email=%s, rating=%s WHERE id=%s",
+                (self.username, self.email, self.rating, user_id),
+            )
+        db.close()
+
+    def email_exists(self, exclude_id=None):
+        db = Database()
+        if exclude_id:
+            result = db.fetch_one("SELECT id FROM users WHERE email = %s AND id != %s", (self.email, exclude_id))
+        else:
+            result = db.fetch_one("SELECT id FROM users WHERE email = %s", (self.email,))
+        db.close()
+        return result is not None
+
+    @classmethod
+    def from_db(cls, data):
+        if data is None:
+            return None
+        user = cls()
+        user.id = data.get("id")
+        user.username = data.get("username")
+        user.email = data.get("email")
+        user.__password = data.get("password_hash")
+        user.rating = data.get("rating")
+        user.created_at = data.get("created_at")
+        return user
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'id': getattr(self, 'id', None),
             'email': self.email,
-            'username': self.username
+            'username': self.username,
+            'rating': self.rating
         }
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f"<User {self.username}>"

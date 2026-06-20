@@ -22,6 +22,8 @@ from flask_socketio import emit, join_room, leave_room
 from flask import request
 from app import socketio
 from app.controllers.game_controller import GameController
+
+game_controller = GameController()
 from app.models.piece_model import Color
 from app.models.game_model import GameStatus
 
@@ -165,7 +167,7 @@ def handle_join_game(data):
     guest_color = 'black'
 
     # ── Create the game ───────────────────────────────────────────────────────
-    game = GameController.create_game(
+    game = game_controller.create_game(
         white_username=room['white']['username'],
         black_username=room['black']['username'],
         time_control=room['time_control'],
@@ -234,7 +236,7 @@ def handle_move(data):
     to_sq = tuple(data.get('to_sq', []))
     promotion = data.get('promotion')
 
-    result = GameController.make_move(game, from_sq, to_sq, promotion)
+    result = game_controller.make_move(game, from_sq, to_sq, promotion)
 
     if not result['success']:
         emit('move_error', {'message': result.get('error', 'Illegal move')})
@@ -308,7 +310,7 @@ def handle_resign(data):
         return
 
     color = Color.WHITE if color_str == 'white' else Color.BLACK
-    GameController.resign(game, color)
+    game_controller.resign(game, color)
     winner = 'black' if color_str == 'white' else 'white'
 
     emit('game_over', {
@@ -353,7 +355,7 @@ def handle_draw_accept(data):
     if not game:
         return
 
-    GameController.offer_draw(game)
+    game_controller.offer_draw(game)
     emit('game_over', {
         'reason': 'draw',
         'winner': None,
@@ -457,7 +459,7 @@ def handle_request_legal_moves(data):
         emit('legal_moves_response', {'legal_moves': []})
         return
 
-    legal = GameController.get_legal_moves(game, tuple(square))
+    legal = game_controller.get_legal_moves(game, tuple(square))
     emit('legal_moves_response', {'legal_moves': legal})
 
 

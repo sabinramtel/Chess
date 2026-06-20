@@ -56,3 +56,9 @@ class Config:
     GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = _build_mysql_uri()
+
+# Fallback variables for PyMySQL Database class if URL is not provided
+MYSQL_HOST = os.environ.get("MYSQLHOST") or os.environ.get("MYSQL_HOST", "localhost")
+MYSQL_USER = os.environ.get("MYSQLUSER") or os.environ.get("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.environ.get("MYSQLPASSWORD") or os.environ.get("MYSQL_PASSWORD", "Nima.d.l.10@")
+MYSQL_DATABASE = os.environ.get("MYSQLDATABASE") or os.environ.get("MYSQL_DB", "chess_db")
