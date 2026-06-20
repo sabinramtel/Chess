@@ -149,7 +149,7 @@ def join_room_http():
         from app.controllers.socket_controller import active_rooms
         from app.controllers.game_controller import GameController
 
-game_controller = GameController()
+        game_controller = GameController()
         data = request.json or {}
         username = (data.get('username') or session.get('username') or 'Player').strip()
         room_code = (data.get('room_code') or '').strip().upper()

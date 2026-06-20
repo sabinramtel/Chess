@@ -13,6 +13,7 @@ class User(BaseModel):
         self.email = email
         self.__password = None
         self.rating = rating
+        self.created_at = None
 
         if password:
             self.set_password(password)
@@ -70,6 +71,7 @@ class User(BaseModel):
         user.email = data.get("email")
         user.__password = data.get("password_hash")
         user.rating = data.get("rating")
+        user.created_at = data.get("created_at")
         return user
 
     def to_dict(self):
