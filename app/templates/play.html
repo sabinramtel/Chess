@@ -757,7 +757,26 @@ function doMove(fr, fc, tr, tc) {
   emitMove(fr, fc, tr, tc, null);
 }
 
+function playMoveSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const bufferSize = Math.floor(ctx.sampleRate * 0.06);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 8);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    src.connect(gain); gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
 function emitMove(fr, fc, tr, tc, promotion) {
+  playMoveSound();
   socket.emit('move', {
     room_code: roomCode,
     from_sq:   [fr, fc],
@@ -957,6 +976,7 @@ socket.on('move_made', ({ move, game_state }) => {
   selected = null; validMoves = [];
   updateMovesList();
   renderGameState();
+  playMoveSound();
   if (isMyTurn()) showYourTurnToast();
 });
 
