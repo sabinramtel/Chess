@@ -37,4 +37,4 @@ class UserSettings(db.Model):
 
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    user = db.relationship('User', backref=db.backref('settings', uselist=False))
+

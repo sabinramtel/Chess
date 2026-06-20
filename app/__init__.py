@@ -80,10 +80,16 @@ def create_app():
             from app.models.puzzle_model import Puzzle                          # noqa
             from app.models.puzzle_stats_model import UserPuzzleStats           # noqa
             from app.models.puzzle_attempt_model import PuzzleAttempt           # noqa
-            db.create_all()
             
-            # Force schema migration for the rating column
-            migrate_users_table()
+            # Create PyMySQL tables first (users, email_verifications)
+            from app.models.database import Database
+            try:
+                Database.create_tables()
+            except Exception as e:
+                print(f"Warning: PyMySQL schema creation failed: {e}")
+
+            # Create remaining SQLAlchemy tables
+            db.create_all()
             
     except Exception as e:
         print(f"CRITICAL ERROR during app initialization: {e}")

@@ -5,12 +5,14 @@ from app.models.user_model import User
 from app.models.settings_model import UserSettings
 
 
-class SettingsController:
+from app.controllers.base_controller import BaseController
 
-    @staticmethod
-    def get_user_and_settings():
+class SettingsController(BaseController):
+
+    def get_user_and_settings(self, ):
         user_id = session.get('user_id')
-        user = User.query.get(user_id)
+        user_data = User().find_by('id', user_id)
+        user = User.from_db(user_data) if user_data else None
         s = UserSettings.query.filter_by(user_id=user_id).first()
         if not s:
             s = UserSettings(user_id=user_id)
@@ -18,14 +20,14 @@ class SettingsController:
             db.session.commit()
         return user, s
 
-    @staticmethod
-    def update_profile():
+    def update_profile(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
         data = request.get_json() or {}
-        user = User.query.get(user_id)
+        user_data = User().find_by('id', user_id)
+        user = User.from_db(user_data) if user_data else None
         s = UserSettings.query.filter_by(user_id=user_id).first()
         if not s:
             s = UserSettings(user_id=user_id)
@@ -33,30 +35,31 @@ class SettingsController:
 
         new_username = data.get('username', '').strip()
         if new_username and new_username != user.username:
-            if User.query.filter_by(username=new_username).first():
+            if User().find_by("username", new_username):
                 return jsonify({'success': False, 'message': 'Username already taken'}), 409
             user.username = new_username
             session['username'] = new_username
 
         new_email = data.get('email', '').strip().lower()
         if new_email and new_email != user.email:
-            if User.query.filter_by(email=new_email).first():
+            if User().find_by("email", new_email):
                 return jsonify({'success': False, 'message': 'Email already taken'}), 409
             user.email = new_email
 
         s.country = data.get('country', s.country)
         s.bio = data.get('bio', s.bio)
+        user.update(user.id)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Profile updated'})
 
-    @staticmethod
-    def update_password():
+    def update_password(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
         data = request.get_json() or {}
-        user = User.query.get(user_id)
+        user_data = User().find_by('id', user_id)
+        user = User.from_db(user_data) if user_data else None
 
         current = data.get('current_password', '')
         new_pw  = data.get('new_password', '')
@@ -70,11 +73,11 @@ class SettingsController:
             return jsonify({'success': False, 'message': 'Passwords do not match'}), 400
 
         user.set_password(new_pw)
+        user.update(user.id, update_password=True)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Password updated'})
 
-    @staticmethod
-    def update_game():
+    def update_game(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
@@ -95,8 +98,7 @@ class SettingsController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Game preferences updated'})
 
-    @staticmethod
-    def update_notifications():
+    def update_notifications(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
@@ -115,8 +117,7 @@ class SettingsController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Notifications updated'})
 
-    @staticmethod
-    def update_appearance():
+    def update_appearance(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
@@ -131,8 +132,7 @@ class SettingsController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Appearance updated'})
 
-    @staticmethod
-    def update_privacy():
+    def update_privacy(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
@@ -148,8 +148,7 @@ class SettingsController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Privacy settings updated'})
 
-    @staticmethod
-    def upload_avatar():
+    def upload_avatar(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401
@@ -181,8 +180,7 @@ class SettingsController:
         db.session.commit()
         return jsonify({'success': True, 'avatar_url': s.avatar_url})
 
-    @staticmethod
-    def remove_avatar():
+    def remove_avatar(self, ):
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Not logged in'}), 401

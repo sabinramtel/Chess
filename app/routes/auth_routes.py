@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort, request, current_app, jsonify
 from app.controllers.auth_controller import AuthController
+
+auth_controller = AuthController()
 from app.models.settings_model import UserSettings
 import traceback
 
@@ -144,12 +146,12 @@ def lobby():
 def login_page():
     if request.method == 'GET' and 'user_id' in session:
         return redirect(url_for('auth.home'))
-    return AuthController.login()
+    return auth_controller.login()
 
 
 @auth_bp.route('/api/login', methods=['POST'])
 def api_login():
-    return AuthController.login()
+    return auth_controller.login()
 
 
 @auth_bp.route('/logout')
@@ -166,7 +168,8 @@ def user_profile(username):
     from app.models.user_model import User
     from app.models.puzzle_stats_model import UserPuzzleStats
     from app.models.settings_model import UserSettings
-    user = User.query.filter_by(username=username).first()
+    user_data = User().find_by("username", username)
+    user = User.from_db(user_data) if user_data else None
     if not user:
         abort(404)
 
@@ -209,24 +212,24 @@ def forgot_password_page():
 
 @auth_bp.route('/api/forgot-password', methods=['POST'])
 def forgot_password():
-    return AuthController.forgot_password()
+    return auth_controller.forgot_password()
 
 
 @auth_bp.route('/api/reset-password', methods=['POST'])
 def reset_password():
-    return AuthController.reset_password()
+    return auth_controller.reset_password()
 
 
 # --- Backend API Endpoints (For Async Fetch Requests) ---
 
 @auth_bp.route('/api/check-username', methods=['GET'])
 def check_username():
-    return AuthController.check_username()
+    return auth_controller.check_username()
 
 
 @auth_bp.route('/api/register', methods=['POST'])
 def register():
-    return AuthController.register()
+    return auth_controller.register()
 
 
 @auth_bp.route('/verify-email')
@@ -238,12 +241,12 @@ def verify_email_page():
 
 @auth_bp.route('/api/verify-email', methods=['POST'])
 def verify_email():
-    return AuthController.verify_email()
+    return auth_controller.verify_email()
 
 
 @auth_bp.route('/api/resend-otp', methods=['POST'])
 def resend_otp():
-    return AuthController.resend_otp()
+    return auth_controller.resend_otp()
 
 
 @auth_bp.route('/stats')
@@ -257,7 +260,8 @@ def stats_page():
     from app.models.puzzle_attempt_model import PuzzleAttempt
 
     user_id = session.get('user_id')
-    user = User.query.get(user_id)
+    user_data = User().find_by("id", user_id)
+    user = User.from_db(user_data) if user_data else None
     stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
     user_settings = UserSettings.query.filter_by(user_id=user_id).first()
     avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None

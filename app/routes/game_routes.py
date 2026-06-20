@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from app.controllers.game_controller import GameController
+
+game_controller = GameController()
 from app.models.piece_model import Color
 from functools import wraps
 import uuid
@@ -29,7 +31,7 @@ def create_game():
     time_control = data.get('time_control', 600)
     increment = data.get('increment', 0)
     
-    game = GameController.create_game(white_username, black_username, time_control, increment)
+    game = game_controller.create_game(white_username, black_username, time_control, increment)
     game_id = str(uuid.uuid4())
     active_games[game_id] = game
     
@@ -47,7 +49,7 @@ def move(game):
     to_sq = tuple(data.get('to_sq', []))
     promotion = data.get('promotion')
     
-    result = GameController.make_move(game, from_sq, to_sq, promotion)
+    result = game_controller.make_move(game, from_sq, to_sq, promotion)
     status_code = 200 if result['success'] else 400
     return jsonify(result), status_code
 
@@ -58,7 +60,7 @@ def legal_moves(game):
     data = request.json or {}
     square = tuple(data.get('square', []))
     
-    moves = GameController.get_legal_moves(game, square)
+    moves = game_controller.get_legal_moves(game, square)
     return jsonify({
         'square': square,
         'legal_moves': moves
@@ -78,14 +80,14 @@ def resign(game):
     color = data.get('color', 'white')
     color_enum = Color.WHITE if color == 'white' else Color.BLACK
     
-    result = GameController.resign(game, color_enum)
+    result = game_controller.resign(game, color_enum)
     return jsonify(result), 200
 
 @game_bp.route('/draw', methods=['POST'])
 @require_game
 def draw(game):
     """Offer/accept draw."""
-    result = GameController.offer_draw(game)
+    result = game_controller.offer_draw(game)
     return jsonify(result), 200
 
 @game_bp.route('/save', methods=['POST'])
@@ -96,7 +98,7 @@ def save(game):
     white_user_id = data.get('white_user_id')
     black_user_id = data.get('black_user_id')
     
-    record = GameController.save_game_record(game, white_user_id, black_user_id)
+    record = game_controller.save_game_record(game, white_user_id, black_user_id)
     return jsonify(record.to_dict()), 201
 
 
@@ -146,6 +148,8 @@ def join_room_http():
         import random
         from app.controllers.socket_controller import active_rooms
         from app.controllers.game_controller import GameController
+
+game_controller = GameController()
         data = request.json or {}
         username = (data.get('username') or session.get('username') or 'Player').strip()
         room_code = (data.get('room_code') or '').strip().upper()
@@ -168,7 +172,7 @@ def join_room_http():
         room['black'] = {'username': creator_username if creator_color == 'black' else username}
         white_username = room['white']['username']
         black_username = room['black']['username']
-        game = GameController.create_game(
+        game = game_controller.create_game(
             white_username,
             black_username,
             room['time_control'],

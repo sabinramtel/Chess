@@ -11,5 +11,5 @@ class PuzzleAttempt(db.Model):
     solved       = db.Column(db.Boolean, default=False, nullable=False)
     attempted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-    user   = db.relationship('User', backref='puzzle_attempts')
+
     puzzle = db.relationship('Puzzle', backref='attempts')

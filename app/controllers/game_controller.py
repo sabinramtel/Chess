@@ -1,13 +1,13 @@
 from app.models.game_model import Game
 from app.models.player_model import Player
 from app.models.piece_model import Color
+from app.controllers.base_controller import BaseController
 
 
-class GameController:
+class GameController(BaseController):
     """Controller for chess game operations."""
 
-    @staticmethod
-    def create_game(white_username, black_username, time_control=600, increment=0):
+    def create_game(self, white_username, black_username, time_control=600, increment=0):
         """Create and return a new Game instance."""
         white_player = Player(white_username, Color.WHITE, time_control, increment)
         black_player = Player(black_username, Color.BLACK, time_control, increment)
@@ -16,8 +16,7 @@ class GameController:
         white_player.timer.start()
         return game
 
-    @staticmethod
-    def make_move(game, from_sq, to_sq, promotion=None):
+    def make_move(self, game, from_sq, to_sq, promotion=None):
         """Attempt a move and return a result dict."""
         # Map promotion string to piece class if provided
         promotion_piece = None
@@ -46,13 +45,11 @@ class GameController:
             'game_state': game.to_dict(),
         }
 
-    @staticmethod
-    def get_legal_moves(game, square):
+    def get_legal_moves(self, game, square):
         """Return a list of legal destination squares from the given square."""
         return game.get_legal_moves(square)
 
-    @staticmethod
-    def resign(game, color):
+    def resign(self, game, color):
         """Resign for the given color."""
         game.resign(color)
         return {
@@ -60,8 +57,7 @@ class GameController:
             'game_state': game.to_dict(),
         }
 
-    @staticmethod
-    def offer_draw(game):
+    def offer_draw(self, game):
         """Accept a draw offer (both sides agreed)."""
         game.offer_draw()
         return {
@@ -69,8 +65,7 @@ class GameController:
             'game_state': game.to_dict(),
         }
 
-    @staticmethod
-    def save_game_record(game, white_user_id=None, black_user_id=None):
+    def save_game_record(self, game, white_user_id=None, black_user_id=None):
         """
         Persist a completed game record.
 

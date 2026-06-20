@@ -13,7 +13,7 @@ class UserPuzzleStats(db.Model):
     total_solved     = db.Column(db.Integer, default=0, nullable=False)
     total_attempted  = db.Column(db.Integer, default=0, nullable=False)
 
-    user = db.relationship('User', backref=db.backref('puzzle_stats', uselist=False))
+
 
     def to_dict(self) -> dict:
         return {

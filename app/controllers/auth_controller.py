@@ -5,30 +5,24 @@ from datetime import datetime, timedelta, timezone
 def _utcnow():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from app import db
 from app.models.user_model import User
 from app.models.email_verification_model import EmailVerification
 from app.controllers.email_controller import send_otp_email
-
+from app.controllers.base_controller import BaseController
 
 def _generate_otp():
     return str(random.randint(100000, 999999))
 
-
-class AuthController:
-
-    @staticmethod
-    def login():
+class AuthController(BaseController):
+    def login(self):
         """Handles user authentication (Login) via form submission or JSON API."""
         if request.method == 'POST':
             if request.is_json:
-                data = request.get_json() or {}
-                identifier = data.get('identifier', '').strip()
-                password = data.get('password', '')
+                identifier, password = self.get_json_data('identifier', 'password')
+                identifier = identifier.strip() if identifier else ''
                 is_api = True
             else:
-                identifier = request.form.get('identifier', '').strip()
-                password = request.form.get('password', '')
+                identifier, password = self.get_form_data('identifier', 'password')
                 is_api = False
 
             if not identifier or not password:
@@ -38,9 +32,13 @@ class AuthController:
                 return redirect(url_for('auth.login_page'))
 
             try:
-                user = User.query.filter(
-                    (User.username == identifier) | (User.email == identifier)
-                ).first()
+                user_model = User()
+                user_data = user_model.find_by("username", identifier)
+                if not user_data:
+                    user_data = user_model.find_by("email", identifier)
+                
+                user = User.from_db(user_data) if user_data else None
+                
             except Exception as e:
                 if is_api:
                     return jsonify({
@@ -65,10 +63,7 @@ class AuthController:
 
         return render_template('login.html')
 
-
-    @staticmethod
-    def check_username():
-        """Asynchronously checks if a username is valid and available."""
+    def check_username(self):
         username = request.args.get('username', '').strip()
 
         if not username or len(username) < 3:
@@ -77,16 +72,14 @@ class AuthController:
         if not re.match(r'^[a-zA-Z0-9_]{3,20}$', username):
             return jsonify({'available': False, 'message': 'Letters, numbers, underscores only'})
 
-        exists = User.query.filter_by(username=username).first()
-        if exists:
+        user_data = User().find_by("username", username)
+        if user_data:
             return jsonify({'available': False, 'message': 'Username already taken'})
 
         return jsonify({'available': True, 'message': 'Username is available'})
 
-    @staticmethod
-    def register():
-        """Handles new user registration via asynchronous JSON requests."""
-        data = request.get_json()
+    def register(self):
+        data = request.get_json() or {}
 
         if not data:
             return jsonify({'success': False, 'message': 'No data provided'}), 400
@@ -101,16 +94,16 @@ class AuthController:
 
         if not email:
             errors['email'] = 'Email is required'
-        elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+        elif not re.match(r'^[^ \s@]+@[^ \s@]+\.[^ \s@]+$', email):
             errors['email'] = 'Invalid email format'
-        elif User.query.filter_by(email=email).first():
+        elif User().find_by("email", email):
             errors['email'] = 'Email already registered'
 
         if not username:
             errors['username'] = 'Username is required'
         elif not re.match(r'^[a-zA-Z0-9_]{3,20}$', username):
             errors['username'] = '3-20 chars: letters, numbers, underscores only'
-        elif User.query.filter_by(username=username).first():
+        elif User().find_by("username", username):
             errors['username'] = 'Username already taken'
 
         if not password:
@@ -129,23 +122,18 @@ class AuthController:
         if errors:
             return jsonify({'success': False, 'errors': errors}), 422
 
-        # Create user
         user = User(email=email, username=username)
         user.set_password(password)
-        db.session.add(user)
-        db.session.flush()  # get user.id without full commit
+        user.save()
 
-        # Mark as verified immediately (no OTP required)
         ev = EmailVerification(
             user_id=user.id,
             otp=None,
             is_verified=True,
             expires_at=_utcnow() + timedelta(minutes=15)
         )
-        db.session.add(ev)
-        db.session.commit()
+        ev.save()
 
-        # Log user in directly
         session['user_id'] = user.id
         session['username'] = user.username
 
@@ -155,9 +143,7 @@ class AuthController:
             'redirect': url_for('auth.home')
         }), 201
 
-    @staticmethod
-    def verify_email():
-        """Validate the OTP the user submitted."""
+    def verify_email(self):
         data = request.get_json() or {}
         otp_input = data.get('otp', '').strip()
 
@@ -165,16 +151,17 @@ class AuthController:
         if not user_id:
             return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 400
 
-        ev = EmailVerification.query.filter_by(user_id=user_id).first()
-        if not ev:
+        ev_data = EmailVerification().find_by("user_id", user_id)
+        if not ev_data:
             return jsonify({'success': False, 'message': 'No verification record found.'}), 400
+            
+        ev = EmailVerification.from_db(ev_data)
 
         if ev.is_verified:
-            # Already verified — just log them in
-            user = User.query.get(user_id)
+            user_data = User().find_by("id", user_id)
             session.pop('pending_user_id', None)
-            session['user_id'] = user.id
-            session['username'] = user.username
+            session['user_id'] = user_data['id']
+            session['username'] = user_data['username']
             return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
 
         if _utcnow() > ev.expires_at:
@@ -183,34 +170,35 @@ class AuthController:
         if ev.otp != otp_input:
             return jsonify({'success': False, 'message': 'Incorrect code. Try again.'}), 400
 
-        # Mark verified and log in
         ev.is_verified = True
         ev.otp = None
-        db.session.commit()
+        ev.update()
 
-        user = User.query.get(user_id)
+        user_data = User().find_by("id", user_id)
         session.pop('pending_user_id', None)
-        session['user_id'] = user.id
-        session['username'] = user.username
+        session['user_id'] = user_data['id']
+        session['username'] = user_data['username']
 
         return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
 
-    @staticmethod
-    def forgot_password():
+    def forgot_password(self):
         data = request.get_json() or {}
         email = data.get('email', '').strip()
         if not email:
             return jsonify({'success': False, 'message': 'Email is required'}), 400
 
-        user = User.query.filter_by(email=email).first()
-        if not user:
+        user_data = User().find_by("email", email)
+        if not user_data:
             return jsonify({'success': False, 'message': 'No account found with that email'}), 404
+        user = User.from_db(user_data)
 
         otp = _generate_otp()
-        ev = EmailVerification.query.filter_by(user_id=user.id).first()
-        if ev:
+        ev_data = EmailVerification().find_by("user_id", user.id)
+        if ev_data:
+            ev = EmailVerification.from_db(ev_data)
             ev.otp = otp
             ev.expires_at = _utcnow() + timedelta(minutes=15)
+            ev.update()
         else:
             ev = EmailVerification(
                 user_id=user.id,
@@ -218,8 +206,7 @@ class AuthController:
                 is_verified=True,
                 expires_at=_utcnow() + timedelta(minutes=15)
             )
-            db.session.add(ev)
-        db.session.commit()
+            ev.save()
 
         send_otp_email(email, user.username, otp)
 
@@ -229,8 +216,7 @@ class AuthController:
             response['dev_otp'] = otp
         return jsonify(response), 200
 
-    @staticmethod
-    def reset_password():
+    def reset_password(self):
         data = request.get_json() or {}
         email    = data.get('email', '').strip()
         otp      = data.get('otp', '').strip()
@@ -241,38 +227,49 @@ class AuthController:
         if len(new_pw) < 8:
             return jsonify({'success': False, 'message': 'Password must be at least 8 characters'}), 400
 
-        user = User.query.filter_by(email=email).first()
-        if not user:
+        user_data = User().find_by("email", email)
+        if not user_data:
             return jsonify({'success': False, 'message': 'Invalid request'}), 400
+        user = User.from_db(user_data)
 
-        ev = EmailVerification.query.filter_by(user_id=user.id).first()
-        if not ev or ev.otp != otp:
+        ev_data = EmailVerification().find_by("user_id", user.id)
+        if not ev_data:
             return jsonify({'success': False, 'message': 'Incorrect code'}), 400
+        ev = EmailVerification.from_db(ev_data)
+        
+        if ev.otp != otp:
+            return jsonify({'success': False, 'message': 'Incorrect code'}), 400
+            
         if _utcnow() > ev.expires_at:
             return jsonify({'success': False, 'message': 'Code expired. Request a new one.'}), 400
 
         user.set_password(new_pw)
+        user.update(user.id, update_password=True)
+        
         ev.otp = None
-        db.session.commit()
+        ev.update()
+        
         return jsonify({'success': True, 'message': 'Password reset successfully'}), 200
 
-    @staticmethod
-    def resend_otp():
-        """Generate and resend a fresh OTP."""
+    def resend_otp(self):
         user_id = session.get('pending_user_id')
         if not user_id:
             return jsonify({'success': False, 'message': 'Session expired. Please register again.'}), 400
 
-        ev = EmailVerification.query.filter_by(user_id=user_id).first()
-        if not ev or ev.is_verified:
+        ev_data = EmailVerification().find_by("user_id", user_id)
+        if not ev_data:
+            return jsonify({'success': False, 'message': 'Nothing to resend.'}), 400
+            
+        ev = EmailVerification.from_db(ev_data)
+        if ev.is_verified:
             return jsonify({'success': False, 'message': 'Nothing to resend.'}), 400
 
         otp = _generate_otp()
         ev.otp = otp
         ev.expires_at = _utcnow() + timedelta(minutes=15)
-        db.session.commit()
+        ev.update()
 
-        user = User.query.get(user_id)
-        send_otp_email(user.email, user.username, otp)
+        user_data = User().find_by("id", user_id)
+        send_otp_email(user_data['email'], user_data['username'], otp)
 
         return jsonify({'success': True, 'message': 'A new code has been sent to your email.'}), 200

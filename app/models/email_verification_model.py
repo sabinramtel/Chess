@@ -1,15 +1,42 @@
-from app import db
+from app.models.base_model import BaseModel
+from app.models.database import Database
 from datetime import datetime
 
+class EmailVerification(BaseModel):
+    @property
+    def table(self):
+        return "email_verifications"
 
-class EmailVerification(db.Model):
-    __tablename__ = 'email_verifications'
+    def __init__(self, user_id=None, otp=None, is_verified=False, expires_at=None):
+        self.user_id = user_id
+        self.otp = otp
+        self.is_verified = is_verified
+        self.expires_at = expires_at
 
-    id         = db.Column(db.Integer, primary_key=True)
-    user_id    = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
-    otp        = db.Column(db.String(6), nullable=True)
-    is_verified = db.Column(db.Boolean, default=False, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    def save(self):
+        db = Database()
+        db.execute(
+            "INSERT INTO email_verifications (user_id, otp, is_verified, expires_at) VALUES (%s, %s, %s, %s)",
+            (self.user_id, self.otp, self.is_verified, self.expires_at)
+        )
+        db.close()
 
-    user = db.relationship('User', backref=db.backref('email_verification', uselist=False))
+    def update(self):
+        db = Database()
+        db.execute(
+            "UPDATE email_verifications SET otp=%s, is_verified=%s, expires_at=%s WHERE user_id=%s",
+            (self.otp, self.is_verified, self.expires_at, self.user_id)
+        )
+        db.close()
+
+    @classmethod
+    def from_db(cls, data):
+        if data is None:
+            return None
+        ev = cls()
+        ev.id = data.get("id")
+        ev.user_id = data.get("user_id")
+        ev.otp = data.get("otp")
+        ev.is_verified = bool(data.get("is_verified"))
+        ev.expires_at = data.get("expires_at")
+        return ev
