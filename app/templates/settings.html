@@ -946,7 +946,84 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ── APPEARANCE SECTION ── -->
+            <section id="section-appearance" class="settings-section">
+                <div class="card p-6">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 gold">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+                        </svg>
+                        <div>
+                            <h2>Appearance</h2>
+                            <p>Choose how Project Chess looks for you</p>
+                        </div>
+                    </div>
+
+                    <p class="field-label mb-3">Site Theme</p>
+                    <div class="theme-toggle-row mb-6">
+                        <label class="appearance-option">
+                            <input type="radio" name="site_theme" value="dark" {% if not s or s.site_theme == 'dark' %}checked{% endif %}>
+                            <div class="appearance-card">
+                                <span class="appearance-icon">🌙</span>
+                                <span class="appearance-label">Dark</span>
+                            </div>
+                        </label>
+                        <label class="appearance-option">
+                            <input type="radio" name="site_theme" value="light" {% if s and s.site_theme == 'light' %}checked{% endif %}>
+                            <div class="appearance-card">
+                                <span class="appearance-icon">☀️</span>
+                                <span class="appearance-label">Light</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button class="btn-gold" onclick="saveAppearance()">Save Appearance</button>
+                    </div>
+                    <p id="appearance-msg" class="text-sm text-center mt-3" style="color:var(--primary);display:none;"></p>
+                </div>
+            </section>
+
         </main>
     </div>
 </div>
+
+<script>
+// Tab switching
+document.querySelectorAll('[data-target]').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const target = this.dataset.target;
+        document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('[data-target]').forEach(b => b.classList.remove('active'));
+        const section = document.getElementById('section-' + target);
+        if (section) section.classList.add('active');
+        document.querySelectorAll('[data-target="' + target + '"]').forEach(b => b.classList.add('active'));
+    });
+});
+
+// Save appearance
+function saveAppearance() {
+    const theme = document.querySelector('input[name="site_theme"]:checked').value;
+    fetch('/api/settings/appearance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site_theme: theme })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const msg = document.getElementById('appearance-msg');
+        msg.textContent = data.message || 'Saved!';
+        msg.style.display = 'block';
+        if (theme === 'light') {
+            document.documentElement.classList.add('light-theme');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+        }
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    });
+}
+</script>
 {% endblock %}
