@@ -322,7 +322,7 @@
                     <div>
                         <p class="slabel">Puzzle Rating</p>
                         <div class="flex items-end gap-3 mt-1">
-                            <span class="sbig" style="color:var(--primary)">{{ puzzle_rating }}</span>
+                            <span class="sbig rating-color-target">{{ puzzle_rating }}</span>
                             {% if puzzle_rating > 1200 %}
                             <span class="badge-up mb-1">+{{ puzzle_rating - 1200 }}</span>
                             {% elif puzzle_rating < 1200 %} <span class="badge-down mb-1">{{ puzzle_rating - 1200
@@ -384,7 +384,7 @@
             <div class="scard p-5">
                 <p class="slabel">Puzzles Solved</p>
                 <div class="flex items-center gap-2 mt-2">
-                    <p class="smed" style="color:var(--primary)">{{ total_solved }}</p>
+                    <p class="smed rating-color-target">{{ total_solved }}</p>
                     <span style="font-size:1.1rem;">🧩</span>
                 </div>
                 <p class="text-xs mt-1" style="color:rgba(255,255,255,0.35);">{{ accuracy }}% accuracy</p>
@@ -482,12 +482,12 @@
             <p class="slabel mb-4">Puzzle Training</p>
             <div class="flex items-center justify-between mb-5 flex-wrap gap-4">
                 <div>
-                    <p class="sbig" style="color:var(--primary); font-size:2rem;">{{ total_solved }}</p>
+                    <p class="sbig rating-color-target" style="font-size:2rem;">{{ total_solved }}</p>
                     <p class="text-xs mt-1" style="color:rgba(255,255,255,0.3);">SOLVED</p>
                 </div>
                 <div class="flex gap-6">
                     <div class="text-center">
-                        <p class="text-lg font-bold" style="color:var(--primary)">{{ puzzle_rating }}</p>
+                        <p class="text-lg font-bold rating-color-target">{{ puzzle_rating }}</p>
                         <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);">Puzzle rating</p>
                     </div>
                     <div class="text-center">
@@ -545,7 +545,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-8 h-8 opacity-25">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959 Grandma.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283 2.15.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+                        d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283 2.15.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
                 </svg>
                 <span>No games played yet</span>
             </div>
@@ -557,6 +557,30 @@
 
 {% block scripts %}
 <script>
+    // ── Global Configuration & Rating Color Metrics ──
+    const currentRating = parseInt("{{ puzzle_rating }}") || 1200;
+
+    function getTierStyles(rating) {
+        if (rating < 100) return { color: '#ef4444', name: 'red' };     // Below 100: Red
+        if (rating < 500) return { color: '#f97316', name: 'orange' };  // Below 500: Orange
+        if (rating < 1000) return { color: '#eab308', name: 'yellow' };  // Below 1000: Yellow
+        if (rating < 1500) return { color: '#22c55e', name: 'green' };   // 1000 to 1499: Green
+        if (rating < 2000) return { color: '#a855f7', name: 'purple' };  // 1500 to 1999: Purple
+        return { color: '#ffffff', name: 'white' };                     // 2000+: White
+    }
+
+    // Apply color choices based on active rating tier rules natively
+    function applyDynamicRatingColors() {
+        const styleInfo = getTierStyles(currentRating);
+        document.querySelectorAll('.rating-color-target').forEach(el => {
+            el.style.setProperty('color', styleInfo.color, 'important');
+        });
+        return styleInfo.color;
+    }
+
+    // Initialize rating rules immediately on script evaluation
+    const activeTierHex = applyDynamicRatingColors();
+
     // ── Streak Tracking Logic ──
     let structuralStreak = parseInt("{{ streak }}") || 0;
 
@@ -608,12 +632,10 @@
         let leftRestores = parseInt(localStorage.getItem('streak_restores_left')) || 0;
         if (leftRestores <= 0 || structuralStreak > 0) return;
 
-        // Perform streak restoration logic
         structuralStreak = 1;
         leftRestores -= 1;
         localStorage.setItem('streak_restores_left', leftRestores);
 
-        // Update visuals across target placements instantly
         document.getElementById('header-streak-display').innerText = `${structuralStreak} 🔥`;
         document.getElementById('card-streak-display').innerText = structuralStreak;
         document.getElementById('best-streak-display').innerText = structuralStreak;
@@ -622,8 +644,10 @@
         updateRestoreInterface(leftRestores, parseInt(localStorage.getItem('streak_restore_reset_time')));
     }
 
-    // Initialize streak rules immediately on load
-    document.addEventListener("DOMContentLoaded", initStreakRestorations);
+    document.addEventListener("DOMContentLoaded", () => {
+        initStreakRestorations();
+        applyDynamicRatingColors(); // Fallback enforcement on parsing completion
+    });
 
     function setPeriod(btn, period) {
         document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
@@ -634,7 +658,6 @@
     const sCtx = document.getElementById('streakChart').getContext('2d');
     const dailyLabels = {{ daily_labels | tojson }};
     const dailyCounts = {{ daily_counts | tojson }};
-    const maxCount = Math.max(...dailyCounts, 1);
 
     new Chart(sCtx, {
         type: 'bar',
@@ -684,12 +707,11 @@
         }
     });
 
+    // Rating progression chart matching your color tiers
     const ctx = document.getElementById('ratingChart').getContext('2d');
     const startRating = 1200;
-    const currentRating = {{ puzzle_rating }};
     const totalSolved = {{ total_solved }};
 
-    // Build simple data points from 1200 to current rating
     const points = [startRating];
     if (totalSolved > 0) {
         const step = (currentRating - startRating) / Math.max(totalSolved, 1);
@@ -707,16 +729,16 @@
             labels: points.map((_, i) => i === 0 ? 'Start' : i === points.length - 1 ? 'Now' : ''),
             datasets: [{
                 data: points,
-                borderColor: '#3b82f6',
-                backgroundColor: (ctx) => {
-                    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 180);
-                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                borderColor: activeTierHex,
+                backgroundColor: (context) => {
+                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 180);
+                    gradient.addColorStop(0, activeTierHex + '33'); // Adding ~20% alpha channel transparency
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
                     return gradient;
                 },
                 borderWidth: 2,
-                pointBackgroundColor: '#3b82f6',
-                pointRadius: (ctx) => ctx.dataIndex === points.length - 1 ? 5 : 0,
+                pointBackgroundColor: activeTierHex,
+                pointRadius: (context) => context.dataIndex === points.length - 1 ? 5 : 0,
                 pointHoverRadius: 5,
                 tension: 0.4,
                 fill: true,
@@ -729,7 +751,7 @@
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => ' ' + ctx.parsed.y
+                        label: (context) => ' ' + context.parsed.y
                     }
                 }
             },
