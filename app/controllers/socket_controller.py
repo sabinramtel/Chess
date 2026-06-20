@@ -176,8 +176,8 @@ def handle_move(data):
 
     # Enforce turn: only the player whose turn it is may move
     current_turn = game.current_turn  # Color enum
-    white_sid = room['white']['sid'] if room.get('white') else None
-    black_sid = room['black']['sid'] if room.get('black') else None
+    white_sid = room['white'].get('sid') if room.get('white') else None
+    black_sid = room['black'].get('sid') if room.get('black') else None
     expected_sid = white_sid if current_turn == Color.WHITE else black_sid
     # Only enforce if SIDs are known (skip for HTTP-created rooms before rejoin)
     if expected_sid is not None and request.sid != expected_sid:
@@ -430,10 +430,10 @@ def handle_disconnect():
     game = room.get('game')
 
     # Determine who left
-    if room.get('white') and room['white']['sid'] == sid:
+    if room.get('white') and room['white'].get('sid') == sid:
         who = 'white'
         winner = 'black'
-    elif room.get('black') and room['black']['sid'] == sid:
+    elif room.get('black') and room['black'].get('sid') == sid:
         who = 'black'
         winner = 'white'
     else:
