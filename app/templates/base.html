@@ -57,6 +57,75 @@
         html.light-theme nav .nav-icon { color: #1a1a1a; }
         html.light-theme nav .nav-icon.active { color: var(--primary); }
 
+        /* ── Light Theme: Card & Block Overrides ──────────── */
+        html.light-theme .card {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.09) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .card-glow {
+            background: #ffffff !important;
+        }
+        html.light-theme .card-glow:hover {
+            box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+        }
+
+        /* Inner containers that use hardcoded dark backgrounds */
+        html.light-theme .bg-\[\#252b36\],
+        html.light-theme .bg-\[\#2c3341\],
+        html.light-theme .bg-\[\#0b0c10\],
+        html.light-theme .bg-\[\#13151d\],
+        html.light-theme .bg-\[\#1a1f29\],
+        html.light-theme .bg-\[\#1e2130\] {
+            background-color: #ede8e0 !important;
+        }
+
+        /* Stat pills and game rows (profile page) */
+        html.light-theme .stat-pill {
+            background: #f0ece4 !important;
+            border-color: rgba(0,0,0,0.08) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .stat-label { color: rgba(0,0,0,0.45) !important; }
+        html.light-theme .game-row {
+            background: #f0ece4 !important;
+            border-color: rgba(0,0,0,0.07) !important;
+            color: #1a1a1a;
+        }
+        html.light-theme .game-row:hover { border-color: rgba(204,163,67,0.3) !important; }
+
+        /* Borders and faint text */
+        html.light-theme .border-white\/10 { border-color: rgba(0,0,0,0.09) !important; }
+        html.light-theme .border-white\/5  { border-color: rgba(0,0,0,0.06) !important; }
+        html.light-theme .text-white\/40   { color: rgba(0,0,0,0.45) !important; }
+        html.light-theme .opacity-60       { opacity: 0.55 !important; }
+
+        /* Settings dropdown */
+        html.light-theme #settings-dropdown {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        html.light-theme #settings-dropdown a { color: #1a1a1a !important; }
+        html.light-theme #settings-dropdown a:hover { background: rgba(0,0,0,0.06) !important; }
+
+        /* Footer */
+        html.light-theme footer { border-color: rgba(0,0,0,0.08) !important; color: #1a1a1a; }
+
+        /* ── Light Theme: Input / Textarea / Select text ─── */
+        html.light-theme input,
+        html.light-theme input[type="text"],
+        html.light-theme input[type="email"],
+        html.light-theme input[type="password"],
+        html.light-theme textarea,
+        html.light-theme select {
+            color: #1a1a1a !important;
+            border-color: rgba(0,0,0,0.18) !important;
+        }
+        html.light-theme input::placeholder,
+        html.light-theme textarea::placeholder {
+            color: rgba(0,0,0,0.35) !important;
+        }
+
         /* ── Shared Navbar Styles ─────────────────────────── */
         .nav-icon {
             display: flex;
@@ -124,13 +193,18 @@
             <a href="/home" class="nav-icon {% if active_page == 'home' %}active{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor">
-                    <!-- Line Chart Background -->
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 15l4-4 3 3 5-5" stroke-opacity="0.4" stroke-width="1.5" />
-                    <!-- House -->
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.592 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
                 </svg>
-                <span class="hidden sm:block">Home/Stats</span>
+                <span class="hidden sm:block">Home</span>
+            </a>
+            <a href="/stats" class="nav-icon {% if active_page == 'stats' %}active{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                </svg>
+                <span class="hidden sm:block">Stats</span>
             </a>
             <div class="relative">
                 <button id="settings-toggle" class="nav-icon {% if active_page == 'settings' %}active{% endif %}">
@@ -156,7 +230,7 @@
                         </svg>
                         All Settings
                     </a>
-                    <a href="/login"
+                    <a href="/logout"
                         class="flex items-center gap-3 px-4 py-3 text-sm opacity-80 hover:bg-white/10 hover:text-white transition border-b border-white/5">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-4 h-4">

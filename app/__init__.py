@@ -89,5 +89,10 @@ def create_app():
         print(f"CRITICAL ERROR during app initialization: {e}")
         # We still return the app so the server can at least start and we can see logs
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        from flask import render_template
+        return render_template('404.html'), 404
+
     return app
 

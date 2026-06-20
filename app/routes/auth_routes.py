@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, session, redirect, url_for, abort
+from flask import Blueprint, render_template, session, redirect, url_for, abort, request, current_app, jsonify
 from app.controllers.auth_controller import AuthController
+import traceback
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -7,6 +8,8 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/')
 def index():
+    if 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return render_template('index.html')
 
 
@@ -14,9 +17,8 @@ def index():
 def health():
     return 'OK', 200
 
+
 # TEMPORARY DIAGNOSTIC HANDLER
-from flask import current_app, jsonify
-import traceback
 @auth_bp.app_errorhandler(Exception)
 def handle_exception(e):
     # Catch everything and return the traceback
@@ -26,6 +28,7 @@ def handle_exception(e):
         "message": str(e),
         "traceback": tb
     }), 500
+
 
 @auth_bp.route('/api/db-status')
 def db_status():
@@ -134,6 +137,8 @@ def lobby():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login_page():
+    if request.method == 'GET' and 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return AuthController.login()
 
 
@@ -187,6 +192,8 @@ def user_profile(username):
 
 @auth_bp.route('/signup')
 def signup_page():
+    if 'user_id' in session:
+        return redirect(url_for('auth.home'))
     return render_template('signup.html')
 
 
@@ -234,34 +241,107 @@ def resend_otp():
     return AuthController.resend_otp()
 
 
+@auth_bp.route('/stats')
+def stats_page():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login_page'))
+
+    from app.models.puzzle_stats_model import UserPuzzleStats
+    from app.models.settings_model import UserSettings
+    from app.models.user_model import User
+    from app.models.puzzle_attempt_model import PuzzleAttempt
+
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    stats = UserPuzzleStats.query.filter_by(user_id=user_id).first()
+    user_settings = UserSettings.query.filter_by(user_id=user_id).first()
+    avatar_url = user_settings.avatar_url if user_settings and user_settings.avatar_url else None
+
+    recent_attempts = (PuzzleAttempt.query
+        .filter_by(user_id=user_id)
+        .order_by(PuzzleAttempt.attempted_at.desc())
+        .limit(6).all())
+
+    accuracy = round(stats.total_solved / stats.total_attempted * 100) if stats and stats.total_attempted > 0 else 0
+
+    # Daily puzzle activity for last 30 days
+    from datetime import date, timedelta
+    from sqlalchemy import func, cast, Date as SADate
+    today = date.today()
+    days_30 = [(today - timedelta(days=i)) for i in range(29, -1, -1)]
+    raw = (PuzzleAttempt.query
+        .with_entities(cast(PuzzleAttempt.attempted_at, SADate).label('day'),
+                       func.count().label('cnt'))
+        .filter_by(user_id=user_id)
+        .filter(PuzzleAttempt.attempted_at >= today - timedelta(days=29))
+        .group_by('day').all())
+    activity_map = {r.day: r.cnt for r in raw}
+    daily_labels  = [d.strftime('%b %d') for d in days_30]
+    daily_counts  = [activity_map.get(d, 0) for d in days_30]
+
+    return render_template('stats.html',
+        active_page='stats',
+        username=session.get('username'),
+        user_id=user_id,
+        avatar_url=avatar_url,
+        member_since=user.created_at.strftime('%b %Y') if user and user.created_at else 'Unknown',
+        overall_rating=user.rating if user else 1200,
+        streak=stats.streak_current if stats else 0,
+        puzzle_rating=stats.puzzle_rating if stats else 1200,
+        total_solved=stats.total_solved if stats else 0,
+        total_attempted=stats.total_attempted if stats else 0,
+        accuracy=accuracy,
+        recent_attempts=recent_attempts,
+        daily_labels=daily_labels,
+        daily_counts=daily_counts,
+    )
+
+
 @auth_bp.route('/api/quote', methods=['GET'])
 def get_quote():
-    import requests
-    from flask import current_app, jsonify
-    api_key = current_app.config.get('GROQ_API_KEY')
-    if not api_key:
-        return jsonify({'quote': 'Chess is life. - Bobby Fischer (Fallback)'}), 200
-
-    headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
-    }
-    payload = {
-        'model': 'llama-3.1-8b-instant',
-        'messages': [{'role': 'user', 'content': 'Give me exactly one very short, inspiring chess quote from a grandmaster. Return ONLY a valid JSON object with exactly two keys: "quote" (the quote text) and "author" (the full standard Wikipedia name of the grandmaster). Do not include any markdown formatting or extra text.'}],
-        'max_tokens': 100
-    }
-    try:
-        response = requests.post('https://api.groq.com/openai/v1/chat/completions', headers=headers, json=payload, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        content = data['choices'][0]['message']['content'].strip()
-        import json
-        parsed = json.loads(content)
-        return jsonify({'quote': parsed.get('quote', ''), 'author': parsed.get('author', '')})
-    except Exception as e:
-        print(f"Groq API Error: {e}")
-        return jsonify({'quote': 'The blunders are all there on the board, waiting to be made.', 'author': 'Savielly Tartakower'}), 200
+    import random
+    from flask import jsonify
+    quotes = [
+        {"quote": "The blunders are all there on the board, waiting to be made.", "author": "Savielly Tartakower"},
+        {"quote": "Chess is life.", "author": "Bobby Fischer"},
+        {"quote": "Chess is the art of analysis.", "author": "Mikhail Botvinnik"},
+        {"quote": "Every chess master was once a beginner.", "author": "Irving Chernev"},
+        {"quote": "In life, as in chess, forethought wins.", "author": "Charles Buxton"},
+        {"quote": "Chess is the gymnasium of the mind.", "author": "Blaise Pascal"},
+        {"quote": "The game of chess is not merely an idle amusement.", "author": "Benjamin Franklin"},
+        {"quote": "Chess holds its master in its own bonds, shackling the mind and brain so that the inner freedom of the very strongest must suffer.", "author": "Albert Einstein"},
+        {"quote": "Life is like a game of chess. To win you have to make a move.", "author": "Allan Rufus"},
+        {"quote": "Chess is not about winning. It's about the beauty of the moves.", "author": "Garry Kasparov"},
+        {"quote": "The secret of getting ahead is getting started.", "author": "Mark Twain"},
+        {"quote": "It does not matter how slowly you go as long as you do not stop.", "author": "Confucius"},
+        {"quote": "Success is not final, failure is not fatal: It is the courage to continue that counts.", "author": "Winston Churchill"},
+        {"quote": "The only way to do great work is to love what you do.", "author": "Steve Jobs"},
+        {"quote": "In the middle of every difficulty lies opportunity.", "author": "Albert Einstein"},
+        {"quote": "Imagination is more important than knowledge.", "author": "Albert Einstein"},
+        {"quote": "The future belongs to those who believe in the beauty of their dreams.", "author": "Eleanor Roosevelt"},
+        {"quote": "It always seems impossible until it's done.", "author": "Nelson Mandela"},
+        {"quote": "Do not wait to strike till the iron is hot; but make it hot by striking.", "author": "William Butler Yeats"},
+        {"quote": "Believe you can and you're halfway there.", "author": "Theodore Roosevelt"},
+        {"quote": "The mind is everything. What you think you become.", "author": "Buddha"},
+        {"quote": "An investment in knowledge pays the best interest.", "author": "Benjamin Franklin"},
+        {"quote": "I have not failed. I've just found 10,000 ways that won't work.", "author": "Thomas Edison"},
+        {"quote": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese Proverb"},
+        {"quote": "You miss 100% of the shots you don't take.", "author": "Wayne Gretzky"},
+        {"quote": "Whether you think you can or you think you can't, you're right.", "author": "Henry Ford"},
+        {"quote": "Strive not to be a success, but rather to be of value.", "author": "Albert Einstein"},
+        {"quote": "The journey of a thousand miles begins with one step.", "author": "Lao Tzu"},
+        {"quote": "That which does not kill us makes us stronger.", "author": "Friedrich Nietzsche"},
+        {"quote": "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", "author": "Ralph Waldo Emerson"},
+        {"quote": "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", "author": "Albert Einstein"},
+        {"quote": "In the end, it's not the years in your life that count. It's the life in your years.", "author": "Abraham Lincoln"},
+        {"quote": "The only true wisdom is in knowing you know nothing.", "author": "Socrates"},
+        {"quote": "Spread love everywhere you go. Let no one ever come to you without leaving happier.", "author": "Mother Teresa"},
+        {"quote": "When you reach the end of your rope, tie a knot in it and hang on.", "author": "Franklin D. Roosevelt"},
+        {"quote": "Always remember that you are absolutely unique. Just like everyone else.", "author": "Margaret Mead"},
+        {"quote": "Don't judge each day by the harvest you reap but by the seeds that you plant.", "author": "Robert Louis Stevenson"},
+        {"quote": "The way to get started is to quit talking and begin doing.", "author": "Walt Disney"},
+    ]
+    return jsonify(random.choice(quotes))
 
 
 @auth_bp.route('/privacy')
