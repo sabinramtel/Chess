@@ -664,70 +664,97 @@
     /* ── Info hint box ──────────────────────────────── */
     .settings-info-box {
         background: #13151d;
-        border: 1px solid rgba(255,255,255,0.07);
+        border: 1px solid rgba(255, 255, 255, 0.07);
     }
-    .settings-info-text { color: rgba(255,255,255,0.5); }
+
+    .settings-info-text {
+        color: rgba(255, 255, 255, 0.5);
+    }
 
     /* ── Light Theme Overrides (settings page only) ── */
     html.light-theme .field-input {
         background: #f4f0e8 !important;
-        border-color: rgba(0,0,0,0.15) !important;
+        border-color: rgba(0, 0, 0, 0.15) !important;
         color: #1a1a1a !important;
     }
+
     html.light-theme .field-input::placeholder {
-        color: rgba(0,0,0,0.35) !important;
+        color: rgba(0, 0, 0, 0.35) !important;
     }
+
     html.light-theme select.field-input option {
         background: #f4f0e8;
         color: #1a1a1a;
     }
+
     html.light-theme .field-label {
-        color: rgba(0,0,0,0.55) !important;
+        color: rgba(0, 0, 0, 0.55) !important;
     }
+
     html.light-theme .sidebar-link.active {
-        background: rgba(204,163,67,0.15) !important;
+        background: rgba(204, 163, 67, 0.15) !important;
         color: var(--primary) !important;
     }
-    html.light-theme .section-header p { color: rgba(0,0,0,0.45) !important; }
-    html.light-theme .toggle-info p    { color: rgba(0,0,0,0.45) !important; }
-    html.light-theme .toggle-wrap {
-        border-bottom-color: rgba(0,0,0,0.07) !important;
+
+    html.light-theme .section-header p {
+        color: rgba(0, 0, 0, 0.45) !important;
     }
+
+    html.light-theme .toggle-info p {
+        color: rgba(0, 0, 0, 0.45) !important;
+    }
+
+    html.light-theme .toggle-wrap {
+        border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+    }
+
     html.light-theme .btn-ghost {
         background: #e8e3da !important;
         color: #374151 !important;
     }
-    html.light-theme .btn-ghost:hover { background: #ddd8ce !important; }
+
+    html.light-theme .btn-ghost:hover {
+        background: #ddd8ce !important;
+    }
+
     html.light-theme .theme-card,
     html.light-theme .piece-card,
     html.light-theme .orient-card,
     html.light-theme .appearance-card,
     html.light-theme .privacy-card {
         background: #f0ece4 !important;
-        border-color: rgba(0,0,0,0.1) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
         color: #1a1a1a !important;
     }
-    html.light-theme .toggle-slider { background: #c5bfb5 !important; }
+
+    html.light-theme .toggle-slider {
+        background: #c5bfb5 !important;
+    }
+
     html.light-theme .appearance-label,
     html.light-theme .theme-label,
     html.light-theme .piece-label,
     html.light-theme .orient-label,
-    html.light-theme .privacy-label { color: rgba(0,0,0,0.65) !important; }
+    html.light-theme .privacy-label {
+        color: rgba(0, 0, 0, 0.65) !important;
+    }
+
     html.light-theme .settings-info-box {
         background: #f0ece4 !important;
-        border-color: rgba(0,0,0,0.08) !important;
+        border-color: rgba(0, 0, 0, 0.08) !important;
     }
-    html.light-theme .settings-info-text { color: rgba(0,0,0,0.55) !important; }
+
+    html.light-theme .settings-info-text {
+        color: rgba(0, 0, 0, 0.55) !important;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="w-full min-h-screen">
 
-    <!-- ── Page layout ──────────────────────────────────────────────────── -->
     <div class="w-full max-w-6xl mx-auto px-4 md:px-8 py-8 flex gap-6">
 
-        <!-- ── Sidebar ──────────────────────────────────────────────────── -->
         <aside class="w-56 flex-shrink-0 hidden md:block">
             <div class="sticky top-8">
                 <p class="text-xs font-semibold uppercase tracking-widest text-white/30 px-3 mb-3">Settings</p>
@@ -782,7 +809,6 @@
             </div>
         </aside>
 
-        <!-- ── Mobile tab bar ────────────────────────────────────────────── -->
         <div class="md:hidden w-full mb-4">
             <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
                 <button class="sidebar-link active flex-shrink-0 !w-auto" data-target="profile">Profile</button>
@@ -793,12 +819,8 @@
             </div>
         </div>
 
-        <!-- ── Main content ───────────────────────────────────────────────── -->
         <main class="flex-1 min-w-0 space-y-6">
 
-            <!-- ═══════════════════════════════════════════════════════════════
-           SECTION: Account & Profile
-      ════════════════════════════════════════════════════════════════ -->
             <section id="section-profile" class="settings-section active">
                 <div class="card p-6">
                     <div class="section-header">
@@ -813,16 +835,14 @@
                         </div>
                     </div>
 
-                    <!-- Avatar row -->
                     <div class="flex items-center gap-5 mb-6">
-                        <!-- Clickable avatar with overlay + popup menu -->
                         <div class="relative" style="width:80px;height:80px;flex-shrink:0;">
                             <div class="avatar-circle" id="avatar-display" onclick="toggleAvatarMenu(event)">
                                 <img id="avatar-img" src="{{ s.avatar_url if s and s.avatar_url else '' }}" alt="Avatar"
                                     class="{{ '' if s and s.avatar_url else 'hidden' }}"
                                     style="width:100%;height:100%;object-fit:cover;">
                                 <span id="avatar-initials" class="{{ 'hidden' if s and s.avatar_url else '' }}">{{
-                                    (username or 'U')[0] | upper }}</span>
+                                    (username or 'U') | upper }}</span>
                                 <div class="avatar-overlay">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor">
@@ -835,7 +855,6 @@
                                 </div>
                             </div>
 
-                            <!-- Popup menu -->
                             <div id="avatar-menu" class="avatar-menu hidden">
                                 <button onclick="triggerAvatarUpload()">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -855,7 +874,6 @@
                                 </button>
                             </div>
 
-                            <!-- Hidden file input — opens device photo picker -->
                             <input type="file" id="avatar-file-input" accept="image/*" class="hidden"
                                 onchange="handleAvatarFile(this)">
                         </div>
@@ -866,7 +884,6 @@
                         </div>
                     </div>
 
-                    <!-- Username + Email row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="field-label" for="username">Username</label>
@@ -880,7 +897,6 @@
                         </div>
                     </div>
 
-                    <!-- Country + Bio row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                         <div>
                             <label class="field-label" for="country">Country / Region</label>
@@ -894,9 +910,8 @@
                         </div>
                         <div>
                             <label class="field-label" for="bio">Bio</label>
-                            <textarea id="bio" class="field-input"
-                                placeholder="you can write your bio here"
-                                maxlength="300">{{ s.bio if s else '' }}</textarea>
+                            <textarea id="bio" class="field-input" placeholder="you can write your bio here"
+                                maxlength="50">{{ s.bio if s else '' }}</textarea>
                         </div>
                     </div>
 
@@ -906,7 +921,6 @@
 
                     <hr class="divider">
 
-                    <!-- Change Password -->
                     <div class="section-header mt-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5 gold">
@@ -926,703 +940,12 @@
                         </div>
                         <div>
                             <label class="field-label" for="new_password">New Password</label>
-                            <input type="password" id="new_password" class="field-input"
-                                placeholder="Min. 8 characters">
+                            <input type="password" id="new_password" class="field-input" placeholder="Min. 8 chars">
                         </div>
-                        <div>
-                            <label class="field-label" for="confirm_password">Confirm Password</label>
-                            <input type="password" id="confirm_password" class="field-input"
-                                placeholder="Repeat new password">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button class="btn-ghost" onclick="saveSection('password')">Change Password</button>
                     </div>
                 </div>
             </section>
-
-
-            <!-- ═══════════════════════════════════════════════════════════════
-           SECTION: Game Preferences
-      ════════════════════════════════════════════════════════════════ -->
-            <section id="section-game" class="settings-section">
-                <div class="card p-6 space-y-8">
-                    <div class="section-header mb-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 gold">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
-                        </svg>
-                        <div>
-                            <h2>Game Preferences</h2>
-                            <p>Customize your board and gameplay experience</p>
-                        </div>
-                    </div>
-
-                    <!-- Board Theme -->
-                    <div>
-                        <label class="field-label mb-3 block">Board Theme</label>
-                        <div class="theme-grid">
-                            {% set cur_theme = s.board_theme if s else 'classic' %}
-
-                            <label class="theme-option">
-                                <input type="radio" name="board_theme" value="classic" {% if cur_theme=='classic'
-                                    %}checked{% endif %}>
-                                <div class="theme-card">
-                                    <div class="theme-preview">
-                                        {% for i in range(16) %}
-                                        <span
-                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#739552{% else %}#ebecd0{% endif %}"></span>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="theme-label">Classic</span>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="board_theme" value="walnut" {% if cur_theme=='walnut'
-                                    %}checked{% endif %}>
-                                <div class="theme-card">
-                                    <div class="theme-preview">
-                                        {% for i in range(16) %}
-                                        <span
-                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#7b5330{% else %}#c8a97e{% endif %}"></span>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="theme-label">Walnut</span>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="board_theme" value="ocean" {% if cur_theme=='ocean'
-                                    %}checked{% endif %}>
-                                <div class="theme-card">
-                                    <div class="theme-preview">
-                                        {% for i in range(16) %}
-                                        <span
-                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#4a7fa5{% else %}#b0d0e8{% endif %}"></span>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="theme-label">Ocean</span>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="board_theme" value="tournament" {% if cur_theme=='tournament'
-                                    %}checked{% endif %}>
-                                <div class="theme-card">
-                                    <div class="theme-preview">
-                                        {% for i in range(16) %}
-                                        <span
-                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#2e6b4a{% else %}#f0eed5{% endif %}"></span>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="theme-label">Tournament</span>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="board_theme" value="night" {% if cur_theme=='night'
-                                    %}checked{% endif %}>
-                                <div class="theme-card">
-                                    <div class="theme-preview">
-                                        {% for i in range(16) %}
-                                        <span
-                                            style="background:{% if (i // 4 + i % 4) % 2 == 0 %}#2a2a3e{% else %}#4a4a62{% endif %}"></span>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="theme-label">Night</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Piece Set -->
-                    <div>
-                        <label class="field-label mb-3 block">Piece Set</label>
-                        <div class="piece-grid">
-                            {% set cur_piece = s.piece_set if s else 'classic' %}
-                            {% for val, icon, label in [('classic','♔','Classic'), ('modern','♚','Modern'),
-                            ('neo','⬡','Neo'), ('pixel','▣','Pixel'), ('alpha','K','Alpha')] %}
-                            <label class="piece-option">
-                                <input type="radio" name="piece_set" value="{{ val }}" {% if cur_piece==val %}checked{%
-                                    endif %}>
-                                <div class="piece-card">
-                                    <span class="piece-icon">{{ icon }}</span>
-                                    <span class="piece-label">{{ label }}</span>
-                                </div>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Board Orientation -->
-                    <div>
-                        <label class="field-label mb-3 block">Board Orientation</label>
-                        <div class="space-y-2">
-                            {% set cur_orient = s.board_orientation if s else 'white' %}
-                            <label class="orient-option">
-                                <input type="radio" name="board_orientation" value="white" {% if cur_orient=='white'
-                                    %}checked{% endif %}>
-                                <div class="orient-card">
-                                    <span class="orient-dot"></span>
-                                    <div>
-                                        <p class="text-sm font-semibold">White always at bottom</p>
-                                        <p class="text-xs text-white/40">You always see white pieces from the bottom,
-                                            regardless of your color.</p>
-                                    </div>
-                                </div>
-                            </label>
-                            <label class="orient-option">
-                                <input type="radio" name="board_orientation" value="auto" {% if cur_orient=='auto'
-                                    %}checked{% endif %}>
-                                <div class="orient-card">
-                                    <span class="orient-dot"></span>
-                                    <div>
-                                        <p class="text-sm font-semibold">Auto-flip</p>
-                                        <p class="text-xs text-white/40">The board flips so your pieces are always at
-                                            the bottom.</p>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Gameplay Toggles -->
-                    <div>
-                        <label class="field-label mb-1 block">Gameplay</label>
-
-                        <div class="toggle-wrap">
-                            <div class="toggle-info">
-                                <h4>Move Confirmation</h4>
-                                <p>Require a second click to confirm each move.</p>
-                            </div>
-                            <label class="toggle">
-                                <input type="checkbox" id="move_confirmation" {% if s and s.move_confirmation
-                                    %}checked{% endif %}>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-wrap">
-                            <div class="toggle-info">
-                                <h4>Auto-Promote to Queen</h4>
-                                <p>Pawns reaching the last rank automatically become queens.</p>
-                            </div>
-                            <label class="toggle">
-                                <input type="checkbox" id="auto_promote_queen" {% if s and s.auto_promote_queen
-                                    %}checked{% endif %}>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-wrap">
-                            <div class="toggle-info">
-                                <h4>Premove</h4>
-                                <p>Queue a move while your opponent is thinking.</p>
-                            </div>
-                            <label class="toggle">
-                                <input type="checkbox" id="premove" {% if s and s.premove %}checked{% endif %}>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-wrap">
-                            <div class="toggle-info">
-                                <h4>Sound Effects</h4>
-                                <p>Play sounds for moves, captures, and game events.</p>
-                            </div>
-                            <label class="toggle">
-                                <input type="checkbox" id="sound_effects" {% if s and s.sound_effects %}checked{% endif
-                                    %}>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-2">
-                        <button class="btn-gold" onclick="saveSection('game')">Save Preferences</button>
-                    </div>
-                </div>
-            </section>
-
-
-            <!-- ═══════════════════════════════════════════════════════════════
-           SECTION: Notifications
-      ════════════════════════════════════════════════════════════════ -->
-            <section id="section-notifications" class="settings-section">
-                <div class="card p-6">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 gold">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                        </svg>
-                        <div>
-                            <h2>Notifications</h2>
-                            <p>Choose what alerts you receive</p>
-                        </div>
-                    </div>
-
-                    <div class="toggle-wrap">
-                        <div class="toggle-info">
-                            <h4>Game Invites &amp; Challenges</h4>
-                            <p>Get notified when someone sends you a game challenge.</p>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="notify_game_invites" {% if s and s.notify_game_invites
-                                %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="toggle-wrap">
-                        <div class="toggle-info">
-                            <h4>Friend Requests</h4>
-                            <p>Get notified when someone sends you a friend request.</p>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="notify_friend_requests" {% if s and s.notify_friend_requests
-                                %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="toggle-wrap">
-                        <div class="toggle-info">
-                            <h4>Tournament &amp; Event Reminders</h4>
-                            <p>Alerts for tournaments you've joined or that are starting soon.</p>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="notify_tournaments" {% if s and s.notify_tournaments %}checked{%
-                                endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="toggle-wrap">
-                        <div class="toggle-info">
-                            <h4>It's Your Move</h4>
-                            <p>Reminders in correspondence games when it's time for your move.</p>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="notify_your_turn" {% if s and s.notify_your_turn %}checked{%
-                                endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="toggle-wrap">
-                        <div class="toggle-info">
-                            <h4>Daily Puzzle Reminder</h4>
-                            <p>Daily nudge to solve the puzzle of the day.</p>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="notify_daily_puzzle" {% if s and s.notify_daily_puzzle
-                                %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="flex justify-end pt-4">
-                        <button class="btn-gold" onclick="saveSection('notifications')">Save Notifications</button>
-                    </div>
-                </div>
-            </section>
-
-
-            <!-- ═══════════════════════════════════════════════════════════════
-           SECTION: Appearance
-      ════════════════════════════════════════════════════════════════ -->
-            <section id="section-appearance" class="settings-section">
-                <div class="card p-6">
-                    <div class="section-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 gold">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
-                        </svg>
-                        <div>
-                            <h2>Appearance</h2>
-                            <p>Adjust how Project Chess looks for you</p>
-                        </div>
-                    </div>
-
-                    <label class="field-label mb-3 block">Site Theme</label>
-                    <div class="theme-toggle-row mb-8">
-                        {% set cur_site_theme = s.site_theme if s else 'dark' %}
-
-                        <label class="appearance-option">
-                            <input type="radio" name="site_theme" value="dark" {% if cur_site_theme=='dark' %}checked{%
-                                endif %}>
-                            <div class="appearance-card">
-                                <span class="appearance-icon">🌙</span>
-                                <span class="appearance-label">Dark</span>
-                            </div>
-                        </label>
-
-                        <label class="appearance-option">
-                            <input type="radio" name="site_theme" value="light" {% if cur_site_theme=='light'
-                                %}checked{% endif %}>
-                            <div class="appearance-card">
-                                <span class="appearance-icon">☀️</span>
-                                <span class="appearance-label">Light</span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="rounded-xl p-4 mb-6 text-sm settings-info-box">
-                        <p class="settings-info-text">Board theme and piece set can be changed in <button
-                                class="text-[var(--primary)] hover:underline" onclick="switchSection('game')">Game
-                                Preferences</button>.</p>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button class="btn-gold" onclick="saveSection('appearance')">Save Appearance</button>
-                    </div>
-                </div>
-            </section>
-
-
-            <!-- ═══════════════════════════════════════════════════════════════
-           SECTION: Privacy
-      ════════════════════════════════════════════════════════════════ -->
-            <section id="section-privacy" class="settings-section">
-                <div class="card p-6 space-y-8">
-                    <div class="section-header mb-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 gold">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                        </svg>
-                        <div>
-                            <h2>Privacy</h2>
-                            <p>Control who can interact with you</p>
-                        </div>
-                    </div>
-
-                    <!-- Who can challenge -->
-                    <div>
-                        <label class="field-label mb-3 block">Who Can Challenge You</label>
-                        {% set cur_challenge = s.who_can_challenge if s else 'anyone' %}
-
-                        <label class="privacy-option">
-                            <input type="radio" name="who_can_challenge" value="anyone" {% if cur_challenge=='anyone'
-                                %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Anyone</h4>
-                                    <p>Any registered player can send you a game challenge.</p>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="privacy-option">
-                            <input type="radio" name="who_can_challenge" value="friends" {% if cur_challenge=='friends'
-                                %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Friends Only</h4>
-                                    <p>Only people on your friends list can challenge you.</p>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="privacy-option">
-                            <input type="radio" name="who_can_challenge" value="nobody" {% if cur_challenge=='nobody'
-                                %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Nobody</h4>
-                                    <p>Disable all incoming challenges. You can still start games yourself.</p>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Profile visibility -->
-                    <div>
-                        <label class="field-label mb-3 block">Profile Visibility</label>
-                        {% set cur_visibility = s.profile_visibility if s else 'public' %}
-
-                        <label class="privacy-option">
-                            <input type="radio" name="profile_visibility" value="public" {% if cur_visibility=='public'
-                                %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Public</h4>
-                                    <p>Anyone can view your profile, rating, and game history.</p>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="privacy-option">
-                            <input type="radio" name="profile_visibility" value="friends" {% if
-                                cur_visibility=='friends' %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Friends Only</h4>
-                                    <p>Only friends can see your full profile and game history.</p>
-                                </div>
-                            </div>
-                        </label>
-
-                        <label class="privacy-option">
-                            <input type="radio" name="profile_visibility" value="private" {% if
-                                cur_visibility=='private' %}checked{% endif %}>
-                            <div class="privacy-card">
-                                <span class="privacy-radio"></span>
-                                <div class="privacy-text">
-                                    <h4>Private</h4>
-                                    <p>Your profile is hidden from other players entirely.</p>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Block list -->
-                    <div>
-                        <label class="field-label mb-3 block">Block List</label>
-                        <div class="flex gap-2 mb-4">
-                            <input type="text" id="block-input" class="field-input"
-                                placeholder="Enter username to block…">
-                            <button class="btn-ghost flex-shrink-0" onclick="blockUser()">Block</button>
-                        </div>
-                        <div id="block-list" class="space-y-2">
-                            <div class="flex items-center justify-center py-8 rounded-xl text-sm text-white/30"
-                                style="background:#13151d; border:1px dashed rgba(255,255,255,0.08);">
-                                <span>No blocked users</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-2">
-                        <button class="btn-gold" onclick="saveSection('privacy')">Save Privacy</button>
-                    </div>
-                </div>
-            </section>
-
         </main>
     </div>
 </div>
-
-<!-- Toast -->
-<div id="toast" role="alert"></div>
-
-{% endblock %}
-
-{% block scripts %}
-<script>
-    (function () {
-        /* ── Section switching ─────────────────────────────── */
-        const links = document.querySelectorAll('.sidebar-link[data-target]');
-        const sections = document.querySelectorAll('.settings-section');
-
-        function switchSection(target) {
-            sections.forEach(s => s.classList.remove('active'));
-            links.forEach(l => l.classList.remove('active'));
-            const sec = document.getElementById('section-' + target);
-            if (sec) sec.classList.add('active');
-            links.forEach(l => { if (l.dataset.target === target) l.classList.add('active'); });
-            history.replaceState(null, '', '#' + target);
-        }
-
-        links.forEach(l => l.addEventListener('click', () => switchSection(l.dataset.target)));
-
-        // Restore from hash
-        const hash = location.hash.replace('#', '');
-        if (hash) switchSection(hash);
-
-
-        /* ── Toast ─────────────────────────────────────────── */
-        let toastTimer;
-        window.showToast = function (msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
-            el.className = 'show ' + type;
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { el.className = ''; }, 3200);
-        };
-
-        /* ── Avatar menu ────────────────────────────────────── */
-        const INITIALS = '{{ (username or "U")[0] | upper }}';
-
-        window.toggleAvatarMenu = function (e) {
-            e.stopPropagation();
-            const menu = document.getElementById('avatar-menu');
-            menu.classList.toggle('hidden');
-        };
-
-        document.addEventListener('click', () => {
-            document.getElementById('avatar-menu')?.classList.add('hidden');
-        });
-
-        window.triggerAvatarUpload = function () {
-            document.getElementById('avatar-menu').classList.add('hidden');
-            document.getElementById('avatar-file-input').click();
-        };
-
-        window.handleAvatarFile = async function (input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-
-            // Instant local preview
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('avatar-img').src = e.target.result;
-                document.getElementById('avatar-img').classList.remove('hidden');
-                document.getElementById('avatar-initials')?.classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-
-            // Upload to server
-            const fd = new FormData();
-            fd.append('avatar', file);
-            try {
-                const res = await fetch('/api/settings/avatar', { method: 'POST', body: fd });
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    showToast('Avatar updated!', 'success');
-                    document.getElementById('avatar-img').src = data.avatar_url + '?t=' + Date.now();
-                } else {
-                    showToast(data.message || 'Upload failed', 'error');
-                }
-            } catch {
-                showToast('Network error — please try again', 'error');
-            }
-            input.value = '';
-        };
-
-        window.removeAvatarPicture = async function () {
-            document.getElementById('avatar-menu').classList.add('hidden');
-            try {
-                const res = await fetch('/api/settings/avatar', { method: 'DELETE' });
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    const img = document.getElementById('avatar-img');
-                    img.src = '';
-                    img.classList.add('hidden');
-                    let init = document.getElementById('avatar-initials');
-                    if (!init) {
-                        init = document.createElement('span');
-                        init.id = 'avatar-initials';
-                        document.getElementById('avatar-display').insertBefore(init, document.querySelector('.avatar-overlay'));
-                    }
-                    init.textContent = INITIALS;
-                    init.classList.remove('hidden');
-                    showToast('Profile picture removed', 'success');
-                } else {
-                    showToast(data.error || 'Could not remove picture', 'error');
-                }
-            } catch {
-                showToast('Network error — please try again', 'error');
-            }
-        };
-
-        /* ── Save helpers ─────────────────────────────────── */
-        function getBool(id) { return document.getElementById(id)?.checked ?? false; }
-        function getVal(id) { return (document.getElementById(id)?.value ?? '').trim(); }
-        function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value ?? ''; }
-
-        window.switchSection = switchSection;
-
-        window.saveSection = async function (section) {
-            let endpoint = '/api/settings/' + section;
-            let payload = {};
-
-            if (section === 'profile') {
-                payload = {
-                    username: getVal('username'),
-                    email: getVal('email'),
-                    country: getVal('country'),
-                    bio: getVal('bio'),
-                };
-            } else if (section === 'password') {
-                payload = {
-                    current_password: getVal('current_password'),
-                    new_password: getVal('new_password'),
-                    confirm_password: getVal('confirm_password'),
-                };
-                endpoint = '/api/settings/password';
-            } else if (section === 'game') {
-                payload = {
-                    board_theme: getRadio('board_theme'),
-                    piece_set: getRadio('piece_set'),
-                    board_orientation: getRadio('board_orientation'),
-                    move_confirmation: getBool('move_confirmation'),
-                    auto_promote_queen: getBool('auto_promote_queen'),
-                    premove: getBool('premove'),
-                    sound_effects: getBool('sound_effects'),
-                };
-            } else if (section === 'notifications') {
-                payload = {
-                    notify_game_invites: getBool('notify_game_invites'),
-                    notify_friend_requests: getBool('notify_friend_requests'),
-                    notify_tournaments: getBool('notify_tournaments'),
-                    notify_your_turn: getBool('notify_your_turn'),
-                    notify_daily_puzzle: getBool('notify_daily_puzzle'),
-                };
-            } else if (section === 'appearance') {
-                const theme = getRadio('site_theme') || 'dark';
-                payload = { site_theme: theme };
-                // Apply immediately and persist in localStorage
-                localStorage.setItem('site_theme', theme);
-                if (theme === 'light') {
-                    document.documentElement.classList.add('light-theme');
-                } else {
-                    document.documentElement.classList.remove('light-theme');
-                }
-            } else if (section === 'privacy') {
-                payload = {
-                    who_can_challenge: getRadio('who_can_challenge'),
-                    profile_visibility: getRadio('profile_visibility'),
-                };
-            }
-
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    showToast(data.message, 'success');
-                    if (section === 'password') {
-                        document.getElementById('current_password').value = '';
-                        document.getElementById('new_password').value = '';
-                        document.getElementById('confirm_password').value = '';
-                    }
-                } else {
-                    showToast(data.error || 'Something went wrong', 'error');
-                }
-            } catch {
-                showToast('Network error — please try again', 'error');
-            }
-        };
-
-        /* ── Block user (UI only for now) ───────────────────── */
-        window.blockUser = function () {
-            const input = document.getElementById('block-input');
-            const name = input.value.trim();
-            if (!name) return;
-            const list = document.getElementById('block-list');
-            const placeholder = list.querySelector('.flex.items-center.justify-center');
-            if (placeholder) placeholder.remove();
-            const row = document.createElement('div');
-            row.className = 'flex items-center justify-between px-4 py-3 rounded-xl text-sm';
-            row.style.cssText = 'background:#13151d;border:1px solid rgba(255,255,255,0.07)';
-            row.innerHTML = `<span class="font-medium">${name.replace(/</g, '&lt;')}</span>
-      <button class="text-red-400 hover:text-red-300 text-xs font-medium transition" onclick="this.closest('div').remove()">Unblock</button>`;
-            list.appendChild(row);
-            input.value = '';
-        };
-    })();
-</script>
 {% endblock %}
