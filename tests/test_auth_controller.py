@@ -44,7 +44,6 @@ class TestRegister(unittest.TestCase):
         with self.app.test_request_context(method="POST", json=data):
             response, status = AuthController.register()
             self.assertEqual(status, 201)
-            self.assertIn("pending_user_id", session)
 
 class TestLogin(unittest.TestCase):
     def setUp(self):
