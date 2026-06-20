@@ -64,13 +64,13 @@ def create_app():
         CORS(app)
 
         from app.routes.auth_routes import auth_bp
-        from app.routes.settings_routes import settings_bp
-        from app.routes.game_routes import game_bp
-        from app.routes.puzzle_routes import puzzle_bp
+        from app.routes.settings_routes import SettingsRoutes
+        from app.routes.game_routes import GameRoutes
+        from app.routes.puzzle_routes import PuzzleRoutes
         app.register_blueprint(auth_bp)
-        app.register_blueprint(settings_bp)
-        app.register_blueprint(game_bp)
-        app.register_blueprint(puzzle_bp)
+        app.register_blueprint(SettingsRoutes().register())
+        app.register_blueprint(GameRoutes().register())
+        app.register_blueprint(PuzzleRoutes().register())
 
         with app.app_context():
             # Register socket handlers by importing the controller

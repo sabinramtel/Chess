@@ -1,5 +1,5 @@
 import os
-from flask import request, session, jsonify
+from flask import request, session, jsonify, render_template
 from app import db
 from app.models.user_model import User
 from app.models.settings_model import UserSettings
@@ -7,7 +7,39 @@ from app.models.settings_model import UserSettings
 
 from app.controllers.base_controller import BaseController
 
+COUNTRIES = [
+    ('', 'Select country…'),
+    ('AM', '🇦🇲 Armenia'), ('AR', '🇦🇷 Argentina'), ('AU', '🇦🇺 Australia'),
+    ('AZ', '🇦🇿 Azerbaijan'), ('BD', '🇧🇩 Bangladesh'), ('BY', '🇧🇾 Belarus'),
+    ('BR', '🇧🇷 Brazil'), ('BG', '🇧🇬 Bulgaria'), ('CA', '🇨🇦 Canada'),
+    ('CN', '🇨🇳 China'), ('HR', '🇭🇷 Croatia'), ('CU', '🇨🇺 Cuba'),
+    ('CZ', '🇨🇿 Czech Republic'), ('EG', '🇪🇬 Egypt'), ('FR', '🇫🇷 France'),
+    ('GE', '🇬🇪 Georgia'), ('DE', '🇩🇪 Germany'), ('GR', '🇬🇷 Greece'),
+    ('HU', '🇭🇺 Hungary'), ('IN', '🇮🇳 India'), ('ID', '🇮🇩 Indonesia'),
+    ('IR', '🇮🇷 Iran'), ('IL', '🇮🇱 Israel'), ('IT', '🇮🇹 Italy'),
+    ('JP', '🇯🇵 Japan'), ('KZ', '🇰🇿 Kazakhstan'), ('KR', '🇰🇷 South Korea'),
+    ('MX', '🇲🇽 Mexico'), ('NP', '🇳🇵 Nepal'), ('NL', '🇳🇱 Netherlands'),
+    ('NG', '🇳🇬 Nigeria'), ('NO', '🇳🇴 Norway'), ('PK', '🇵🇰 Pakistan'),
+    ('PH', '🇵🇭 Philippines'), ('PL', '🇵🇱 Poland'), ('PT', '🇵🇹 Portugal'),
+    ('RO', '🇷🇴 Romania'), ('RU', '🇷🇺 Russia'), ('RS', '🇷🇸 Serbia'),
+    ('SK', '🇸🇰 Slovakia'), ('ZA', '🇿🇦 South Africa'), ('ES', '🇪🇸 Spain'),
+    ('SE', '🇸🇪 Sweden'), ('TR', '🇹🇷 Turkey'), ('UA', '🇺🇦 Ukraine'),
+    ('GB', '🇬🇧 United Kingdom'), ('US', '🇺🇸 United States'),
+    ('UZ', '🇺🇿 Uzbekistan'), ('VN', '🇻🇳 Vietnam'),
+]
+
+
 class SettingsController(BaseController):
+
+    def settings_page(self):
+        user, s = self.get_user_and_settings()
+        return render_template('settings.html',
+                               active_page='settings',
+                               username=session.get('username'),
+                               user_id=session.get('user_id'),
+                               user=user,
+                               s=s,
+                               countries=COUNTRIES)
 
     def get_user_and_settings(self, ):
         user_id = session.get('user_id')
