@@ -1319,6 +1319,9 @@
 </div>
 
 <script>
+// Sync localStorage with DB value so theme persists across all pages
+localStorage.setItem('site_theme', '{{ s.site_theme if s else "dark" }}');
+
 // ── Tab switching ──────────────────────────────────────────────────────────
 document.querySelectorAll('[data-target]').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -1488,6 +1491,7 @@ function saveAppearance() {
     })
     .then(r => r.json())
     .then(d => {
+        localStorage.setItem('site_theme', theme);
         if (theme === 'light') document.documentElement.classList.add('light-theme');
         else document.documentElement.classList.remove('light-theme');
         showMsg('appearance-msg', d.message || 'Saved!');
