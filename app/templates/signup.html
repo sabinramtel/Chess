@@ -127,6 +127,9 @@
   </div>
 
   <div id="toast" class="hidden"></div>
+  <button id="quick-theme-toggle" class="fixed bottom-14 right-4 z-50 w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10" title="Toggle Theme">
+    <span class="text-lg">🌓</span>
+  </button>
 
   <div class="w-full text-center py-4 text-xs text-gray-600">
     <a href="/tos" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Terms of Service</a>
@@ -137,6 +140,17 @@
 
 {% block scripts %}
 <script>
+  document.getElementById('quick-theme-toggle').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    if (isLight) {
+      document.documentElement.classList.remove('light-theme');
+      localStorage.setItem('site_theme', 'dark');
+    } else {
+      document.documentElement.classList.add('light-theme');
+      localStorage.setItem('site_theme', 'light');
+    }
+  });
+
   (function() {
     const spinner = document.getElementById('chess-spinner');
     const pawn    = document.getElementById('piece-pawn');
