@@ -37,7 +37,18 @@ class AuthController:
                 flash('All fields are required.', 'error')
                 return redirect(url_for('auth.login_page'))
 
-            user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
+            try:
+                user = User.query.filter(
+                    (User.username == identifier) | (User.email == identifier)
+                ).first()
+            except Exception as e:
+                if is_api:
+                    return jsonify({
+                        'success': False,
+                        'message': f'Database error: {str(e)}. Please check server configuration.'
+                    }), 503
+                flash('Database connection error. Please try again later.', 'error')
+                return redirect(url_for('auth.login_page'))
 
             if user and user.check_password(password):
                 session['user_id'] = user.id
@@ -53,6 +64,7 @@ class AuthController:
                 return redirect(url_for('auth.login_page'))
 
         return render_template('login.html')
+
 
     @staticmethod
     def check_username():
@@ -121,13 +133,67 @@ class AuthController:
         user = User(email=email, username=username)
         user.set_password(password)
         db.session.add(user)
+        db.session.flush()  # get user.id without full commit
+
+        # Mark as verified immediately (no OTP required)
+        ev = EmailVerification(
+            user_id=user.id,
+            otp=None,
+            is_verified=True,
+            expires_at=_utcnow() + timedelta(minutes=15)
+        )
+        db.session.add(ev)
         db.session.commit()
 
-        # Log in immediately
+        # Log user in directly
         session['user_id'] = user.id
         session['username'] = user.username
 
-        return jsonify({'success': True, 'message': 'Account created! Welcome to Project Chess.', 'redirect': '/home'}), 201
+        return jsonify({
+            'success': True,
+            'message': 'Account created! Welcome to Project Chess.',
+            'redirect': url_for('auth.home')
+        }), 201
+
+    @staticmethod
+    def verify_email():
+        """Validate the OTP the user submitted."""
+        data = request.get_json() or {}
+        otp_input = data.get('otp', '').strip()
+
+        user_id = session.get('pending_user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 400
+
+        ev = EmailVerification.query.filter_by(user_id=user_id).first()
+        if not ev:
+            return jsonify({'success': False, 'message': 'No verification record found.'}), 400
+
+        if ev.is_verified:
+            # Already verified — just log them in
+            user = User.query.get(user_id)
+            session.pop('pending_user_id', None)
+            session['user_id'] = user.id
+            session['username'] = user.username
+            return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
+
+        if _utcnow() > ev.expires_at:
+            return jsonify({'success': False, 'message': 'Code expired. Request a new one.'}), 400
+
+        if ev.otp != otp_input:
+            return jsonify({'success': False, 'message': 'Incorrect code. Try again.'}), 400
+
+        # Mark verified and log in
+        ev.is_verified = True
+        ev.otp = None
+        db.session.commit()
+
+        user = User.query.get(user_id)
+        session.pop('pending_user_id', None)
+        session['user_id'] = user.id
+        session['username'] = user.username
+
+        return jsonify({'success': True, 'redirect': url_for('auth.home')}), 200
 
     @staticmethod
     def forgot_password():
@@ -190,3 +256,23 @@ class AuthController:
         db.session.commit()
         return jsonify({'success': True, 'message': 'Password reset successfully'}), 200
 
+    @staticmethod
+    def resend_otp():
+        """Generate and resend a fresh OTP."""
+        user_id = session.get('pending_user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': 'Session expired. Please register again.'}), 400
+
+        ev = EmailVerification.query.filter_by(user_id=user_id).first()
+        if not ev or ev.is_verified:
+            return jsonify({'success': False, 'message': 'Nothing to resend.'}), 400
+
+        otp = _generate_otp()
+        ev.otp = otp
+        ev.expires_at = _utcnow() + timedelta(minutes=15)
+        db.session.commit()
+
+        user = User.query.get(user_id)
+        send_otp_email(user.email, user.username, otp)
+
+        return jsonify({'success': True, 'message': 'A new code has been sent to your email.'}), 200

@@ -16,11 +16,14 @@ Room lifecycle
 
 import random
 import string
+import threading
+import time
 from flask_socketio import emit, join_room, leave_room
 from flask import request
 from app import socketio
 from app.controllers.game_controller import GameController
 from app.models.piece_model import Color
+from app.models.game_model import GameStatus
 
 # ── In-memory room store ──────────────────────────────────────────────────────
 # Structure: { room_code: RoomData }
@@ -45,6 +48,45 @@ def _room_game_state(room: dict) -> dict | None:
     """Return the serialised game state, or None if game not started."""
     game = room.get('game')
     return game.to_dict() if game else None
+
+
+def _apply_timeout(room_code: str, game) -> bool:
+    """
+    Check if the active player's timer has expired.
+    If so, mark the game as timed-out and emit game_over to the room.
+    Returns True if a timeout was triggered.
+    """
+    if game.status != GameStatus.ONGOING:
+        return False
+    current_player = game.get_current_player()
+    if not current_player.timer.is_expired():
+        return False
+
+    loser  = game.current_turn
+    winner = Color.BLACK if loser == Color.WHITE else Color.WHITE
+    game.status = GameStatus.TIMEOUT
+    game.winner = winner
+    socketio.emit('game_over', {
+        'reason':     'timeout',
+        'winner':     winner.value,
+        'game_state': game.to_dict(),
+    }, to=room_code)
+    return True
+
+
+def _timer_watchdog():
+    """Background thread: fires game_over when a player's clock hits zero."""
+    while True:
+        time.sleep(1)
+        for room_code, room in list(active_rooms.items()):
+            game = room.get('game')
+            if game:
+                _apply_timeout(room_code, game)
+
+
+# Start the watchdog once when this module is first imported
+_watchdog_thread = threading.Thread(target=_timer_watchdog, daemon=True)
+_watchdog_thread.start()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -89,9 +131,9 @@ def handle_join_game(data):
         { username, room_code }
     If the room exists and only has one player → start the game.
     Emits to the joiner:
-        joined_game  { room_code, color: randomized, game_state }
+        joined_game  { room_code, color: black, game_state }
     Emits to the creator:
-        game_started { game_state, white_username, black_username, color: randomized }
+        game_started { game_state, white_username, black_username, color: white }
     """
     room_code = (data.get('room_code') or '').strip().upper()
     username = (data.get('username') or 'Player').strip() or 'Player'
@@ -111,22 +153,16 @@ def handle_join_game(data):
         emit('error', {'message': 'You cannot join your own room.'})
         return
 
-    # ── Register second player & Randomize Colors ─────────────────────────────
+    # ── Register second player & Assign Colors (Creator=white, Guest=black) ──
     creator_data = room['creator']
     guest_data = {'sid': request.sid, 'username': username}
     sid_to_room[request.sid] = room_code
     join_room(room_code)
 
-    if random.choice([True, False]):
-        room['white'] = creator_data
-        room['black'] = guest_data
-        creator_color = 'white'
-        guest_color = 'black'
-    else:
-        room['white'] = guest_data
-        room['black'] = creator_data
-        creator_color = 'black'
-        guest_color = 'white'
+    room['white'] = creator_data
+    room['black'] = guest_data
+    creator_color = 'white'
+    guest_color = 'black'
 
     # ── Create the game ───────────────────────────────────────────────────────
     game = GameController.create_game(
@@ -180,10 +216,17 @@ def handle_move(data):
         emit('move_error', {'message': 'Game not started yet'})
         return
 
+    # Check timeout before processing the move
+    if _apply_timeout(room_code, game):
+        return
+
     # Enforce turn: only the player whose turn it is may move
     current_turn = game.current_turn  # Color enum
-    expected_sid = room['white']['sid'] if current_turn == Color.WHITE else room['black']['sid']
-    if request.sid != expected_sid:
+    white_sid = room['white'].get('sid') if room.get('white') else None
+    black_sid = room['black'].get('sid') if room.get('black') else None
+    expected_sid = white_sid if current_turn == Color.WHITE else black_sid
+    # Only enforce if SIDs are known (skip for HTTP-created rooms before rejoin)
+    if expected_sid is not None and request.sid != expected_sid:
         emit('move_error', {'message': "It's not your turn"})
         return
 
@@ -292,6 +335,7 @@ def handle_draw_offer(data):
 
     active_rooms[room_code]['draw_offered_by'] = color
     emit('draw_offered', {'offered_by': color}, to=room_code)
+# Removed duplicate rejoin handler - consolidated later
 
 
 @socketio.on('draw_accept')
@@ -332,42 +376,6 @@ def handle_draw_decline(data):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  LEGAL MOVES REQUEST  (highlights for the clicking player)
-# ══════════════════════════════════════════════════════════════════════════════
-@socketio.on('request_legal_moves')
-def handle_request_legal_moves(data):
-    """
-    Client sends:
-        { room_code, square:[r,c] }
-    Responds to sender only:
-        legal_moves_response  { legal_moves: [[r,c], ...] }
-    """
-    room_code = (data.get('room_code') or '').upper()
-    square = tuple(data.get('square', []))
-
-    if room_code not in active_rooms:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    room = active_rooms[room_code]
-    game = room.get('game')
-    if not game:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    # Only allow the player whose turn it is to request moves
-    expected_sid = (
-        room['white']['sid'] if game.current_turn == Color.WHITE else room['black']['sid']
-    )
-    if request.sid != expected_sid:
-        emit('legal_moves_response', {'legal_moves': []})
-        return
-
-    legal_moves = game.get_legal_moves(square)
-    emit('legal_moves_response', {'legal_moves': legal_moves})
-
-
-# ══════════════════════════════════════════════════════════════════════════════
 #  REJOIN  (reconnect to an existing room after a page reload)
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('rejoin_room')
@@ -378,8 +386,7 @@ def handle_rejoin_room(data):
     Responds to sender with the current game state so the board re-renders.
     """
     room_code = (data.get('room_code') or '').upper()
-    color = data.get('color', 'white')
-    username = data.get('username', 'Player')
+    username  = (data.get('username') or 'Player').strip()
 
     if room_code not in active_rooms:
         return
@@ -388,13 +395,32 @@ def handle_rejoin_room(data):
     join_room(room_code)
     sid_to_room[request.sid] = room_code
 
-    # Update the stored sid so future events route correctly
-    if color == 'white' and room.get('white'):
-        room['white']['sid'] = request.sid
-    elif color == 'black' and room.get('black'):
-        room['black']['sid'] = request.sid
-
     game = room.get('game')
+
+    # ── Derive color authoritatively from game state (ignore client claim) ──────
+    color = None
+    if game:
+        wname = game.white_player.username.strip().lower()
+        bname = game.black_player.username.strip().lower()
+        uname = username.lower()
+        if uname == wname:
+            color = 'white'
+        elif uname == bname:
+            color = 'black'
+
+    # Fall back to client-provided color only if game not found yet
+    if color is None:
+        color = data.get('color', 'white')
+        if color not in ('white', 'black'):
+            color = 'white'
+
+    # ── Store SID in the correct slot so handle_move can enforce turns ──────────
+    slot = room.get(color)
+    if slot is not None:
+        slot['sid'] = request.sid
+    else:
+        room[color] = {'sid': request.sid, 'username': username}
+
     if game:
         white_name = room['white']['username'] if room.get('white') else username
         black_name = room['black']['username'] if room.get('black') else username
@@ -402,8 +428,37 @@ def handle_rejoin_room(data):
             'game_state': game.to_dict(),
             'white_username': white_name,
             'black_username': black_name,
-            'color': color,
+            'color': color,          # authoritative color from game state
         })
+
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  LEGAL MOVES  (for move-highlight UI in play.html)
+# ══════════════════════════════════════════════════════════════════════════════
+@socketio.on('request_legal_moves')
+def handle_request_legal_moves(data):
+    """
+    Client sends:
+        { room_code, square: [row, col] }
+    Server responds to requester only:
+        legal_moves_response  { legal_moves: [[r,c], ...] }
+    """
+    room_code = (data.get('room_code') or '').upper()
+    square = data.get('square')
+
+    if room_code not in active_rooms:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    room = active_rooms[room_code]
+    game = room.get('game')
+    if not game or not square:
+        emit('legal_moves_response', {'legal_moves': []})
+        return
+
+    legal = GameController.get_legal_moves(game, tuple(square))
+    emit('legal_moves_response', {'legal_moves': legal})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -411,7 +466,7 @@ def handle_rejoin_room(data):
 # ══════════════════════════════════════════════════════════════════════════════
 @socketio.on('disconnect')
 def handle_disconnect():
-    """Notify the opponent when a player disconnects mid-game."""
+    # Notify the opponent when a player disconnects mid-game."""
     sid = request.sid
     room_code = sid_to_room.pop(sid, None)
     if not room_code or room_code not in active_rooms:
@@ -421,10 +476,10 @@ def handle_disconnect():
     game = room.get('game')
 
     # Determine who left
-    if room.get('white') and room['white']['sid'] == sid:
+    if room.get('white') and room['white'].get('sid') == sid:
         who = 'white'
         winner = 'black'
-    elif room.get('black') and room['black']['sid'] == sid:
+    elif room.get('black') and room['black'].get('sid') == sid:
         who = 'black'
         winner = 'white'
     else:

@@ -281,10 +281,8 @@
   </div>
 </main>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
   // ── State ─────────────────────────────────────────────────────────────────
-  const socket = io();
   let myRoomCode   = null;
   let myColor      = null;
   let myUsername   = null;
@@ -309,7 +307,9 @@
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // ── Create ────────────────────────────────────────────────────────────────
+  // ── Create (HTTP) ─────────────────────────────────────────────────────────
+  let pollInterval = null;
+
   function createGame() {
     const username = document.getElementById('create-username').value.trim();
     if (!username) { showError('create', 'Please enter a username.'); return; }
@@ -318,22 +318,45 @@
     hideError('create');
     document.getElementById('btn-create').disabled = true;
 
-    socket.emit('create_game', {
-      username:     username,
-      time_control: selectedTime,
-      increment:    selectedInc,
+    fetch('/api/game/create-room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, time_control: selectedTime, increment: selectedInc })
+    })
+    .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.room_code) {
+        showError('create', data.message || data.error || 'Server error creating room. Try again.');
+        document.getElementById('btn-create').disabled = false;
+        return;
+      }
+      myRoomCode = data.room_code;
+      myColor    = data.color;
+      document.getElementById('room-code-text').textContent = data.room_code;
+      document.getElementById('code-display').classList.add('visible');
+      document.getElementById('create-waiting').classList.add('visible');
+      // Poll every 2s until opponent joins
+      pollInterval = setInterval(() => pollRoomStatus(data.room_code), 2000);
+    })
+    .catch(() => {
+      showError('create', 'Failed to create room. Try again.');
+      document.getElementById('btn-create').disabled = false;
     });
   }
 
-  socket.on('room_created', ({ room_code, color }) => {
-    myRoomCode = room_code;
-    myColor    = color;
-    document.getElementById('room-code-text').textContent = room_code;
-    document.getElementById('code-display').classList.add('visible');
-    document.getElementById('create-waiting').classList.add('visible');
-  });
+  function pollRoomStatus(roomCode) {
+    fetch('/api/game/room-status/' + roomCode)
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'started') {
+        clearInterval(pollInterval);
+        // data.color is the creator's final color (decided at join time)
+        goToPlay(roomCode, data.color || myColor, data.white_username, data.black_username, data.game_state);
+      }
+    });
+  }
 
-  // ── Join ──────────────────────────────────────────────────────────────────
+  // ── Join (HTTP) ────────────────────────────────────────────────────────────
   function joinGame() {
     const username = document.getElementById('join-username').value.trim();
     const code     = document.getElementById('join-code').value.trim().toUpperCase();
@@ -345,23 +368,27 @@
     document.getElementById('btn-join').disabled = true;
     document.getElementById('join-waiting').classList.add('visible');
 
-    socket.emit('join_game', { username, room_code: code });
+    fetch('/api/game/join-room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, room_code: code })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        goToPlay(data.room_code, data.color, data.white_username, data.black_username, data.game_state);
+      } else {
+        showError('join', data.message || 'Could not join room.');
+        document.getElementById('btn-join').disabled = false;
+        document.getElementById('join-waiting').classList.remove('visible');
+      }
+    })
+    .catch(() => {
+      showError('join', 'Failed to join room. Try again.');
+      document.getElementById('btn-join').disabled = false;
+      document.getElementById('join-waiting').classList.remove('visible');
+    });
   }
-
-  // Creator receives game_started
-  socket.on('game_started', ({ game_state, white_username, black_username, color }) => {
-    if (color) {
-      myColor = color;
-    }
-    goToPlay(myRoomCode, myColor, white_username, black_username, game_state);
-  });
-
-  // Joiner receives joined_game
-  socket.on('joined_game', ({ room_code, color, game_state, white_username, black_username }) => {
-    myRoomCode = room_code;
-    myColor    = color;
-    goToPlay(room_code, color, white_username, black_username, game_state);
-  });
 
   // ── Navigate to play page ─────────────────────────────────────────────────
   function goToPlay(roomCode, color, whiteUser, blackUser, initialState) {
@@ -376,14 +403,6 @@
   }
 
   // ── Errors ────────────────────────────────────────────────────────────────
-  socket.on('error', ({ message }) => {
-    // Reset buttons
-    document.getElementById('btn-create').disabled = false;
-    document.getElementById('btn-join').disabled   = false;
-    document.getElementById('join-waiting').classList.remove('visible');
-    const activeTab = document.querySelector('.panel.active').id.replace('panel-', '');
-    showError(activeTab, message);
-  });
 
   function showError(panel, msg) {
     const el = document.getElementById(panel + '-error');
@@ -396,11 +415,37 @@
 
   // ── Copy code ─────────────────────────────────────────────────────────────
   function copyCode() {
-    navigator.clipboard.writeText(myRoomCode || '').then(() => {
+    // Use Clipboard API if available and in a secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(myRoomCode || '').then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+      }).catch(fallbackCopy);
+    } else {
+      // Fallback for insecure contexts (e.g., HTTP)
+      fallbackCopy();
+    }
+  }
+
+  function fallbackCopy() {
+    const temp = document.createElement('textarea');
+    temp.value = myRoomCode || '';
+    // Avoid scrolling to bottom
+    temp.style.position = 'fixed';
+    temp.style.left = '-9999px';
+    document.body.appendChild(temp);
+    temp.focus();
+    temp.select();
+    try {
+      const successful = document.execCommand('copy');
       const btn = document.querySelector('.copy-btn');
-      btn.textContent = '✅ Copied!';
+      btn.textContent = successful ? '✅ Copied!' : '❌ Failed';
       setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-    });
+    } catch (err) {
+      console.error('Fallback: Unable to copy', err);
+    }
+    document.body.removeChild(temp);
   }
 
   // ── Auto-uppercase join code ──────────────────────────────────────────────

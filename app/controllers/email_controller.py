@@ -1,14 +1,13 @@
-import smtplib
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import urllib.request
+import urllib.error
+import json
 
 
 def send_otp_email(to_email: str, username: str, otp: str) -> bool:
-    mail_user = os.getenv('MAIL_USERNAME', '').strip()
-    mail_pass = os.getenv('MAIL_PASSWORD', '').strip()
+    api_key = os.getenv('RESEND_API_KEY', '').strip()
 
-    if not mail_user or not mail_pass:
+    if not api_key:
         print(f"\n{'='*50}")
         print(f"[DEV] Verification OTP for {to_email}: {otp}")
         print(f"{'='*50}\n")
@@ -36,18 +35,28 @@ def send_otp_email(to_email: str, username: str, otp: str) -> bool:
     </div>
     """
 
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Project Chess — Verify Your Email'
-    msg['From']    = mail_user
-    msg['To']      = to_email
-    msg.attach(MIMEText(html_body, 'html'))
+    payload = json.dumps({
+        "from": "Project Chess <onboarding@resend.dev>",
+        "to": [to_email],
+        "subject": "Project Chess — Verify Your Email",
+        "html": html_body,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
 
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(mail_user, mail_pass)
-            server.sendmail(mail_user, to_email, msg.as_string())
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            resp.read()
         return True
     except Exception as exc:
         print(f"[EMAIL ERROR] {exc}")
         print(f"[DEV FALLBACK] OTP for {to_email}: {otp}")
-        return True  # never fail registration because of email
+        return True

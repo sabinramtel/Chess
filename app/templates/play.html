@@ -156,6 +156,39 @@
       font-size: .55rem; color: var(--muted); white-space: nowrap; pointer-events: none; opacity: .55;
     }
 
+    /* ── YOUR TURN TOAST ── */
+    @keyframes turn-slide-in {
+      from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+      to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
+    }
+    @keyframes turn-slide-out {
+      from { transform: translateX(-50%) translateY(0);     opacity: 1; }
+      to   { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    }
+    #your-turn-toast {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #1a1a1b;
+      font-size: 0.78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      padding: 8px 20px; border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(129,182,76,.4);
+      pointer-events: none; z-index: 200;
+      display: none;
+    }
+    #your-turn-toast.show {
+      display: block;
+      animation: turn-slide-in 0.25s ease forwards;
+    }
+    #your-turn-toast.hide {
+      animation: turn-slide-out 0.25s ease forwards;
+    }
+
+    /* ── BOARD PULSE when your turn ── */
+    @keyframes board-pulse {
+      0%,100% { box-shadow: 0 12px 50px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.04), 0 0 0 3px var(--accent); }
+      50%      { box-shadow: 0 12px 50px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.04), 0 0 0 5px var(--accent); }
+    }
+    .chess-board.my-turn { animation: board-pulse 1.4s ease-in-out 2; }
+
     /* ── OVERLAY (waiting for opponent / game over) ── */
     .overlay {
       display: none; position: absolute; inset: 0;
@@ -334,7 +367,7 @@
     </div>
 
     <div class="player-block">
-      <div class="timer-bar active" id="timer-me">10:00</div>
+      <div class="timer-bar" id="timer-me">10:00</div>
       <div class="captured-strip" id="my-captured"></div>
       <div class="player-row">
         <div class="player-avatar">🧙</div>
@@ -345,6 +378,8 @@
       </div>
     </div>
   </div>
+
+  <div id="your-turn-toast">⚡ Your Turn!</div>
 
   <div class="center-panel" id="center-panel">
     <!-- Waiting overlay -->
@@ -478,13 +513,13 @@ boardGrid.style.gridTemplateRows    = `repeat(8,${SQ}px)`;
 document.getElementById('my-name').textContent   = myUsername;
 document.getElementById('room-badge').textContent = roomCode ? `Room: ${roomCode}` : '';
 document.getElementById('info-room').textContent  = roomCode || '—';
-document.getElementById('info-color').textContent = myColor;
-document.getElementById('my-color-label').textContent  = myColor === 'white' ? '🏳️' : '🏴';
-document.getElementById('opp-color-label').textContent = myColor === 'white' ? '🏴' : '🏳️';
+document.getElementById('info-color').textContent = getMyColor();
+document.getElementById('my-color-label').textContent  = getMyColor() === 'white' ? '🏳️' : '🏴';
+document.getElementById('opp-color-label').textContent = getMyColor() === 'white' ? '🏴' : '🏳️';
 if (roomCode) document.getElementById('waiting-code').textContent = roomCode;
 document.getElementById('info-white').textContent = whiteUser;
 document.getElementById('info-black').textContent = blackUser;
-document.getElementById('opp-name').textContent   = myColor === 'white' ? blackUser : whiteUser;
+document.getElementById('opp-name').textContent   = getMyColor() === 'white' ? blackUser : whiteUser;
 
 /* ════════════════════════════════════════════════════════════════
    DRAG TO REPOSITION BOARD
@@ -521,10 +556,29 @@ let validMoves  = [];
 let moveHistory = [];
 let pendingPromoFrom = null, pendingPromoTo = null;
 
+function getMyColor() {
+  // Highest priority: explicit override set by game_started socket event
+  if (window._myColorOverride && window._myColorOverride !== 'pending') {
+    return window._myColorOverride;
+  }
+  // Derive from game state authoritatively — compare logged-in username
+  // against white_player / black_player in the game state
+  if (gameState) {
+    const wp = gameState.white_player;
+    const bp = gameState.black_player;
+    const cleanMyName = (myUsername || '').trim().toLowerCase();
+    if (wp && wp.username && wp.username.trim().toLowerCase() === cleanMyName) return 'white';
+    if (bp && bp.username && bp.username.trim().toLowerCase() === cleanMyName) return 'black';
+  }
+  // Fallback: sessionStorage value (may be 'pending' during lobby transition)
+  return (myColor && myColor !== 'pending') ? myColor : 'white';
+}
+
 function isMyTurn() {
   if (!gameState) return false;
-  return gameState.current_turn === myColor;
+  return gameState.current_turn === getMyColor();
 }
+
 
 /* ════════════════════════════════════════════════════════════════
    BOARD RENDER
@@ -533,8 +587,9 @@ function renderBoard(grid) {
   boardGrid.innerHTML = '';
 
   // Build display order (flip rows & cols for black)
-  const rows = isFlipped ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
-  const cols = isFlipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+  const flipped = getMyColor() === 'black';
+  const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+  const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
 
   for (let dr = 0; dr < 8; dr++) {
     for (let dc = 0; dc < 8; dc++) {
@@ -560,13 +615,13 @@ function renderBoard(grid) {
       if (dc === 0) {
         const rl = document.createElement('span');
         rl.className = 'coord-rank';
-        rl.textContent = isFlipped ? RANKS[7 - row] : RANKS[row];
+        rl.textContent = RANKS[row];
         sq.appendChild(rl);
       }
       if (dr === 7) {
         const fl = document.createElement('span');
         fl.className = 'coord-file';
-        fl.textContent = isFlipped ? FILES[7 - col] : FILES[col];
+        fl.textContent = FILES[col];
         sq.appendChild(fl);
       }
 
@@ -580,6 +635,7 @@ function renderBoard(grid) {
       }
 
       sq.addEventListener('click', () => handleClick(row, col));
+      if (!isMyTurn()) sq.classList.add('not-my-turn');
       boardGrid.appendChild(sq);
     }
   }
@@ -593,8 +649,9 @@ function renderGameState() {
 
   const wp = gameState.white_player;
   const bp = gameState.black_player;
-  const me  = myColor === 'white' ? wp : bp;
-  const opp = myColor === 'white' ? bp : wp;
+  const effectiveColor = getMyColor();
+  const me  = effectiveColor === 'white' ? wp : bp;
+  const opp = effectiveColor === 'white' ? bp : wp;
 
   document.getElementById('timer-me').textContent  = me.timer.formatted;
   document.getElementById('timer-opp').textContent = opp.timer.formatted;
@@ -621,7 +678,8 @@ function updateTimerActive() {
   }
   // Low-time warning (< 30 s)
   if (gameState) {
-    const me = myColor === 'white' ? gameState.white_player : gameState.black_player;
+    const effectiveColor = getMyColor();
+    const me = effectiveColor === 'white' ? gameState.white_player : gameState.black_player;
     if (me.timer.time_remaining < 30) tme.classList.add('low');
     else tme.classList.remove('low');
   }
@@ -631,11 +689,13 @@ function updateTimerActive() {
    CLICK HANDLING  (only on your turn)
 ════════════════════════════════════════════════════════════════ */
 async function handleClick(row, col) {
-  if (!gameState || gameState.status !== 'ongoing') return;
-  if (!isMyTurn()) return;
+  console.log(`[click] row=${row} col=${col} | status=${gameState?.status} | myColor=${getMyColor()} | currentTurn=${gameState?.current_turn} | isMyTurn=${isMyTurn()}`);
+  if (!gameState || gameState.status !== 'ongoing') { console.warn('[click] blocked: no gameState or not ongoing'); return; }
+  if (!isMyTurn()) { console.warn('[click] blocked: not my turn'); return; }
 
   const piece = gameState.board.grid[row][col];
   const isMyPiece = piece && isPieceMyColor(piece);
+  console.log(`[click] piece=${piece} isMyPiece=${isMyPiece}`);
 
   if (selected) {
     if (validMoves.some(m => m[0] === row && m[1] === col)) {
@@ -662,25 +722,23 @@ async function handleClick(row, col) {
 function isPieceMyColor(piece) {
   const whitePieces = '♔♕♖♗♘♙';
   const blackPieces = '♚♛♜♝♞♟';
-  if (myColor === 'white') return whitePieces.includes(piece);
+  if (getMyColor() === 'white') return whitePieces.includes(piece);
   return blackPieces.includes(piece);
 }
 
-async function fetchLegalMoves(row, col) {
-  try {
-    const resp = await fetch('/api/game/legal-moves', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game_id: '__local__', square: [row, col] })
-    });
-    // The REST endpoint needs a game_id but we're socket-based now.
-    // We'll get legal moves from the server via a simple REST call that
-    // looks up the room, or just show all highlighted squares as a visual aid.
-    // For a clean solution: compute allowed squares client-side from the last known state
-    // (we already have validMoves from the socket state, so just re-use those)
-    validMoves = [];
-  } catch (e) { validMoves = []; }
+/* ════════════════════════════════════════════════════════════════
+   LEGAL MOVES VIA SOCKET  (request → response)
+════════════════════════════════════════════════════════════════ */
+// fetchLegalMoves is called from handleClick (only after the board renders
+// and socket is connected), so socket is always defined at call-time.
+function fetchLegalMoves(row, col) {
+  socket.emit('request_legal_moves', {
+    room_code: roomCode,
+    square:    [row, col],
+  });
+  validMoves = []; // updated when legal_moves_response arrives
 }
+
 
 /* ════════════════════════════════════════════════════════════════
    MOVE via SOCKET
@@ -689,7 +747,7 @@ function doMove(fr, fc, tr, tc) {
   // Pawn promotion detection
   const piece = gameState.board.grid[fr][fc];
   const isPawn = piece && (piece === '♙' || piece === '♟');
-  const promotionRow = myColor === 'white' ? 0 : 7;
+  const promotionRow = getMyColor() === 'white' ? 0 : 7;
   if (isPawn && tr === promotionRow) {
     pendingPromoFrom = [fr, fc];
     pendingPromoTo   = [tr, tc];
@@ -716,10 +774,11 @@ const PROMO_PIECES = {
   white: { queen:'♕', rook:'♖', bishop:'♗', knight:'♘' },
   black: { queen:'♛', rook:'♜', bishop:'♝', knight:'♞' },
 };
+function getPromoColor() { return PROMO_PIECES[getMyColor()] || PROMO_PIECES.white; }
 function showPromoModal() {
   const box = document.getElementById('promo-box');
   box.innerHTML = '';
-  for (const [name, glyph] of Object.entries(PROMO_PIECES[myColor])) {
+  for (const [name, glyph] of Object.entries(getPromoColor())) {
     const btn = document.createElement('div');
     btn.className = 'promo-piece';
     btn.textContent = glyph;
@@ -732,29 +791,6 @@ function showPromoModal() {
     box.appendChild(btn);
   }
   document.getElementById('promo-modal').classList.add('visible');
-}
-
-/* ════════════════════════════════════════════════════════════════
-   LEGAL MOVES VIA SOCKET  (request → response)
-════════════════════════════════════════════════════════════════ */
-// We compute valid move highlights after a piece is selected.
-// Since we have the full game state client-side, we just highlight
-// squares the server would allow — we do this by asking the server
-// through the REST API if available, or we highlight nothing and
-// let the server reject bad moves. The UX-friendly approach is to
-// send a legal-moves request over REST using the room code.
-socket.on('legal_moves_response', ({ legal_moves }) => {
-  validMoves = legal_moves || [];
-  renderGameState();
-});
-
-// Override fetchLegalMoves to go via socket
-async function fetchLegalMoves(row, col) {
-  socket.emit('request_legal_moves', {
-    room_code: roomCode,
-    square: [row, col],
-  });
-  validMoves = []; // will be updated when response arrives
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -817,13 +853,13 @@ document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter') 
 document.getElementById('btn-resign').onclick = () => {
   if (!roomCode || !gameState || gameState.status !== 'ongoing') return;
   if (confirm('Are you sure you want to resign?')) {
-    socket.emit('resign', { room_code: roomCode, color: myColor });
+    socket.emit('resign', { room_code: roomCode, color: getMyColor() });
   }
 };
 
 document.getElementById('btn-draw').onclick = () => {
   if (!roomCode || !gameState || gameState.status !== 'ongoing') return;
-  socket.emit('draw_offer', { room_code: roomCode, color: myColor });
+  socket.emit('draw_offer', { room_code: roomCode, color: getMyColor() });
   addChatMsg('System', 'You offered a draw.', true);
 };
 
@@ -870,7 +906,7 @@ socket.on('connect', () => {
 
   // If we already have game data (came from lobby) re-join the room
   if (roomCode) {
-    socket.emit('rejoin_room', { room_code: roomCode, color: myColor, username: myUsername });
+    socket.emit('rejoin_room', { room_code: roomCode, color: getMyColor(), username: myUsername });
   }
 });
 
@@ -879,14 +915,40 @@ socket.on('disconnect', () => {
   document.getElementById('conn-text').textContent = 'Disconnected';
 });
 
-// Game starts (creator receives this when opponent joins)
-socket.on('game_started', ({ game_state, white_username, black_username }) => {
+// Game starts (creator receives this when opponent joins, or on rejoin)
+socket.on('game_started', ({ game_state, white_username, black_username, color }) => {
   gameState = game_state;
+  // If the server sends us the color (rejoin case), honour it
+  if (color && (color === 'white' || color === 'black')) {
+    sessionStorage.setItem('chess_color', color);
+    // myColor is a const so we patch it via a module-level variable instead
+    window._myColorOverride = color;
+  }
+  const effectiveColor = getMyColor();
   document.getElementById('overlay-waiting').classList.remove('visible');
-  document.getElementById('opp-name').textContent = myColor === 'white' ? black_username : white_username;
+  document.getElementById('opp-name').textContent = effectiveColor === 'white' ? black_username : white_username;
+  document.getElementById('my-color-label').textContent  = effectiveColor === 'white' ? '🏳️' : '🏴';
+  document.getElementById('opp-color-label').textContent = effectiveColor === 'white' ? '🏴' : '🏳️';
+  if (white_username) document.getElementById('info-white').textContent = white_username;
+  if (black_username) document.getElementById('info-black').textContent = black_username;
   addChatMsg('System', 'Game started! Good luck! 🎉', true);
   renderGameState();
+  if (isMyTurn()) showYourTurnToast();
 });
+
+let _turnToastTimer = null;
+function showYourTurnToast() {
+  const toast = document.getElementById('your-turn-toast');
+  if (_turnToastTimer) clearTimeout(_turnToastTimer);
+  toast.classList.remove('hide');
+  toast.classList.add('show');
+  const board = document.querySelector('.chess-board');
+  if (board) { board.classList.remove('my-turn'); void board.offsetWidth; board.classList.add('my-turn'); }
+  _turnToastTimer = setTimeout(() => {
+    toast.classList.add('hide');
+    setTimeout(() => { toast.classList.remove('show', 'hide'); }, 250);
+  }, 2500);
+}
 
 // A move was made (received by both players)
 socket.on('move_made', ({ move, game_state }) => {
@@ -895,6 +957,7 @@ socket.on('move_made', ({ move, game_state }) => {
   selected = null; validMoves = [];
   updateMovesList();
   renderGameState();
+  if (isMyTurn()) showYourTurnToast();
 });
 
 // Server rejects our move
@@ -917,7 +980,7 @@ socket.on('chat_message', ({ username, message }) => {
 
 // Draw offered by opponent
 socket.on('draw_offered', ({ offered_by }) => {
-  if (offered_by !== myColor) {
+  if (offered_by !== getMyColor()) {
     document.getElementById('draw-banner').classList.add('visible');
     addChatMsg('System', `${offered_by} offered a draw.`, true);
   }
@@ -930,12 +993,18 @@ socket.on('draw_declined', () => {
 // Game over
 socket.on('game_over', ({ reason, winner, game_state }) => {
   if (game_state) { gameState = game_state; renderGameState(); }
-  const icons  = { resigned:'🏳️', draw:'🤝', checkmate:'♟️' };
+  const icons  = { resigned:'🏳️', draw:'🤝', checkmate:'♟️', timeout:'⏰' };
   const icon   = icons[reason] || '🏁';
   let title, sub;
   if (reason === 'draw') {
     title = 'Draw!'; sub = 'The game is a draw.';
-  } else if (winner === myColor) {
+  } else if (reason === 'timeout') {
+    if (winner === getMyColor()) {
+      title = 'You Win! 🎉'; sub = "Opponent ran out of time!";
+    } else {
+      title = 'Time\'s Up!'; sub = 'You ran out of time.';
+    }
+  } else if (winner === getMyColor()) {
     title = 'You Win! 🎉'; sub = reason === 'resigned' ? 'Your opponent resigned.' : 'Checkmate!';
   } else {
     title = 'You Lost'; sub = reason === 'resigned' ? 'You resigned.' : 'Checkmate!';
@@ -946,14 +1015,14 @@ socket.on('game_over', ({ reason, winner, game_state }) => {
 // Opponent disconnected
 socket.on('player_disconnected', ({ color, winner, message }) => {
   addChatMsg('System', message, true);
-  if (winner === myColor) showGameOver('🏆', 'You Win!', 'Opponent disconnected.');
+  if (winner === getMyColor()) showGameOver('🏆', 'You Win!', 'Opponent disconnected.');
   else showGameOver('🔌', 'Disconnected', message);
 });
 
 /* ════════════════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════════════════ */
-// If we have game state from sessionStorage (came from lobby)
+// If we have game state from sessionStorage (came from lobby), show board immediately
 if (gameState) {
   document.getElementById('overlay-waiting').classList.remove('visible');
   renderGameState();
@@ -963,6 +1032,8 @@ if (gameState) {
   document.getElementById('waiting-sub').textContent = 'No game found. Redirecting to lobby…';
   setTimeout(() => { window.location.href = '/lobby'; }, 2000);
 }
+// If roomCode is set but no gameState, stay and wait for game_started socket event
+// (the rejoin_room emit in the connect handler above will trigger it)
 </script>
 </body>
 </html>
