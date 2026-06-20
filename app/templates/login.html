@@ -26,6 +26,9 @@
 <!-- ── Toast notification ─────────────────────────────────── -->
 <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white">
 </div>
+<button id="quick-theme-toggle" class="fixed bottom-14 right-4 z-50 w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10" title="Toggle Theme">
+  <span class="text-lg">🌓</span>
+</button>
 
 <!-- ── Main layout ───────────────────────────────────────── -->
 <div class="w-full flex-1 flex items-center justify-center px-4 py-10">
@@ -50,14 +53,14 @@
       <form id="login-form" class="w-full space-y-5" novalidate>
         <div>
           <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Email or Username</label>
-          <input id="identifier" type="text" placeholder="Enter your email or username"
+          <input id="identifier" type="text" placeholder="Enter your email or username" autofocus autocomplete="username"
             class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
           <p id="identifier-error" class="field-error"></p>
         </div>
 
         <div>
           <label class="block text-xs font-bold tracking-wider text-gray-400 uppercase mb-2">Password</label>
-          <input id="password" type="password" placeholder="Enter your password"
+          <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password"
             class="w-full bg-[#252b36] border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#cca343] transition-colors" />
           <p id="password-error" class="field-error"></p>
         </div>
@@ -149,10 +152,27 @@
 </div>
 
 <div id="toast" class="hidden"></div>
+
+<div class="w-full text-center py-4 text-xs text-gray-600">
+  <a href="/tos" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Terms of Service</a>
+  <span class="mx-2">·</span>
+  <a href="/privacy" target="_blank" rel="noopener noreferrer" class="hover:text-[#cca343] transition-colors">Privacy Policy</a>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+  document.getElementById('quick-theme-toggle').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    if (isLight) {
+      document.documentElement.classList.remove('light-theme');
+      localStorage.setItem('site_theme', 'dark');
+    } else {
+      document.documentElement.classList.add('light-theme');
+      localStorage.setItem('site_theme', 'light');
+    }
+  });
+
   (function () {
     const spinner = document.getElementById('chess-spinner');
     const pawn = document.getElementById('piece-pawn');
