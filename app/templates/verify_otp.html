@@ -132,6 +132,19 @@
 
 {% block scripts %}
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.createElement('button');
+    btn.innerHTML = '🌓';
+    btn.title = 'Toggle Theme';
+    btn.style.cssText = 'position:fixed;bottom:1rem;right:1rem;width:2.5rem;height:2.5rem;border-radius:50%;background:#252b36;border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:1.1rem;z-index:50;';
+    btn.addEventListener('click', function() {
+      var isLight = document.documentElement.classList.contains('light-theme');
+      document.documentElement.classList.toggle('light-theme', !isLight);
+      localStorage.setItem('site_theme', isLight ? 'dark' : 'light');
+    });
+    document.body.appendChild(btn);
+  });
+
 (function () {
     const form      = document.getElementById('otp-form');
     const otpInput  = document.getElementById('otp');
