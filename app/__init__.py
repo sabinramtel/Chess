@@ -60,7 +60,7 @@ def create_app():
 
     try:
         db.init_app(app)
-        socketio.init_app(app, cors_allowed_origins="*", async_mode='gevent')
+        socketio.init_app(app, cors_allowed_origins="*", async_mode='threading')
         CORS(app)
 
         from app.routes.auth_routes import auth_bp

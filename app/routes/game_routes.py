@@ -158,6 +158,8 @@ def join_room_http():
             return jsonify({'success': False, 'message': 'Game already started'}), 409
         creator = room['creator']
         creator_username = creator['username']
+        if username.lower() == creator_username.lower():
+            return jsonify({'success': False, 'message': 'You cannot join your own room'}), 403
         # Creator always gets white (first move), joiner gets black
         creator_color = 'white'
         joiner_color  = 'black'
