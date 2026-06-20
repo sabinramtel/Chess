@@ -707,16 +707,15 @@
             labels: points.map((_, i) => i === 0 ? 'Start' : i === points.length - 1 ? 'Now' : ''),
             datasets: [{
                 data: points,
-                borderColor: '#4ade80',
+                borderColor: '#3b82f6',
                 backgroundColor: (ctx) => {
                     const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 180);
-                    gradient.addColorStop(0, 'rgba(74,222,128,0.2)');
-                    gradient.addColorStop(1, 'rgba(74,222,128,0)');
-                    gradient.addColorStop(1, 'rgba(74,222,128,0)');
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
                     return gradient;
                 },
                 borderWidth: 2,
-                pointBackgroundColor: '#4ade80',
+                pointBackgroundColor: '#3b82f6',
                 pointRadius: (ctx) => ctx.dataIndex === points.length - 1 ? 5 : 0,
                 pointHoverRadius: 5,
                 tension: 0.4,
