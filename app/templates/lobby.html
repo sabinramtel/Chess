@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Project Chess – Lobby</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #1a1a1b;
-      --surface:  #262421;
-      --panel:    #2c2b29;
-      --border:   #3d3c39;
-      --text:     #e0ddd8;
-      --muted:    #8a8480;
-      --accent:   #81b64c;
-      --accent2:  #f0c040;
-      --red:      #f87171;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    html, body {
+    :root {
+      --bg: #1a1a1b;
+      --surface: #262421;
+      --panel: #2c2b29;
+      --border: #3d3c39;
+      --text: #e0ddd8;
+      --muted: #8a8480;
+      --accent: #81b64c;
+      --accent2: #f0c040;
+      --red: #f87171;
+    }
+
+    html,
+    body {
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
@@ -36,23 +45,51 @@
       height: 52px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
     }
+
     .topnav-logo {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 700; font-size: 0.95rem; color: var(--text); text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      text-decoration: none;
     }
-    .topnav-logo img { height: 30px; width: 30px; border-radius: 6px; object-fit: cover; }
+
+    .topnav-logo img {
+      height: 30px;
+      width: 30px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
     .nav-link {
-      color: var(--muted); text-decoration: none; font-size: 0.8rem; font-weight: 600;
-      padding: 6px 12px; border-radius: 6px; transition: color .15s, background .15s;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color .15s, background .15s;
     }
-    .nav-link:hover { color: var(--text); background: rgba(255,255,255,.06); }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, .06);
+    }
 
     /* ── MAIN ── */
     .lobby-main {
-      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 40px 20px;
     }
 
@@ -61,401 +98,565 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 40px;
-      width: 100%; max-width: 480px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .6);
       animation: slideUp .35s ease both;
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .lobby-logo {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       margin-bottom: 32px;
     }
+
     .lobby-logo-icon {
-      font-size: 2.4rem; line-height: 1;
-      filter: drop-shadow(0 0 12px rgba(240,192,64,.4));
+      font-size: 2.4rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 12px rgba(240, 192, 64, .4));
     }
+
     .lobby-logo-text {
-      font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
       background: linear-gradient(135deg, var(--accent2), var(--accent));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     /* ── TABS ── */
     .mode-tabs {
-      display: flex; gap: 0; margin-bottom: 28px;
-      background: var(--panel); border-radius: 10px; padding: 4px;
+      display: flex;
+      gap: 0;
+      margin-bottom: 28px;
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 4px;
     }
+
     .mode-tab {
-      flex: 1; padding: 10px; border: none; border-radius: 7px;
-      font-size: 0.82rem; font-weight: 700; cursor: pointer;
-      color: var(--muted); background: transparent;
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--muted);
+      background: transparent;
       transition: color .2s, background .2s;
     }
+
     .mode-tab.active {
-      background: var(--surface); color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
     }
 
     /* ── FORM ── */
-    .field { margin-bottom: 18px; }
+    .field {
+      margin-bottom: 18px;
+    }
+
     .field label {
-      display: block; font-size: 0.72rem; font-weight: 700;
-      color: var(--muted); text-transform: uppercase; letter-spacing: .07em;
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
       margin-bottom: 7px;
     }
+
     .field input {
-      width: 100%; padding: 11px 14px;
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--text); font-size: 0.9rem; font-family: inherit;
-      outline: none; transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
     }
+
     .field input:focus {
-      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(129,182,76,.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(129, 182, 76, .15);
     }
-    .field input::placeholder { color: var(--muted); }
+
+    .field input::placeholder {
+      color: var(--muted);
+    }
 
     .room-code-display {
-      display: none; flex-direction: column; align-items: center;
-      gap: 12px; margin: 20px 0; padding: 20px;
-      background: var(--panel); border-radius: 12px; border: 1px solid var(--border);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 20px;
+      background: var(--panel);
+      border-radius: 12px;
+      border: 1px solid var(--border);
     }
-    .room-code-display.visible { display: flex; }
-    .room-code-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+
+    .room-code-display.visible {
+      display: flex;
+    }
+
+    .room-code-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
     .room-code-value {
-      font-size: 2.2rem; font-weight: 800; letter-spacing: .15em;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: .15em;
       color: var(--accent2);
       font-variant-numeric: tabular-nums;
     }
+
     .copy-btn {
-      padding: 6px 16px; border-radius: 6px;
-      background: transparent; border: 1px solid var(--border);
-      color: var(--muted); font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      padding: 6px 16px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
       transition: color .15s, border-color .15s;
     }
-    .copy-btn:hover { color: var(--text); border-color: var(--text); }
-    .share-hint { font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+    .copy-btn:hover {
+      color: var(--text);
+      border-color: var(--text);
+    }
+
+    .share-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+    }
 
     /* ── WAITING SPINNER ── */
     .waiting {
-      display: none; flex-direction: column; align-items: center; gap: 14px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
       padding: 24px 0;
     }
-    .waiting.visible { display: flex; }
+
+    .waiting.visible {
+      display: flex;
+    }
+
     .spinner {
-      width: 36px; height: 36px; border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       border: 3px solid var(--border);
       border-top-color: var(--accent);
       animation: spin .8s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .waiting-text { font-size: 0.82rem; color: var(--muted); }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .waiting-text {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
 
     /* ── BUTTONS ── */
     .btn-primary {
-      width: 100%; padding: 13px;
-      background: var(--accent); border: none; border-radius: 10px;
-      color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer;
-      font-family: inherit; letter-spacing: .02em;
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: .02em;
       transition: filter .15s, transform .1s;
     }
-    .btn-primary:hover { filter: brightness(1.1); }
-    .btn-primary:active { transform: scale(.98); }
-    .btn-primary:disabled { opacity: .5; cursor: default; filter: none; }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: default;
+      filter: none;
+    }
 
     /* ── ERROR ── */
     .error-msg {
-      display: none; color: var(--red); font-size: 0.78rem;
-      text-align: center; margin-top: 10px; padding: 10px;
-      background: rgba(248,113,113,.08); border-radius: 8px;
+      display: none;
+      color: var(--red);
+      font-size: 0.78rem;
+      text-align: center;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(248, 113, 113, .08);
+      border-radius: 8px;
     }
-    .error-msg.visible { display: block; }
+
+    .error-msg.visible {
+      display: block;
+    }
 
     /* ── TIME CONTROL ── */
-    .time-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .time-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
     .time-chip {
-      flex: 1; min-width: 70px;
-      padding: 8px 6px; border-radius: 8px; border: 1px solid var(--border);
-      background: var(--panel); color: var(--muted);
-      font-size: 0.72rem; font-weight: 700; text-align: center; cursor: pointer;
+      flex: 1;
+      min-width: 70px;
+      padding: 8px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
       transition: color .15s, border-color .15s, background .15s;
     }
-    .time-chip:hover { color: var(--text); border-color: var(--text); }
-    .time-chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .time-label { font-size: 0.62rem; color: var(--muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+
+    .time-chip:hover {
+      color: var(--text);
+      border-color: var(--text);
+    }
+
+    .time-chip.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .time-label {
+      font-size: 0.62rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
 
     /* ── PANEL TOGGLE ── */
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
   </style>
 </head>
+
 <body>
 
-<nav class="topnav">
-  <a href="/" class="topnav-logo">
-    <img src="/static/images/logo.png" alt="Logo">
-    <span>Project Chess</span>
-  </a>
-  <div style="display:flex;gap:4px;">
-    <a href="/" class="nav-link">Home</a>
-    <a href="/settings" class="nav-link">Settings</a>
-  </div>
-</nav>
-
-<main class="lobby-main">
-  <div class="lobby-card">
-
-    <div class="lobby-logo">
-      <span class="lobby-logo-icon">♟</span>
-      <span class="lobby-logo-text">Play Online</span>
+  <nav class="topnav">
+    <a href="/" class="topnav-logo">
+      <img src="/static/images/logo.png" alt="Logo">
+      <span>Project Chess</span>
+    </a>
+    <div style="display:flex;gap:4px;">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/settings" class="nav-link">Settings</a>
     </div>
+  </nav>
 
-    <!-- Mode tabs -->
-    <div class="mode-tabs">
-      <button class="mode-tab active" id="tab-create" onclick="switchTab('create')">Create Game</button>
-      <button class="mode-tab"        id="tab-join"   onclick="switchTab('join')">Join Game</button>
+  <main class="lobby-main">
+    <div class="lobby-card">
+
+      <div class="lobby-logo">
+        <span class="lobby-logo-icon">♟</span>
+        <span class="lobby-logo-text">Play Online</span>
+      </div>
+
+      <!-- Mode tabs -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-create" onclick="switchTab('create')">Create Game</button>
+        <button class="mode-tab" id="tab-join" onclick="switchTab('join')">Join Game</button>
+      </div>
+
+      <!-- ── CREATE PANEL ── -->
+      <div class="panel active" id="panel-create">
+
+        <div class="field">
+          <label>Your Username</label>
+          <input type="text" id="create-username" placeholder="e.g. GrandMaster42" value="{{ username|default('') }}"
+            maxlength="20">
+        </div>
+
+        <div class="time-label">Time Control</div>
+        <div class="time-row" id="time-chips">
+          <div class="time-chip selected" data-sec="180" data-inc="0">3 min</div>
+          <div class="time-chip" data-sec="300" data-inc="0">5 min</div>
+          <div class="time-chip" data-sec="600" data-inc="0">10 min</div>
+          <div class="time-chip" data-sec="900" data-inc="10">15+10</div>
+        </div>
+
+        <!-- shown after socket connects -->
+        <div class="room-code-display" id="code-display">
+          <span class="room-code-label">Share this code with your friend</span>
+          <span class="room-code-value" id="room-code-text">——</span>
+          <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
+          <span class="share-hint">Send the code, then wait for them to join.</span>
+        </div>
+
+        <div class="waiting" id="create-waiting">
+          <div class="spinner"></div>
+          <span class="waiting-text">Waiting for opponent to join…</span>
+        </div>
+
+        <button class="btn-primary" id="btn-create" onclick="createGame()">Create Game</button>
+        <div class="error-msg" id="create-error"></div>
+      </div>
+
+      <!-- ── JOIN PANEL ── -->
+      <div class="panel" id="panel-join">
+
+        <div class="field">
+          <label>enter your username</label>
+          <input type="text" id="join-username" placeholder="e.g. ChessWizard99" value="{{ username|default('') }}"
+            maxlength="20">
+        </div>
+
+        <div class="field">
+          <label>Room Code</label>
+          <input type="text" id="join-code" placeholder="e.g. A3KX92" maxlength="6"
+            style="text-transform:uppercase;letter-spacing:.15em;font-size:1.1rem;font-weight:700;">
+        </div>
+
+        <div class="waiting" id="join-waiting">
+          <div class="spinner"></div>
+          <span class="waiting-text">Joining game…</span>
+        </div>
+
+        <button class="btn-primary" id="btn-join" onclick="joinGame()">Join Game</button>
+        <div class="error-msg" id="join-error"></div>
+      </div>
+
     </div>
+  </main>
 
-    <!-- ── CREATE PANEL ── -->
-    <div class="panel active" id="panel-create">
+  <script>
+    // ── State ─────────────────────────────────────────────────────────────────
+    let myRoomCode = null;
+    let myColor = null;
+    let myUsername = null;
+    let selectedTime = 180;
+    let selectedInc = 0;
 
-      <div class="field">
-        <label>Your Username</label>
-        <input type="text" id="create-username" placeholder="e.g. GrandMaster42"
-               value="{{ username|default('') }}" maxlength="20">
-      </div>
-
-      <div class="time-label">Time Control</div>
-      <div class="time-row" id="time-chips">
-        <div class="time-chip selected" data-sec="180"  data-inc="0">3 min</div>
-        <div class="time-chip"          data-sec="300"  data-inc="0">5 min</div>
-        <div class="time-chip"          data-sec="600"  data-inc="0">10 min</div>
-        <div class="time-chip"          data-sec="900"  data-inc="10">15+10</div>
-      </div>
-
-      <!-- shown after socket connects -->
-      <div class="room-code-display" id="code-display">
-        <span class="room-code-label">Share this code with your friend</span>
-        <span class="room-code-value" id="room-code-text">——</span>
-        <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
-        <span class="share-hint">Send the code, then wait for them to join.</span>
-      </div>
-
-      <div class="waiting" id="create-waiting">
-        <div class="spinner"></div>
-        <span class="waiting-text">Waiting for opponent to join…</span>
-      </div>
-
-      <button class="btn-primary" id="btn-create" onclick="createGame()">Create Game</button>
-      <div class="error-msg" id="create-error"></div>
-    </div>
-
-    <!-- ── JOIN PANEL ── -->
-    <div class="panel" id="panel-join">
-
-      <div class="field">
-        <label>Your Username</label>
-        <input type="text" id="join-username" placeholder="e.g. ChessWizard99"
-               value="{{ username|default('') }}" maxlength="20">
-      </div>
-
-      <div class="field">
-        <label>Room Code</label>
-        <input type="text" id="join-code" placeholder="e.g. A3KX92"
-               maxlength="6" style="text-transform:uppercase;letter-spacing:.15em;font-size:1.1rem;font-weight:700;">
-      </div>
-
-      <div class="waiting" id="join-waiting">
-        <div class="spinner"></div>
-        <span class="waiting-text">Joining game…</span>
-      </div>
-
-      <button class="btn-primary" id="btn-join" onclick="joinGame()">Join Game</button>
-      <div class="error-msg" id="join-error"></div>
-    </div>
-
-  </div>
-</main>
-
-<script>
-  // ── State ─────────────────────────────────────────────────────────────────
-  let myRoomCode   = null;
-  let myColor      = null;
-  let myUsername   = null;
-  let selectedTime = 180;
-  let selectedInc  = 0;
-
-  // ── Time chip selection ───────────────────────────────────────────────────
-  document.querySelectorAll('.time-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      selectedTime = parseInt(chip.dataset.sec);
-      selectedInc  = parseInt(chip.dataset.inc);
+    // ── Time chip selection ───────────────────────────────────────────────────
+    document.querySelectorAll('.time-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selectedTime = parseInt(chip.dataset.sec);
+        selectedInc = parseInt(chip.dataset.inc);
+      });
     });
-  });
 
-  // ── Tab switching ─────────────────────────────────────────────────────────
-  function switchTab(tab) {
-    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-'   + tab).classList.add('active');
-    document.getElementById('panel-' + tab).classList.add('active');
-  }
+    // ── Tab switching ─────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
 
-  // ── Create (HTTP) ─────────────────────────────────────────────────────────
-  let pollInterval = null;
+    // ── Create (HTTP) ─────────────────────────────────────────────────────────
+    let pollInterval = null;
 
-  function createGame() {
-    const username = document.getElementById('create-username').value.trim();
-    if (!username) { showError('create', 'Please enter a username.'); return; }
+    function createGame() {
+      const username = document.getElementById('create-username').value.trim();
+      if (!username) { showError('create', 'Please enter a username.'); return; }
 
-    myUsername = username;
-    hideError('create');
-    document.getElementById('btn-create').disabled = true;
+      myUsername = username;
+      hideError('create');
+      document.getElementById('btn-create').disabled = true;
 
-    fetch('/api/game/create-room', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, time_control: selectedTime, increment: selectedInc })
-    })
-    .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
-    .then(({ ok, data }) => {
-      if (!ok || !data.room_code) {
-        showError('create', data.message || data.error || 'Server error creating room. Try again.');
-        document.getElementById('btn-create').disabled = false;
-        return;
-      }
-      myRoomCode = data.room_code;
-      myColor    = data.color;
-      document.getElementById('room-code-text').textContent = data.room_code;
-      document.getElementById('code-display').classList.add('visible');
-      document.getElementById('create-waiting').classList.add('visible');
-      // Poll every 2s until opponent joins
-      pollInterval = setInterval(() => pollRoomStatus(data.room_code), 2000);
-    })
-    .catch(() => {
-      showError('create', 'Failed to create room. Try again.');
-      document.getElementById('btn-create').disabled = false;
-    });
-  }
+      fetch('/api/game/create-room', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, time_control: selectedTime, increment: selectedInc })
+      })
+        .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+        .then(({ ok, data }) => {
+          if (!ok || !data.room_code) {
+            showError('create', data.message || data.error || 'Server error creating room. Try again.');
+            document.getElementById('btn-create').disabled = false;
+            return;
+          }
+          myRoomCode = data.room_code;
+          myColor = data.color;
+          document.getElementById('room-code-text').textContent = data.room_code;
+          document.getElementById('code-display').classList.add('visible');
+          document.getElementById('create-waiting').classList.add('visible');
+          // Poll every 2s until opponent joins
+          pollInterval = setInterval(() => pollRoomStatus(data.room_code), 2000);
+        })
+        .catch(() => {
+          showError('create', 'Failed to create room. Try again.');
+          document.getElementById('btn-create').disabled = false;
+        });
+    }
 
-  function pollRoomStatus(roomCode) {
-    fetch('/api/game/room-status/' + roomCode)
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'started') {
-        clearInterval(pollInterval);
-        // data.color is the creator's final color (decided at join time)
-        goToPlay(roomCode, data.color || myColor, data.white_username, data.black_username, data.game_state);
-      }
-    });
-  }
+    function pollRoomStatus(roomCode) {
+      fetch('/api/game/room-status/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'started') {
+            clearInterval(pollInterval);
+            // data.color is the creator's final color (decided at join time)
+            goToPlay(roomCode, data.color || myColor, data.white_username, data.black_username, data.game_state);
+          }
+        });
+    }
 
-  // ── Join (HTTP) ────────────────────────────────────────────────────────────
-  function joinGame() {
-    const username = document.getElementById('join-username').value.trim();
-    const code     = document.getElementById('join-code').value.trim().toUpperCase();
-    if (!username) { showError('join', 'Please enter a username.'); return; }
-    if (code.length !== 6) { showError('join', 'Room code must be 6 characters.'); return; }
+    // ── Join (HTTP) ────────────────────────────────────────────────────────────
+    function joinGame() {
+      const username = document.getElementById('join-username').value.trim();
+      const code = document.getElementById('join-code').value.trim().toUpperCase();
+      if (!username) { showError('join', 'Please enter a username.'); return; }
+      if (code.length !== 6) { showError('join', 'Room code must be 6 characters.'); return; }
 
-    myUsername = username;
-    hideError('join');
-    document.getElementById('btn-join').disabled = true;
-    document.getElementById('join-waiting').classList.add('visible');
+      myUsername = username;
+      hideError('join');
+      document.getElementById('btn-join').disabled = true;
+      document.getElementById('join-waiting').classList.add('visible');
 
-    fetch('/api/game/join-room', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, room_code: code })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        goToPlay(data.room_code, data.color, data.white_username, data.black_username, data.game_state);
+      fetch('/api/game/join-room', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, room_code: code })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            goToPlay(data.room_code, data.color, data.white_username, data.black_username, data.game_state);
+          } else {
+            showError('join', data.message || 'Could not join room.');
+            document.getElementById('btn-join').disabled = false;
+            document.getElementById('join-waiting').classList.remove('visible');
+          }
+        })
+        .catch(() => {
+          showError('join', 'Failed to join room. Try again.');
+          document.getElementById('btn-join').disabled = false;
+          document.getElementById('join-waiting').classList.remove('visible');
+        });
+    }
+
+    // ── Navigate to play page ─────────────────────────────────────────────────
+    function goToPlay(roomCode, color, whiteUser, blackUser, initialState) {
+      // Store data for the play page to pick up
+      sessionStorage.setItem('chess_room', roomCode);
+      sessionStorage.setItem('chess_color', color);
+      sessionStorage.setItem('chess_username', myUsername);
+      sessionStorage.setItem('chess_white', whiteUser);
+      sessionStorage.setItem('chess_black', blackUser);
+      sessionStorage.setItem('chess_state', JSON.stringify(initialState));
+      window.location.href = '/play';
+    }
+
+    // ── Errors ────────────────────────────────────────────────────────────────
+
+    function showError(panel, msg) {
+      const el = document.getElementById(panel + '-error');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+    function hideError(panel) {
+      document.getElementById(panel + '-error').classList.remove('visible');
+    }
+
+    // ── Copy code ─────────────────────────────────────────────────────────────
+    function copyCode() {
+      // Use Clipboard API if available and in a secure context
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(myRoomCode || '').then(() => {
+          const btn = document.querySelector('.copy-btn');
+          btn.textContent = '✅ Copied!';
+          setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+        }).catch(fallbackCopy);
       } else {
-        showError('join', data.message || 'Could not join room.');
-        document.getElementById('btn-join').disabled = false;
-        document.getElementById('join-waiting').classList.remove('visible');
+        // Fallback for insecure contexts (e.g., HTTP)
+        fallbackCopy();
       }
-    })
-    .catch(() => {
-      showError('join', 'Failed to join room. Try again.');
-      document.getElementById('btn-join').disabled = false;
-      document.getElementById('join-waiting').classList.remove('visible');
-    });
-  }
+    }
 
-  // ── Navigate to play page ─────────────────────────────────────────────────
-  function goToPlay(roomCode, color, whiteUser, blackUser, initialState) {
-    // Store data for the play page to pick up
-    sessionStorage.setItem('chess_room', roomCode);
-    sessionStorage.setItem('chess_color', color);
-    sessionStorage.setItem('chess_username', myUsername);
-    sessionStorage.setItem('chess_white', whiteUser);
-    sessionStorage.setItem('chess_black', blackUser);
-    sessionStorage.setItem('chess_state', JSON.stringify(initialState));
-    window.location.href = '/play';
-  }
-
-  // ── Errors ────────────────────────────────────────────────────────────────
-
-  function showError(panel, msg) {
-    const el = document.getElementById(panel + '-error');
-    el.textContent = msg;
-    el.classList.add('visible');
-  }
-  function hideError(panel) {
-    document.getElementById(panel + '-error').classList.remove('visible');
-  }
-
-  // ── Copy code ─────────────────────────────────────────────────────────────
-  function copyCode() {
-    // Use Clipboard API if available and in a secure context
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(myRoomCode || '').then(() => {
+    function fallbackCopy() {
+      const temp = document.createElement('textarea');
+      temp.value = myRoomCode || '';
+      // Avoid scrolling to bottom
+      temp.style.position = 'fixed';
+      temp.style.left = '-9999px';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      try {
+        const successful = document.execCommand('copy');
         const btn = document.querySelector('.copy-btn');
-        btn.textContent = '✅ Copied!';
+        btn.textContent = successful ? '✅ Copied!' : '❌ Failed';
         setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-      }).catch(fallbackCopy);
-    } else {
-      // Fallback for insecure contexts (e.g., HTTP)
-      fallbackCopy();
+      } catch (err) {
+        console.error('Fallback: Unable to copy', err);
+      }
+      document.body.removeChild(temp);
     }
-  }
 
-  function fallbackCopy() {
-    const temp = document.createElement('textarea');
-    temp.value = myRoomCode || '';
-    // Avoid scrolling to bottom
-    temp.style.position = 'fixed';
-    temp.style.left = '-9999px';
-    document.body.appendChild(temp);
-    temp.focus();
-    temp.select();
-    try {
-      const successful = document.execCommand('copy');
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = successful ? '✅ Copied!' : '❌ Failed';
-      setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-    } catch (err) {
-      console.error('Fallback: Unable to copy', err);
-    }
-    document.body.removeChild(temp);
-  }
+    // ── Auto-uppercase join code ──────────────────────────────────────────────
+    document.getElementById('join-code').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+    });
 
-  // ── Auto-uppercase join code ──────────────────────────────────────────────
-  document.getElementById('join-code').addEventListener('input', function () {
-    this.value = this.value.toUpperCase();
-  });
-
-  // Enter key shortcuts
-  document.getElementById('create-username').addEventListener('keydown', e => { if (e.key === 'Enter') createGame(); });
-  document.getElementById('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
-</script>
+    // Enter key shortcuts
+    document.getElementById('create-username').addEventListener('keydown', e => { if (e.key === 'Enter') createGame(); });
+    document.getElementById('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
+  </script>
 </body>
+
 </html>
