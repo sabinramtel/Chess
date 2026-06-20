@@ -26,6 +26,9 @@
 <!-- ── Toast notification ─────────────────────────────────── -->
 <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg text-sm font-medium z-50 shadow-lg text-white">
 </div>
+<button id="quick-theme-toggle" class="fixed bottom-14 right-4 z-50 w-10 h-10 rounded-full bg-[#252b36] flex items-center justify-center hover:bg-[#2c3341] transition border border-white/10" title="Toggle Theme">
+  <span class="text-lg">🌓</span>
+</button>
 
 <!-- ── Main layout ───────────────────────────────────────── -->
 <div class="w-full flex-1 flex items-center justify-center px-4 py-10">
@@ -159,6 +162,17 @@
 
 {% block scripts %}
 <script>
+  document.getElementById('quick-theme-toggle').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    if (isLight) {
+      document.documentElement.classList.remove('light-theme');
+      localStorage.setItem('site_theme', 'dark');
+    } else {
+      document.documentElement.classList.add('light-theme');
+      localStorage.setItem('site_theme', 'light');
+    }
+  });
+
   (function () {
     const spinner = document.getElementById('chess-spinner');
     const pawn = document.getElementById('piece-pawn');
