@@ -209,6 +209,31 @@
         opacity: 0.25;
     }
 
+    /* Restoration Button Styles */
+    .restore-btn {
+        background: rgba(251, 146, 60, 0.15);
+        border: 1px solid rgba(251, 146, 60, 0.3);
+        color: #fb923c;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .restore-btn:hover:not(:disabled) {
+        background: rgba(251, 146, 60, 0.25);
+        border-color: #fb923c;
+    }
+
+    .restore-btn:disabled {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.2);
+        cursor: not-allowed;
+    }
+
     /* Light theme */
     html.light-theme body {
         background: #f0ede6 !important;
@@ -256,6 +281,10 @@
         border-bottom-color: rgba(0, 0, 0, 0.06) !important;
         color: #1a1a1a;
     }
+
+    html.light-theme .restore-btn {
+        background: rgba(251, 146, 60, 0.1);
+    }
 </style>
 {% endblock %}
 
@@ -263,7 +292,6 @@
 <div class="w-full min-h-screen">
     <div class="w-full max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-5">
 
-        <!-- ── Header ── -->
         <div class="flex items-center gap-4 mb-2">
             <div class="w-16 h-16 rounded-full border-2 flex items-center justify-center overflow-hidden flex-shrink-0"
                 style="border-color: rgba(74,222,128,0.5); background:#1e2030;">
@@ -282,16 +310,13 @@
                 <p class="text-sm mt-0.5" style="color:rgba(255,255,255,0.4);">
                     Member since {{ member_since }}
                     &nbsp;·&nbsp; current streak
-                    <span style="color:#fb923c; font-weight:700;">{{ streak }} {{ 's' if streak != 1 else '' }}</span>
-                    🔥
+                    <span id="header-streak-display" style="color:#fb923c; font-weight:700;">{{ streak }} 🔥</span>
                 </p>
             </div>
         </div>
 
-        <!-- ── Charts Row ── -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <!-- Puzzle Rating Chart -->
             <div class="scard p-6">
                 <div class="flex items-start justify-between gap-4 mb-5">
                     <div>
@@ -314,20 +339,21 @@
                 </div>
             </div>
 
-            <!-- Streak / Daily Activity Chart -->
             <div class="scard p-6">
                 <div class="flex items-start justify-between gap-4 mb-5">
                     <div>
                         <p class="slabel">Daily Activity</p>
-                        <div class="flex items-end gap-3 mt-1">
-                            <span class="sbig" style="color:#fb923c">{{ streak }}</span>
+                        <div class="flex items-end gap-2 mt-1">
+                            <span id="card-streak-display" class="sbig" style="color:#fb923c">{{ streak }}</span>
                             <span style="font-size:1.4rem; margin-bottom:4px;">🔥</span>
-                            <span class="mb-1 text-sm font-semibold" style="color:rgba(255,255,255,0.4);">
-                                day streak
-                            </span>
                         </div>
                     </div>
-                    <p class="text-xs" style="color:rgba(255,255,255,0.25);">Last 30 days</p>
+                    <div class="text-right">
+                        <button id="restoreBtn" class="restore-btn" onclick="handleStreakRestoration()">
+                            Restore Streak
+                        </button>
+                        <p id="restoreTimer" class="text-[10px] mt-1" style="color:rgba(255,255,255,0.25);"></p>
+                    </div>
                 </div>
                 <div style="height:160px; position:relative;">
                     <canvas id="streakChart"></canvas>
@@ -336,7 +362,6 @@
 
         </div>
 
-        <!-- ── 4 Stat Pills ── -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="scard p-5">
                 <p class="slabel">Games Played</p>
@@ -351,11 +376,10 @@
             <div class="scard p-5">
                 <p class="slabel">Best Streak</p>
                 <div class="flex items-center gap-2 mt-2">
-                    <p class="smed">{{ streak }}</p>
+                    <p id="best-streak-display" class="smed">{{ streak }}</p>
                     <span style="font-size:1.1rem;">🔥</span>
                 </div>
-                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.35);">current: {{ streak }} day{{ 's' if streak
-                    != 1 else '' }}</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.35);">current record tracker</p>
             </div>
             <div class="scard p-5">
                 <p class="slabel">Puzzles Solved</p>
@@ -367,10 +391,8 @@
             </div>
         </div>
 
-        <!-- ── Ratings by Mode + Overall Record ── -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <!-- Ratings by mode -->
             <div class="scard p-6">
                 <div class="flex items-center justify-between mb-4">
                     <p class="slabel">Ratings by mode</p>
@@ -418,7 +440,6 @@
                 </div>
             </div>
 
-            <!-- Overall Record -->
             <div class="scard p-6">
                 <p class="slabel mb-4">Overall Record</p>
                 <div class="record-bar mb-3">
@@ -457,7 +478,6 @@
             </div>
         </div>
 
-        <!-- ── Puzzle Training ── -->
         <div class="scard p-6">
             <p class="slabel mb-4">Puzzle Training</p>
             <div class="flex items-center justify-between mb-5 flex-wrap gap-4">
@@ -475,7 +495,7 @@
                         <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);">Accuracy</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-lg font-bold">{{ streak }} 🔥</p>
+                        <p id="bottom-streak-display" class="text-lg font-bold">{{ streak }} 🔥</p>
                         <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);">Solve streak</p>
                     </div>
                 </div>
@@ -490,7 +510,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold truncate">
                         {% if attempt.puzzle and attempt.puzzle.themes %}
-                        {{ attempt.puzzle.themes.split()[0] | replace('_', ' ') | title }}
+                        {{ attempt.puzzle.themes.split() | replace('_', ' ') | title }}
                         {% else %}
                         Puzzle #{{ attempt.puzzle_id }}
                         {% endif %}
@@ -516,7 +536,6 @@
             {% endif %}
         </div>
 
-        <!-- ── Recent Games ── -->
         <div class="scard p-6">
             <div class="flex items-center justify-between mb-4">
                 <p class="slabel">Recent Games</p>
@@ -526,7 +545,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+                        d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283 2.15.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
                 </svg>
                 <span>No games played yet</span>
             </div>
@@ -538,6 +557,74 @@
 
 {% block scripts %}
 <script>
+    // ── Streak Tracking Logic ──
+    let structuralStreak = parseInt("{{ streak }}") || 0;
+
+    function initStreakRestorations() {
+        const resetPeriodDays = 30;
+        const maxRestores = 2;
+        let leftRestores = localStorage.getItem('streak_restores_left');
+        let nextResetTime = localStorage.getItem('streak_restore_reset_time');
+        const rightNow = Date.now();
+
+        if (!nextResetTime || rightNow >= parseInt(nextResetTime)) {
+            leftRestores = maxRestores;
+            nextResetTime = rightNow + (resetPeriodDays * 24 * 60 * 60 * 1000);
+            localStorage.setItem('streak_restores_left', leftRestores);
+            localStorage.setItem('streak_restore_reset_time', nextResetTime);
+        } else {
+            leftRestores = parseInt(leftRestores);
+        }
+
+        updateRestoreInterface(leftRestores, parseInt(nextResetTime));
+    }
+
+    function updateRestoreInterface(left, resetTimestamp) {
+        const button = document.getElementById('restoreBtn');
+        const timerText = document.getElementById('restoreTimer');
+
+        if (structuralStreak > 0) {
+            button.disabled = true;
+            button.innerText = "Active";
+            timerText.innerText = `${left} restores left`;
+            return;
+        }
+
+        if (left <= 0) {
+            button.disabled = true;
+            button.innerText = "0 Left";
+
+            const remainingMs = resetTimestamp - Date.now();
+            const alternateDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+            timerText.innerText = `Resets in ${alternateDays}d`;
+        } else {
+            button.disabled = false;
+            button.innerText = `Restore`;
+            timerText.innerText = `${left} left this month`;
+        }
+    }
+
+    function handleStreakRestoration() {
+        let leftRestores = parseInt(localStorage.getItem('streak_restores_left')) || 0;
+        if (leftRestores <= 0 || structuralStreak > 0) return;
+
+        // Perform streak restoration logic
+        structuralStreak = 1;
+        leftRestores -= 1;
+        localStorage.setItem('streak_restores_left', leftRestores);
+
+        // Update visuals across target placements instantly
+        document.getElementById('header-streak-display').innerText = `${structuralStreak} 🔥`;
+        document.getElementById('card-streak-display').innerText = structuralStreak;
+        document.getElementById('best-streak-display').innerText = structuralStreak;
+        document.getElementById('bottom-streak-display').innerText = `${structuralStreak} 🔥`;
+
+        updateRestoreInterface(leftRestores, parseInt(localStorage.getItem('streak_restore_reset_time')));
+    }
+
+    // Initialize streak rules immediately on load
+    document.addEventListener("DOMContentLoaded", initStreakRestorations);
+
     function setPeriod(btn, period) {
         document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -569,7 +656,7 @@
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        title: (items) => items[0].label,
+                        title: (items) => items.label,
                         label: (item) => ` ${item.parsed.y} puzzle${item.parsed.y !== 1 ? 's' : ''}`
                     }
                 }
