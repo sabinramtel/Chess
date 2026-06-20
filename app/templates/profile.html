@@ -178,39 +178,20 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .hidden-toggle {
+    .eye-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(255,255,255,0.3);
+        padding: 2px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        color: rgba(255, 255, 255, 0.35);
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        width: 100%;
-        text-align: left;
-        background: none;
-        user-select: none;
+        transition: color 0.2s;
     }
+    .eye-btn:hover { color: rgba(255,255,255,0.7); }
+    .eye-btn svg { width: 16px; height: 16px; }
 
-    .hidden-toggle:hover { color: rgba(255, 255, 255, 0.6); }
-
-    .hidden-toggle svg {
-        width: 14px;
-        height: 14px;
-        transition: transform 0.2s;
-        flex-shrink: 0;
-    }
-
-    .hidden-toggle.open svg { transform: rotate(90deg); }
-
-    #hidden-games { display: none; }
-    #hidden-games.open { display: block; }
+    .stat-value.blurred { filter: blur(6px); user-select: none; }
 
     /* ── Light theme overrides ── */
     html.light-theme body {
@@ -252,6 +233,8 @@
     html.light-theme h1 { color: #1a1a1a; }
     html.light-theme .empty-state { color: rgba(0,0,0,0.3); }
     html.light-theme #quick-theme-toggle { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
+    html.light-theme .eye-btn { color: rgba(0,0,0,0.3); }
+    html.light-theme .eye-btn:hover { color: rgba(0,0,0,0.7); }
 
     .empty-state {
         display: flex;
@@ -324,7 +307,19 @@
             </div>
 
             <!-- Stats row: full width, equal columns -->
-            <div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
+            <div class="flex items-center justify-between mt-4 mb-2">
+                <span class="section-title" style="margin:0;border:none;padding:0;">Stats</span>
+                <button class="eye-btn" id="stats-eye" onclick="toggleStats()" title="Show/hide stats">
+                    <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-2">
                 <div class="stat-pill">
                     <span class="stat-value gold">{{ rating or 1200 }}</span>
                     <span class="stat-label">Rating</span>
@@ -380,57 +375,21 @@
             {% endif %}
         </div>
 
-        <!-- Hidden -->
-        <div class="card p-6">
-            <button class="hidden-toggle" id="hidden-toggle" onclick="toggleHidden()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                </svg>
-                Hidden
-                <span style="margin-left:auto;font-weight:500;text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.2);font-size:0.6rem;">
-                    {{ hidden_count }} game{{ 's' if hidden_count != 1 else '' }}
-                </span>
-            </button>
-
-            <div id="hidden-games">
-                {% if hidden_games %}
-                    {% for game in hidden_games %}
-                    <div class="game-row">
-                        <div class="game-players">
-                            <span class="own-name">{{ game.white_player }}</span>
-                            <span class="vs">vs</span>
-                            <span>{{ game.black_player }}</span>
-                        </div>
-                        {% if game.outcome == 'win' %}
-                            <span class="outcome-badge outcome-win">Victory</span>
-                        {% elif game.outcome == 'loss' %}
-                            <span class="outcome-badge outcome-loss">Defeat</span>
-                        {% else %}
-                            <span class="outcome-badge outcome-draw">Draw</span>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                        </svg>
-                        <span>No hidden games</span>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    function toggleHidden() {
-        document.getElementById('hidden-toggle').classList.toggle('open');
-        document.getElementById('hidden-games').classList.toggle('open');
+    let statsVisible = true;
+
+    function toggleStats() {
+        statsVisible = !statsVisible;
+        document.querySelectorAll('.stat-value').forEach(el => {
+            el.classList.toggle('blurred', !statsVisible);
+        });
+        document.getElementById('eye-open').classList.toggle('hidden', !statsVisible);
+        document.getElementById('eye-closed').classList.toggle('hidden', statsVisible);
     }
 
     async function handleAvatarUpload(input) {
