@@ -19,7 +19,7 @@ class User(BaseModel):
             self.set_password(password)
 
     def set_password(self, plain_password):
-        self.__password = generate_password_hash(plain_password)
+        self.__password = generate_password_hash(plain_password, method='pbkdf2:sha256:100000')
 
     def check_password(self, plain_password):
         if self.__password is None:
