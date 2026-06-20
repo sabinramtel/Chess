@@ -51,22 +51,6 @@ class AuthController:
                 return redirect(url_for('auth.login_page'))
 
             if user and user.check_password(password):
-                # Block unverified accounts
-                try:
-                    ev = EmailVerification.query.filter_by(user_id=user.id).first()
-                except Exception:
-                    ev = None
-
-                if ev and not ev.is_verified:
-                    session['pending_user_id'] = user.id
-                    if is_api:
-                        return jsonify({
-                            'success': False,
-                            'needs_verification': True,
-                            'message': 'Please verify your email before logging in.'
-                        }), 403
-                    return redirect(url_for('auth.verify_email_page'))
-
                 session['user_id'] = user.id
                 session['username'] = user.username
                 if is_api:
@@ -151,32 +135,25 @@ class AuthController:
         db.session.add(user)
         db.session.flush()  # get user.id without full commit
 
-        # Create verification record
-        otp = _generate_otp()
+        # Mark as verified immediately (no OTP required)
         ev = EmailVerification(
             user_id=user.id,
-            otp=otp,
-            is_verified=False,
+            otp=None,
+            is_verified=True,
             expires_at=_utcnow() + timedelta(minutes=15)
         )
         db.session.add(ev)
         db.session.commit()
 
-        # Store pending user in session so verify page knows who to verify
-        session['pending_user_id'] = user.id
+        # Log user in directly
+        session['user_id'] = user.id
+        session['username'] = user.username
 
-        from flask import current_app
-        send_otp_email(email, username, otp)
-
-        response = {
+        return jsonify({
             'success': True,
-            'message': 'Account created! Check your email for the verification code.',
-            'redirect': url_for('auth.verify_email_page')
-        }
-        if current_app.debug:
-            response['dev_otp'] = otp
-
-        return jsonify(response), 201
+            'message': 'Account created! Welcome to Project Chess.',
+            'redirect': url_for('auth.home')
+        }), 201
 
     @staticmethod
     def verify_email():
