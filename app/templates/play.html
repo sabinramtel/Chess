@@ -19,8 +19,8 @@
       --muted:          #8a8480;
       --accent:         #81b64c;
       --accent2:        #f0c040;
-      --white-sq:       #f0d9b5;
-      --dark-sq:        #b58863;
+      --white-sq:       {% if board_theme == 'ocean' %}#b0c4de{% elif board_theme == 'forest' %}#d4e8c2{% elif board_theme == 'walnut' %}#deb887{% else %}#f0d9b5{% endif %};
+      --dark-sq:        {% if board_theme == 'ocean' %}#4682b4{% elif board_theme == 'forest' %}#538b47{% elif board_theme == 'walnut' %}#7d4f2a{% else %}#b58863{% endif %};
       --timer-bg:       #3a3835;
       --timer-act:      #e8e6e3;
       --timer-act-text: #1a1a1b;

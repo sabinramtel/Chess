@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort, request, current_app, jsonify
 from app.controllers.auth_controller import AuthController
+from app.models.settings_model import UserSettings
 import traceback
 
 auth_bp = Blueprint('auth', __name__)
@@ -109,20 +110,24 @@ def home():
 def play():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
+    s = UserSettings.query.filter_by(user_id=session['user_id']).first()
     return render_template('play.html',
                            active_page='play',
                            username=session.get('username'),
-                           user_id=session.get('user_id'))
+                           user_id=session.get('user_id'),
+                           board_theme=(s.board_theme if s else 'classic'))
 
 
 @auth_bp.route('/puzzle')
 def puzzle_page():
     if 'user_id' not in session:
         return redirect(url_for('auth.login_page'))
+    s = UserSettings.query.filter_by(user_id=session['user_id']).first()
     return render_template('puzzle.html',
                            active_page='puzzle',
                            username=session.get('username'),
-                           user_id=session.get('user_id'))
+                           user_id=session.get('user_id'),
+                           board_theme=(s.board_theme if s else 'classic'))
 
 
 @auth_bp.route('/lobby')
