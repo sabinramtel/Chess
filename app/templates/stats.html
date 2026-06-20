@@ -168,7 +168,7 @@
     }
 
     .res-d {
-        color: rgba(255, 255, 255, 0.4);
+        color: #facc15;
         font-weight: 600;
     }
 
@@ -185,7 +185,7 @@
     }
 
     .record-bar .draws {
-        background: rgba(255, 255, 255, 0.25);
+        background: #facc15;
     }
 
     .record-bar .losses {
@@ -449,7 +449,7 @@
                 </div>
                 <div class="flex gap-4 text-xs mb-6" style="color:rgba(255,255,255,0.4);">
                     <span><span style="color:#4ade80;">■</span> Wins 0</span>
-                    <span><span style="color:rgba(255,255,255,0.3);">■</span> Draws 0</span>
+                    <span><span style="color:#facc15;">■</span> Draws 0</span>
                     <span><span style="color:#f87171;">■</span> Losses 0</span>
                 </div>
                 <p class="text-xs font-bold uppercase tracking-widest mb-3" style="color:rgba(255,255,255,0.3);">
@@ -711,6 +711,7 @@
                 backgroundColor: (ctx) => {
                     const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 180);
                     gradient.addColorStop(0, 'rgba(74,222,128,0.2)');
+                    gradient.addColorStop(1, 'rgba(74,222,128,0)');
                     gradient.addColorStop(1, 'rgba(74,222,128,0)');
                     return gradient;
                 },
