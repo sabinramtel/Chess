@@ -39,8 +39,10 @@ class TestRegister(unittest.TestCase):
             self.assertIn("errors", response.json)
             self.assertIn("email", response.json["errors"])
 
-    def test_register_short_password_is_rejected(self):
+    @patch("app.controllers.auth_controller.User")
+    def test_register_short_password_is_rejected(self, mock_user_class):
         """Passwords shorter than 8 characters are not allowed."""
+        mock_user_class.return_value.find_by.return_value = None
         with self.app.test_request_context(
             method="POST",
             json={
