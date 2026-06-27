@@ -27,6 +27,33 @@ game_controller = GameController()
 from app.models.piece_model import Color
 from app.models.game_model import GameStatus
 
+
+def _save_game_record(room, reason, winner):
+    """Persist a completed game to the games table. Silently ignores DB errors."""
+    try:
+        from app.models.game_record_model import GameRecord
+        game = room.get('game')
+        white_info = room.get('white') or {}
+        black_info = room.get('black') or {}
+        white_username = white_info.get('username', '')
+        black_username = black_info.get('username', '')
+        move_count = game.move_history.get_move_count() if game else 0
+        result = winner if winner in ('white', 'black') else 'draw'
+        white_user_id = GameRecord.get_user_id_by_username(white_username)
+        black_user_id = GameRecord.get_user_id_by_username(black_username)
+        GameRecord(
+            white_username=white_username,
+            black_username=black_username,
+            result=result,
+            reason=reason,
+            move_count=move_count,
+            white_user_id=white_user_id,
+            black_user_id=black_user_id,
+        ).save()
+    except Exception as e:
+        import sys
+        sys.stderr.write(f"[save_game_record error] {e}\n")
+
 # ── In-memory room store ──────────────────────────────────────────────────────
 # Structure: { room_code: RoomData }
 active_rooms: dict[str, dict] = {}
@@ -73,6 +100,8 @@ def _apply_timeout(room_code: str, game) -> bool:
         'winner':     winner.value,
         'game_state': game.to_dict(),
     }, to=room_code)
+    room = active_rooms.get(room_code, {})
+    _save_game_record(room, 'timeout', winner.value)
     return True
 
 
@@ -250,17 +279,20 @@ def handle_move(data):
     # Broadcast game over when checkmate or stalemate is detected
     status = result['game_state'].get('status')
     if status == 'checkmate':
+        winner_val = result['game_state'].get('winner')
         emit('game_over', {
             'reason': 'checkmate',
-            'winner': result['game_state'].get('winner'),
+            'winner': winner_val,
             'game_state': result['game_state'],
         }, to=room_code)
+        _save_game_record(room, 'checkmate', winner_val)
     elif status == 'stalemate':
         emit('game_over', {
             'reason': 'draw',
             'winner': None,
             'game_state': result['game_state'],
         }, to=room_code)
+        _save_game_record(room, 'stalemate', None)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -318,6 +350,7 @@ def handle_resign(data):
         'winner': winner,
         'game_state': game.to_dict(),
     }, to=room_code)
+    _save_game_record(room, 'resigned', winner)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -361,6 +394,7 @@ def handle_draw_accept(data):
         'winner': None,
         'game_state': game.to_dict(),
     }, to=room_code)
+    _save_game_record(room, 'draw', None)
 
 
 @socketio.on('draw_decline')

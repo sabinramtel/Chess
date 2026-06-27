@@ -400,6 +400,9 @@ class AuthController(BaseController):
             .order_by(PuzzleAttempt.attempted_at.desc())
             .limit(6).all())
 
+        from app.models.game_record_model import GameRecord
+        recent_games = GameRecord.find_recent_by_user_id(user_id, limit=6)
+
         accuracy = round(stats.total_solved / stats.total_attempted * 100) if stats and stats.total_attempted > 0 else 0
 
         # Daily puzzle activity for last 30 days
@@ -432,6 +435,7 @@ class AuthController(BaseController):
             recent_attempts=recent_attempts,
             daily_labels=daily_labels,
             daily_counts=daily_counts,
+            recent_games=recent_games,
         )
 
     def get_quote(self):

@@ -88,4 +88,19 @@ class Database:
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS games (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                white_username VARCHAR(80) NOT NULL,
+                black_username VARCHAR(80) NOT NULL,
+                white_user_id INT,
+                black_user_id INT,
+                result VARCHAR(10) NOT NULL,
+                reason VARCHAR(20) NOT NULL,
+                move_count INT DEFAULT 0,
+                played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (white_user_id) REFERENCES users(id) ON DELETE SET NULL,
+                FOREIGN KEY (black_user_id) REFERENCES users(id) ON DELETE SET NULL
+            )
+        """)
         db.close()
