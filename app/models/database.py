@@ -32,6 +32,7 @@ class Database:
         except pymysql.MySQLError as e:
             print("Database connection failed!")
             print("Error:", e)
+            raise
  
     def fetch_one(self, query, params=None):
         """Run a query and return ONE result (or None)."""
