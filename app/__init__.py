@@ -90,7 +90,14 @@ def create_app():
 
             # Create remaining SQLAlchemy tables
             db.create_all()
-            
+
+            # Seed the puzzles table on first boot against a fresh DB
+            from app.seed_puzzles import seed_puzzles_if_empty
+            try:
+                seed_puzzles_if_empty()
+            except Exception as e:
+                print(f"Warning: puzzle seeding failed: {e}")
+
     except Exception as e:
         print(f"CRITICAL ERROR during app initialization: {e}")
         # We still return the app so the server can at least start and we can see logs
