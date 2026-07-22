@@ -18,6 +18,7 @@ def _build_mysql_uri():
     # ── 1 & 2: Full URL ──────────────────────────────────────────────────────
     url = os.environ.get("DATABASE_URL") or os.environ.get("MYSQL_URL")
     if url:
+        url = url.strip()
         # Normalise driver prefix → mysql+pymysql://
         if url.startswith("mysql://"):
             url = url.replace("mysql://", "mysql+pymysql://", 1)

@@ -9,7 +9,9 @@ class Database:
             from urllib.parse import urlparse
             
             db_url = os.environ.get("MYSQL_URL") or os.environ.get("DATABASE_URL")
-            
+            if db_url:
+                db_url = db_url.strip()
+
             if db_url and db_url.startswith("mysql"):
                 parsed = urlparse(db_url)
                 self.__connection = pymysql.connect(
